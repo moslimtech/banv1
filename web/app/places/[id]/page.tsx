@@ -1488,10 +1488,9 @@ export default function PlacePage() {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     }>
-      <ProductIdHandler onProductIdChange={(productId) => {
-        // This will be handled by PlacePageContent's state
-      }} />
-      <PlacePageContent />
+      <ProductIdHandler>
+        {(productId) => <PlacePageContent productId={productId} />}
+      </ProductIdHandler>
     </Suspense>
   )
 }
