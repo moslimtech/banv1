@@ -34,9 +34,10 @@ interface MapPickerProps {
 // Component to handle map clicks - must be inside MapContainer
 function MapClickHandler({ onLocationChange }: { onLocationChange: (lat: number, lng: number) => void }) {
   const { useMapEvents } = require('react-leaflet')
+  const L = require('leaflet')
   
   useMapEvents({
-    click(e) {
+    click(e: L.LeafletMouseEvent) {
       const { lat, lng } = e.latlng
       onLocationChange(lat, lng)
     },
