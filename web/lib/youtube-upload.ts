@@ -117,8 +117,13 @@ export async function uploadVideo(
       throw new Error('YouTube token expired and no refresh token available. Please re-authenticate.')
     }
 
-    credentials = await refreshOwnerToken(credentials.refresh_token)
-    accessToken = credentials.access_token as string
+    const refreshedCredentials = await refreshOwnerToken(credentials.refresh_token)
+    credentials = {
+      access_token: refreshedCredentials.access_token as string,
+      refresh_token: refreshedCredentials.refresh_token as string,
+      expiry_date: refreshedCredentials.expiry_date ? new Date(refreshedCredentials.expiry_date).getTime() : null,
+    }
+    accessToken = credentials.access_token
   }
 
   // Set credentials
