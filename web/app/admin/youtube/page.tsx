@@ -1,23 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { showSuccess, showError } from '@/components/SweetAlert'
 import { CheckCircle, AlertCircle, ExternalLink, Copy } from 'lucide-react'
 
-export default function AdminYouTubePage() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function YouTubeAuthHandler({ onAuthCheck }: { onAuthCheck: () => void }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showTokens, setShowTokens] = useState(false)
-
-  useEffect(() => {
-    checkAdmin()
-  }, [])
 
   useEffect(() => {
     // Check for auth result after component mounts
@@ -30,7 +22,7 @@ export default function AdminYouTubePage() {
       showSuccess('تم ربط حساب YouTube بنجاح!')
       // Reload credentials
       setTimeout(() => {
-        checkYouTubeAuth()
+        onAuthCheck()
         router.replace('/admin/youtube')
       }, 500)
     } else if (error === 'youtube_auth_failed') {
@@ -38,6 +30,21 @@ export default function AdminYouTubePage() {
       router.replace('/admin/youtube')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, router, onAuthCheck])
+
+  return null
+}
+
+export default function AdminYouTubePage() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showTokens, setShowTokens] = useState(false)
+
+  useEffect(() => {
+    checkAdmin()
   }, [])
 
   const checkAdmin = async () => {
@@ -153,6 +160,9 @@ export default function AdminYouTubePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Suspense fallback={null}>
+        <YouTubeAuthHandler onAuthCheck={checkYouTubeAuth} />
+      </Suspense>
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl font-bold mb-6 text-gray-900">إعدادات YouTube</h1>
 
