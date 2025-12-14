@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Place, Product, Message } from '@/lib/types'
 import { getPlaceById, incrementPlaceView } from '@/lib/api/places'
@@ -11,11 +11,22 @@ import { MapPin, Phone, MessageCircle, Send, Image as ImageIcon, Users, X, Reply
 import { showError, showSuccess } from '@/components/SweetAlert'
 import { AudioRecorder } from '@/lib/audio-recorder'
 
-export default function PlacePage() {
-  const params = useParams()
+// Component that uses useSearchParams - must be wrapped in Suspense
+function ProductIdHandler({ onProductIdChange }: { onProductIdChange: (productId: string | null) => void }) {
   const searchParams = useSearchParams()
+  
+  useEffect(() => {
+    const productId = searchParams.get('product')
+    onProductIdChange(productId)
+  }, [searchParams, onProductIdChange])
+  
+  return null
+}
+
+function PlacePageContent() {
+  const params = useParams()
   const placeId = params.id as string
-  const productId = searchParams.get('product')
+  const [productId, setProductId] = useState<string | null>(null)
 
   const [place, setPlace] = useState<Place | null>(null)
   const [products, setProducts] = useState<Product[]>([])
@@ -1467,5 +1478,20 @@ export default function PlacePage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function PlacePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <ProductIdHandler onProductIdChange={(productId) => {
+        // This will be handled by PlacePageContent's state
+      }} />
+      <PlacePageContent />
+    </Suspense>
   )
 }

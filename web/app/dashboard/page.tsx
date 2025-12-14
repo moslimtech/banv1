@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { UserProfile, Place, Package, Message } from '@/lib/types'
@@ -8,19 +8,12 @@ import Link from 'next/link'
 import { Plus, Package as PackageIcon, MessageSquare, TrendingUp, Clock } from 'lucide-react'
 import { showSuccess, showError } from '@/components/SweetAlert'
 
-export default function DashboardPage() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function YouTubeAuthHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [places, setPlaces] = useState<Place[]>([])
-  const [messages, setMessages] = useState<Message[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    checkUser()
-    
     // Check for YouTube auth result
     const youtubeAuth = searchParams?.get('youtube_auth')
     const error = searchParams?.get('error')
@@ -32,7 +25,23 @@ export default function DashboardPage() {
       showError('فشل ربط حساب YouTube. يرجى المحاولة مرة أخرى.')
       router.replace('/dashboard')
     }
-  }, [searchParams])
+  }, [searchParams, router])
+
+  return null
+}
+
+export default function DashboardPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    checkUser()
+  }, [])
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -100,6 +109,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={null}>
+        <YouTubeAuthHandler />
+      </Suspense>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-gray-900">لوحة التحكم</h1>
 
