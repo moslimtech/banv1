@@ -156,6 +156,10 @@ export async function uploadVideo(
       auth: oauth2Client,
     })
 
+    // Convert Buffer to Stream for YouTube API
+    const { Readable } = await import('stream')
+    const videoStream = Readable.from(videoFile)
+
     // Upload video
     const response = await youtube.videos.insert({
       part: ['snippet', 'status'],
@@ -170,7 +174,8 @@ export async function uploadVideo(
         },
       },
       media: {
-        body: videoFile,
+        body: videoStream,
+        mimeType: 'video/*',
       },
     })
 
