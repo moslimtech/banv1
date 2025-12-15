@@ -1101,7 +1101,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
               // Client View: Simple Message Interface
               <div className="flex flex-col">
                 {/* Messages History */}
-                <div className="flex-1 h-64 overflow-y-auto border rounded-lg p-3 bg-gray-50 mb-3">
+                <div className="flex-1 h-48 sm:h-64 overflow-y-auto border rounded-lg p-2 sm:p-3 bg-gray-50 mb-2 sm:mb-3">
                   {getClientMessages().length > 0 ? (
                     <div className="space-y-3">
                       {getClientMessages().map((message) => (
