@@ -117,17 +117,28 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
             } else {
               onLocationChange(lat, lng)
             }
+          }).catch(() => {
+            setLoadingLocation(false)
+            onLocationChange(lat, lng)
           })
         },
         (error) => {
-          console.error('Error getting location:', error)
+          // Only log error if it's not a timeout that we're going to retry
+          const isRetryableTimeout = error.code === error.TIMEOUT && attempt === 1 && options.enableHighAccuracy
+          
+          if (!isRetryableTimeout) {
+            // Only log unexpected errors, not expected timeouts that we handle
+            if (error.code !== error.TIMEOUT || attempt > 1) {
+              console.warn('Geolocation error:', error.message)
+            }
+          }
           
           // If timeout and we haven't tried with lower accuracy, try again
-          if (error.code === error.TIMEOUT && attempt === 1 && options.enableHighAccuracy) {
+          if (isRetryableTimeout) {
             // Retry with lower accuracy and longer timeout
             tryGetLocation({
               enableHighAccuracy: false,
-              timeout: 15000,
+              timeout: 20000, // Increased to 20 seconds for retry
               maximumAge: 60000, // Accept cached position up to 1 minute old
             }, 2)
             return
@@ -145,6 +156,8 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
             case error.TIMEOUT:
               errorMessage = 'انتهت مهلة طلب الموقع. يرجى المحاولة مرة أخرى أو تحديد الموقع يدوياً على الخريطة.'
               break
+            default:
+              errorMessage = 'حدث خطأ في تحديد الموقع. يرجى المحاولة مرة أخرى أو تحديد الموقع يدوياً على الخريطة.'
           }
           alert(errorMessage)
         },
@@ -152,11 +165,11 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
       )
     }
     
-    // Start with high accuracy
+    // Start with high accuracy and reasonable timeout
     tryGetLocation({
       enableHighAccuracy: true,
-      timeout: 15000, // Increased to 15 seconds
-      maximumAge: 0,
+      timeout: 10000, // 10 seconds for first attempt
+      maximumAge: 0, // Don't use cached position for first attempt
     })
   }
 
