@@ -143,70 +143,24 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">دليل المحلات والصيدليات</h1>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-                <Eye size={14} className="sm:w-4 sm:h-4" />
-                <span>اليوم: {siteStats.today}</span>
-                <span className="mx-1 sm:mx-2">|</span>
-                <TrendingUp size={14} className="sm:w-4 sm:h-4" />
-                <span>الإجمالي: {siteStats.total}</span>
-              </div>
-              {user ? (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                  <div className="flex items-center gap-2">
-                    {userProfile?.avatar_url ? (
-                      <img
-                        src={userProfile.avatar_url}
-                        alt={userProfile.full_name || user.email}
-                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs sm:text-sm font-bold">
-                        {(userProfile?.full_name?.[0] || user.email?.[0] || 'U').toUpperCase()}
-                      </div>
-                    )}
-                    <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[120px] sm:max-w-none">
-                      {userProfile?.full_name || user.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Link
-                      href="/dashboard"
-                      className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
-                    >
-                      <User size={14} className="sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">لوحة التحكم</span>
-                      <span className="sm:hidden">لوحة</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm"
-                    >
-                      <LogOut size={14} className="sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">تسجيل الخروج</span>
-                      <span className="sm:hidden">خروج</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-center text-sm sm:text-base"
-                >
-                  تسجيل الدخول
-                </Link>
-              )}
+      {/* Stats Bar */}
+      <div className="bg-white border-b border-gray-200 py-2">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-center gap-4 text-xs sm:text-sm text-gray-600">
+            <div className="flex items-center gap-1.5">
+              <Eye size={14} className="sm:w-4 sm:h-4" />
+              <span>اليوم: <strong className="text-gray-900">{siteStats.today}</strong></span>
+            </div>
+            <span className="text-gray-300">|</span>
+            <div className="flex items-center gap-1.5">
+              <TrendingUp size={14} className="sm:w-4 sm:h-4" />
+              <span>الإجمالي: <strong className="text-gray-900">{siteStats.total}</strong></span>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Search Bar */}
         <div className="mb-8">
           <div className="relative">
