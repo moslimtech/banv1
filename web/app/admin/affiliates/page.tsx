@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Affiliate } from '@/lib/types'
-import { showError } from '@/components/SweetAlert'
+import { showError, showSuccess, showConfirm } from '@/components/SweetAlert'
 import Link from 'next/link'
+import { Edit, Trash2 } from 'lucide-react'
 
 export default function AdminAffiliatesPage() {
   const router = useRouter()
@@ -56,6 +56,56 @@ export default function AdminAffiliatesPage() {
     }
   }
 
+  const handleUpdateCode = async (affiliate: any) => {
+    const newCode = window.prompt('أدخل كود تسويق جديد', affiliate.code || '')
+    if (!newCode || newCode.trim() === affiliate.code) return
+
+    try {
+      const trimmedCode = newCode.trim().toUpperCase()
+      const { error } = await supabase
+        .from('affiliates')
+        .update({ code: trimmedCode })
+        .eq('id', affiliate.id)
+
+      if (error) throw error
+
+      // حافظ على تزامن الكود في جدول المستخدمين
+      await supabase
+        .from('user_profiles')
+        .update({ affiliate_code: trimmedCode })
+        .eq('id', affiliate.user_id)
+
+      showSuccess('تم تحديث كود المسوق بنجاح')
+      loadAffiliates()
+    } catch (error: any) {
+      showError(error.message || 'تعذر تحديث الكود')
+    }
+  }
+
+  const handleDeleteAffiliate = async (affiliate: any) => {
+    const confirmed = await showConfirm('حذف هذا المسوق؟ سيتم إزالة صلاحياته وكوده.')
+    if (!confirmed.isConfirmed) return
+
+    try {
+      const { error } = await supabase
+        .from('affiliates')
+        .delete()
+        .eq('id', affiliate.id)
+
+      if (error) throw error
+
+      await supabase
+        .from('user_profiles')
+        .update({ is_affiliate: false, affiliate_code: null })
+        .eq('id', affiliate.user_id)
+
+      showSuccess('تم حذف المسوق وإزالة صلاحياته بنجاح')
+      loadAffiliates()
+    } catch (error: any) {
+      showError(error.message || 'تعذر حذف المسوق')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -86,6 +136,7 @@ export default function AdminAffiliatesPage() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نسبة الخصم</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجمالي الأرباح</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -126,6 +177,24 @@ export default function AdminAffiliatesPage() {
                       <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">غير نشط</span>
                     )}
                   </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleUpdateCode(affiliate)}
+                      className="p-2 rounded text-blue-600 hover:bg-blue-50 transition-colors"
+                      title="تعديل الكود"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAffiliate(affiliate)}
+                      className="p-2 rounded text-red-600 hover:bg-red-50 transition-colors"
+                      title="حذف المسوق"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </td>
                 </tr>
               ))}
             </tbody>

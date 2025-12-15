@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { showError, showSuccess } from '@/components/SweetAlert'
 import Link from 'next/link'
-import { Save, Globe, Mail, Shield, Eye, Key } from 'lucide-react'
+import { Save, Globe, Mail, Shield, Eye } from 'lucide-react'
 
 export default function AdminSettingsPage() {
   const router = useRouter()
@@ -17,8 +17,6 @@ export default function AdminSettingsPage() {
     siteEmail: '',
     maintenanceMode: false,
     allowRegistrations: true,
-    maxPlacesPerUser: 10,
-    maxProductsPerPlace: 100,
     enableAffiliates: true,
     affiliateCommission: 10,
     enableNotifications: true,
@@ -145,40 +143,6 @@ export default function AdminSettingsPage() {
                   value={settings.siteEmail}
                   onChange={(e) => handleChange('siteEmail', e.target.value)}
                   className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Limits Settings */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Key className="text-green-500" size={24} />
-              <h2 className="text-xl font-bold text-gray-900">الحدود والقيود</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  الحد الأقصى للأماكن لكل مستخدم
-                </label>
-                <input
-                  type="number"
-                  value={settings.maxPlacesPerUser}
-                  onChange={(e) => handleChange('maxPlacesPerUser', parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
-                  min="1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  الحد الأقصى للمنتجات لكل مكان
-                </label>
-                <input
-                  type="number"
-                  value={settings.maxProductsPerPlace}
-                  onChange={(e) => handleChange('maxProductsPerPlace', parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
-                  min="1"
                 />
               </div>
             </div>
