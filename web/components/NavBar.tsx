@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Home, Package, MessageSquare, Settings, Users, TrendingUp, LogOut, User, Menu, X } from 'lucide-react'
 
@@ -75,8 +76,14 @@ export default function NavBar() {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Package className="text-white sm:w-5 sm:h-5" size={18} />
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
+              <Image
+                src="/logo.png"
+                alt="بان - دليل المحلات"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <span className="text-base sm:text-lg font-bold text-gray-900 hidden sm:inline">
               دليل المحلات
