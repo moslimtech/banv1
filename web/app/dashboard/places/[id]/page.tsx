@@ -142,6 +142,12 @@ export default function PlaceDetailsPage() {
       return
     }
 
+    // Check file size (max 32MB for ImgBB free tier)
+    if (file.size > 32 * 1024 * 1024) {
+      showError('حجم الصورة كبير جداً. الحد الأقصى هو 32MB')
+      return
+    }
+
     setUploadingLogo(true)
     showLoading('جاري رفع الصورة...')
     try {
@@ -152,7 +158,18 @@ export default function PlaceDetailsPage() {
       showSuccess('تم رفع الصورة بنجاح')
     } catch (error: any) {
       closeLoading()
-      showError(error.message || 'فشل رفع الصورة')
+      const errorMessage = error.message || 'فشل رفع الصورة'
+      // Translate common error messages
+      let translatedMessage = errorMessage
+      if (errorMessage.includes('API')) {
+        translatedMessage = 'خطأ في مفاتيح ImgBB API. يرجى التحقق من الإعدادات.'
+      } else if (errorMessage.includes('size') || errorMessage.includes('large')) {
+        translatedMessage = 'حجم الصورة كبير جداً. الحد الأقصى هو 32MB'
+      } else if (errorMessage.includes('format') || errorMessage.includes('type')) {
+        translatedMessage = 'نوع الملف غير مدعوم. يرجى اختيار صورة (JPG, PNG, WebP)'
+      }
+      showError(translatedMessage)
+      console.error('Image upload error:', error)
     } finally {
       setUploadingLogo(false)
     }

@@ -10,8 +10,14 @@ const IMGBB_APIS = [
 let currentApiIndex = 0
 
 export async function uploadImageToImgBB(file: File | Blob): Promise<string> {
+  if (IMGBB_APIS.length === 0) {
+    throw new Error('لم يتم تكوين مفاتيح ImgBB API. يرجى التحقق من متغيرات البيئة.')
+  }
+
   const formData = new FormData()
   formData.append('image', file)
+
+  let lastError: Error | null = null
 
   // Try each API in round-robin fashion
   for (let i = 0; i < IMGBB_APIS.length; i++) {
@@ -25,27 +31,35 @@ export async function uploadImageToImgBB(file: File | Blob): Promise<string> {
       })
 
       if (!response.ok) {
-        throw new Error(`ImgBB API error: ${response.statusText}`)
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData?.error?.message || errorData?.error?.message || response.statusText
+        throw new Error(`ImgBB API error: ${errorMessage || response.statusText}`)
       }
 
       const data = await response.json()
       
       if (data.success && data.data?.url) {
-        // Convert to WebP if not already
         return data.data.url
       }
       
-      throw new Error('Failed to upload image')
-    } catch (error) {
+      // Handle ImgBB error response
+      const errorMessage = data.error?.message || 'فشل رفع الصورة'
+      throw new Error(errorMessage)
+    } catch (error: any) {
       console.error(`ImgBB API ${currentApiIndex} failed:`, error)
-      // Continue to next API
+      lastError = error
+      
+      // If this is the last API, throw the error
       if (i === IMGBB_APIS.length - 1) {
-        throw new Error('All ImgBB APIs failed')
+        if (error.message) {
+          throw error
+        }
+        throw new Error('فشل رفع الصورة إلى ImgBB. يرجى التحقق من مفاتيح API أو المحاولة مرة أخرى.')
       }
     }
   }
 
-  throw new Error('Failed to upload image to ImgBB')
+  throw lastError || new Error('فشل رفع الصورة إلى ImgBB')
 }
 
 export async function convertToWebP(file: File): Promise<Blob> {
