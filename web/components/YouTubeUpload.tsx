@@ -75,7 +75,11 @@ export default function YouTubeUpload({
 
       const data = await response.json()
 
-      if (data.success && data.videoUrl) {
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'فشل رفع الفيديو')
+      }
+
+      if (data.videoUrl) {
         closeLoading()
         showSuccess('تم رفع الفيديو بنجاح إلى YouTube')
         onVideoUploaded(data.videoUrl)
@@ -85,11 +89,13 @@ export default function YouTubeUpload({
         setDescription('')
         setTags('')
       } else {
-        throw new Error(data.error || 'فشل رفع الفيديو')
+        throw new Error('لم يتم إرجاع رابط الفيديو من YouTube')
       }
     } catch (error: any) {
       closeLoading()
-      showError(error.message || 'حدث خطأ في رفع الفيديو. تأكد من ربط حساب YouTube في لوحة الإدارة.')
+      const errorMessage = error.message || 'حدث خطأ في رفع الفيديو. تأكد من ربط حساب YouTube في لوحة الإدارة.'
+      showError(errorMessage)
+      console.error('YouTube upload error:', error)
     } finally {
       setUploading(false)
     }

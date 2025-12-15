@@ -120,59 +120,94 @@ export async function uploadVideo(
   tags: string[] = [],
   privacyStatus: 'private' | 'unlisted' | 'public' = 'unlisted'
 ): Promise<string> {
-  // Get owner's credentials
-  let credentials = await getOwnerCredentials()
-  let accessToken = credentials.access_token
+  try {
+    // Get owner's credentials
+    let credentials = await getOwnerCredentials()
+    let accessToken = credentials.access_token
 
-  // Check if token is expired and refresh if needed
-  if (credentials.expiry_date && credentials.expiry_date < Date.now()) {
-    if (!credentials.refresh_token) {
-      throw new Error('YouTube token expired and no refresh token available. Please re-authenticate.')
+    // Check if token is expired and refresh if needed
+    if (credentials.expiry_date && credentials.expiry_date < Date.now()) {
+      if (!credentials.refresh_token) {
+        throw new Error('YouTube token expired and no refresh token available. Please re-authenticate.')
+      }
+
+      try {
+        const refreshedCredentials = await refreshOwnerToken(credentials.refresh_token)
+        credentials = {
+          access_token: refreshedCredentials.access_token as string,
+          refresh_token: refreshedCredentials.refresh_token as string,
+          expiry_date: refreshedCredentials.expiry_date ? new Date(refreshedCredentials.expiry_date).getTime() : null,
+        }
+        accessToken = credentials.access_token
+      } catch (refreshError: any) {
+        console.error('Error refreshing YouTube token:', refreshError)
+        throw new Error('فشل في تجديد صلاحية حساب YouTube. يرجى إعادة ربط حساب YouTube من لوحة الإدارة.')
+      }
     }
 
-    const refreshedCredentials = await refreshOwnerToken(credentials.refresh_token)
-    credentials = {
-      access_token: refreshedCredentials.access_token as string,
-      refresh_token: refreshedCredentials.refresh_token as string,
-      expiry_date: refreshedCredentials.expiry_date ? new Date(refreshedCredentials.expiry_date).getTime() : null,
+    // Set credentials
+    oauth2Client.setCredentials({
+      access_token: accessToken,
+      refresh_token: credentials.refresh_token,
+    })
+
+    const youtube = google.youtube({
+      version: 'v3',
+      auth: oauth2Client,
+    })
+
+    // Upload video
+    const response = await youtube.videos.insert({
+      part: ['snippet', 'status'],
+      requestBody: {
+        snippet: {
+          title,
+          description,
+          tags,
+        },
+        status: {
+          privacyStatus,
+        },
+      },
+      media: {
+        body: videoFile,
+      },
+    })
+
+    if (response.data.id) {
+      return `https://www.youtube.com/watch?v=${response.data.id}`
     }
-    accessToken = credentials.access_token
+
+    throw new Error('فشل رفع الفيديو إلى YouTube. لم يتم إرجاع معرف الفيديو.')
+  } catch (error: any) {
+    // Re-throw custom errors as-is
+    if (error.message && (
+      error.message.includes('credentials') ||
+      error.message.includes('not configured') ||
+      error.message.includes('re-authenticate') ||
+      error.message.includes('فشل') ||
+      error.message.includes('يرجى')
+    )) {
+      throw error
+    }
+    
+    // Handle Google API errors
+    if (error.response?.data?.error) {
+      const apiError = error.response.data.error
+      if (apiError.code === 403) {
+        throw new Error('تم رفض الوصول إلى YouTube API. تأكد من تفعيل YouTube Data API v3 في Google Cloud Console.')
+      } else if (apiError.code === 401) {
+        throw new Error('انتهت صلاحية حساب YouTube. يرجى إعادة ربط حساب YouTube من لوحة الإدارة.')
+      } else if (apiError.code === 429) {
+        throw new Error('تم تجاوز الحد المسموح من YouTube API. يرجى المحاولة لاحقاً.')
+      }
+      throw new Error(apiError.message || 'حدث خطأ في YouTube API')
+    }
+    
+    // Generic error
+    console.error('YouTube upload error:', error)
+    throw new Error(error.message || 'فشل رفع الفيديو إلى YouTube')
   }
-
-  // Set credentials
-  oauth2Client.setCredentials({
-    access_token: accessToken,
-    refresh_token: credentials.refresh_token,
-  })
-
-  const youtube = google.youtube({
-    version: 'v3',
-    auth: oauth2Client,
-  })
-
-  // Upload video
-  const response = await youtube.videos.insert({
-    part: ['snippet', 'status'],
-    requestBody: {
-      snippet: {
-        title,
-        description,
-        tags,
-      },
-      status: {
-        privacyStatus,
-      },
-    },
-    media: {
-      body: videoFile,
-    },
-  })
-
-  if (response.data.id) {
-    return `https://www.youtube.com/watch?v=${response.data.id}`
-  }
-
-  throw new Error('Failed to upload video to YouTube')
 }
 
 export async function refreshAccessToken(refreshToken: string) {
