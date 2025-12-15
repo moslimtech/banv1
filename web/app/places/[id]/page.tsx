@@ -1013,8 +1013,9 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             >
                               <Mic size={20} />
                             </button>
-                            <label className="cursor-pointer px-4 py-2.5 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center gap-2 transition-colors">
-                              <ImageIcon size={20} />
+                            <label className="cursor-pointer px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center gap-1.5 sm:gap-2 transition-colors flex-shrink-0">
+                              <ImageIcon size={18} className="sm:w-5 sm:h-5" />
+                              <span className="hidden sm:inline">صورة</span>
                               <input
                                 type="file"
                                 accept="image/*"
