@@ -12,6 +12,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { uploadImageToImgBB, convertToWebP } from '@/lib/imgbb'
 import YouTubeUpload from '@/components/YouTubeUpload'
+import MapPicker from '@/components/MapPicker'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
 
@@ -31,6 +32,11 @@ export default function PlaceDetailsPage() {
     description_ar: '',
     logo_url: '',
     video_url: '',
+    phone_1: '',
+    phone_2: '',
+    address: '',
+    latitude: 0,
+    longitude: 0,
   })
   const [uploadingLogo, setUploadingLogo] = useState(false)
 
@@ -78,6 +84,11 @@ export default function PlaceDetailsPage() {
         description_ar: placeData.description_ar || '',
         logo_url: placeData.logo_url || '',
         video_url: placeData.video_url || '',
+        phone_1: placeData.phone_1 || '',
+        phone_2: placeData.phone_2 || '',
+        address: placeData.address || '',
+        latitude: placeData.latitude || 0,
+        longitude: placeData.longitude || 0,
       })
     } catch (error) {
       showError('حدث خطأ في تحميل البيانات')
@@ -94,6 +105,11 @@ export default function PlaceDetailsPage() {
         description_ar: place.description_ar || '',
         logo_url: place.logo_url || '',
         video_url: place.video_url || '',
+        phone_1: place.phone_1 || '',
+        phone_2: place.phone_2 || '',
+        address: place.address || '',
+        latitude: place.latitude || 0,
+        longitude: place.longitude || 0,
       })
       setIsEditing(true)
     }
@@ -108,6 +124,11 @@ export default function PlaceDetailsPage() {
         description_ar: place.description_ar || '',
         logo_url: place.logo_url || '',
         video_url: place.video_url || '',
+        phone_1: place.phone_1 || '',
+        phone_2: place.phone_2 || '',
+        address: place.address || '',
+        latitude: place.latitude || 0,
+        longitude: place.longitude || 0,
       })
     }
   }
@@ -147,6 +168,16 @@ export default function PlaceDetailsPage() {
       return
     }
 
+    if (!editData.phone_1.trim()) {
+      showError('الرجاء إدخال رقم الهاتف الأول')
+      return
+    }
+
+    if (!editData.latitude || !editData.longitude) {
+      showError('الرجاء تحديد الموقع على الخريطة')
+      return
+    }
+
     showLoading('جاري حفظ التعديلات...')
     try {
       const { error } = await supabase
@@ -157,6 +188,11 @@ export default function PlaceDetailsPage() {
           description_ar: editData.description_ar.trim() || null,
           logo_url: editData.logo_url || null,
           video_url: editData.video_url || null,
+          phone_1: editData.phone_1.trim(),
+          phone_2: editData.phone_2.trim() || null,
+          address: editData.address.trim() || null,
+          latitude: editData.latitude,
+          longitude: editData.longitude,
         })
         .eq('id', placeId)
 
@@ -170,6 +206,15 @@ export default function PlaceDetailsPage() {
       closeLoading()
       showError(error.message || 'حدث خطأ في حفظ التعديلات')
     }
+  }
+
+  const handleLocationChange = (lat: number, lng: number, address: string) => {
+    setEditData({
+      ...editData,
+      latitude: lat,
+      longitude: lng,
+      address: address,
+    })
   }
 
   const handleDelete = async () => {
@@ -347,6 +392,32 @@ export default function PlaceDetailsPage() {
                       placeholder="وصف المكان"
                     />
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        رقم الهاتف الأول *
+                      </label>
+                      <input
+                        type="tel"
+                        value={editData.phone_1}
+                        onChange={(e) => setEditData({ ...editData, phone_1: e.target.value })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                        placeholder="رقم الهاتف الأول"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        رقم الهاتف الثاني
+                      </label>
+                      <input
+                        type="tel"
+                        value={editData.phone_2}
+                        onChange={(e) => setEditData({ ...editData, phone_2: e.target.value })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                        placeholder="رقم الهاتف الثاني (اختياري)"
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -360,26 +431,28 @@ export default function PlaceDetailsPage() {
                 </>
               )}
               
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
-                <div className="flex items-center gap-2">
-                  <Phone size={18} />
-                  <span>{place.phone_1}</span>
-                </div>
-                {place.phone_2 && (
+              {!isEditing && (
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                   <div className="flex items-center gap-2">
                     <Phone size={18} />
-                    <span>{place.phone_2}</span>
+                    <span>{place.phone_1}</span>
                   </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <MapPin size={18} />
-                  <span>{place.address || 'العنوان غير متاح'}</span>
+                  {place.phone_2 && (
+                    <div className="flex items-center gap-2">
+                      <Phone size={18} />
+                      <span>{place.phone_2}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <MapPin size={18} />
+                    <span>{place.address || 'العنوان غير متاح'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye size={18} />
+                    <span>المشاهدات: {place.total_views} | اليوم: {place.today_views}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Eye size={18} />
-                  <span>المشاهدات: {place.total_views} | اليوم: {place.today_views}</span>
-                </div>
-              </div>
+              )}
 
               <div className="flex gap-2">
                 <span className={`px-3 py-1 rounded-full text-sm ${
@@ -405,13 +478,23 @@ export default function PlaceDetailsPage() {
         {/* Map */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900">الموقع على الخريطة</h2>
-          <div className="h-96 rounded-lg overflow-hidden">
-            <MapComponent
-              latitude={place.latitude}
-              longitude={place.longitude}
-              placeName={place.name_ar}
-            />
-          </div>
+          {isEditing ? (
+            <div className="space-y-4">
+              <MapPicker
+                latitude={editData.latitude || place.latitude}
+                longitude={editData.longitude || place.longitude}
+                onLocationChange={handleLocationChange}
+              />
+            </div>
+          ) : (
+            <div className="h-96 rounded-lg overflow-hidden">
+              <MapComponent
+                latitude={place.latitude}
+                longitude={place.longitude}
+                placeName={place.name_ar}
+              />
+            </div>
+          )}
         </div>
 
         {/* Video */}
