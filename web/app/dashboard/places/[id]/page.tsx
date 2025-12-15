@@ -10,7 +10,6 @@ import { showError, showSuccess, showLoading, closeLoading } from '@/components/
 import { MapPin, Phone, Edit, Trash2, Plus, Package, Eye, Video, Save, X, Upload, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { uploadImageToImgBB, convertToWebP } from '@/lib/imgbb'
 import YouTubeUpload from '@/components/YouTubeUpload'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
@@ -151,24 +150,32 @@ export default function PlaceDetailsPage() {
     setUploadingLogo(true)
     showLoading('جاري رفع الصورة...')
     try {
-      const webpBlob = await convertToWebP(file)
-      const imageUrl = await uploadImageToImgBB(webpBlob)
-      setEditData({ ...editData, logo_url: imageUrl })
-      closeLoading()
-      showSuccess('تم رفع الصورة بنجاح')
+      // Use API route instead of direct client-side upload
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'فشل رفع الصورة')
+      }
+
+      if (data.url) {
+        setEditData({ ...editData, logo_url: data.url })
+        closeLoading()
+        showSuccess('تم رفع الصورة بنجاح')
+      } else {
+        throw new Error('لم يتم إرجاع رابط الصورة')
+      }
     } catch (error: any) {
       closeLoading()
       const errorMessage = error.message || 'فشل رفع الصورة'
-      // Translate common error messages
-      let translatedMessage = errorMessage
-      if (errorMessage.includes('API')) {
-        translatedMessage = 'خطأ في مفاتيح ImgBB API. يرجى التحقق من الإعدادات.'
-      } else if (errorMessage.includes('size') || errorMessage.includes('large')) {
-        translatedMessage = 'حجم الصورة كبير جداً. الحد الأقصى هو 32MB'
-      } else if (errorMessage.includes('format') || errorMessage.includes('type')) {
-        translatedMessage = 'نوع الملف غير مدعوم. يرجى اختيار صورة (JPG, PNG, WebP)'
-      }
-      showError(translatedMessage)
+      showError(errorMessage)
       console.error('Image upload error:', error)
     } finally {
       setUploadingLogo(false)
