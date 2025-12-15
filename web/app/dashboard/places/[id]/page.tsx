@@ -7,9 +7,11 @@ import { Place, Product } from '@/lib/types'
 import { getPlaceById } from '@/lib/api/places'
 import { getProductsByPlace } from '@/lib/api/products'
 import { showError, showSuccess, showLoading, closeLoading } from '@/components/SweetAlert'
-import { MapPin, Phone, Edit, Trash2, Plus, Package, Eye, Video } from 'lucide-react'
+import { MapPin, Phone, Edit, Trash2, Plus, Package, Eye, Video, Save, X, Upload, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { uploadImageToImgBB, convertToWebP } from '@/lib/imgbb'
+import YouTubeUpload from '@/components/YouTubeUpload'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
 
@@ -22,6 +24,15 @@ export default function PlaceDetailsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editData, setEditData] = useState({
+    name_ar: '',
+    name_en: '',
+    description_ar: '',
+    logo_url: '',
+    video_url: '',
+  })
+  const [uploadingLogo, setUploadingLogo] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -60,10 +71,104 @@ export default function PlaceDetailsPage() {
 
       setPlace(placeData)
       setProducts(productsData)
+      // Initialize edit data
+      setEditData({
+        name_ar: placeData.name_ar || '',
+        name_en: placeData.name_en || '',
+        description_ar: placeData.description_ar || '',
+        logo_url: placeData.logo_url || '',
+        video_url: placeData.video_url || '',
+      })
     } catch (error) {
       showError('حدث خطأ في تحميل البيانات')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleStartEdit = () => {
+    if (place) {
+      setEditData({
+        name_ar: place.name_ar || '',
+        name_en: place.name_en || '',
+        description_ar: place.description_ar || '',
+        logo_url: place.logo_url || '',
+        video_url: place.video_url || '',
+      })
+      setIsEditing(true)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    if (place) {
+      setEditData({
+        name_ar: place.name_ar || '',
+        name_en: place.name_en || '',
+        description_ar: place.description_ar || '',
+        logo_url: place.logo_url || '',
+        video_url: place.video_url || '',
+      })
+    }
+  }
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      showError('الرجاء اختيار ملف صورة صحيح')
+      return
+    }
+
+    setUploadingLogo(true)
+    showLoading('جاري رفع الصورة...')
+    try {
+      const webpBlob = await convertToWebP(file)
+      const imageUrl = await uploadImageToImgBB(webpBlob)
+      setEditData({ ...editData, logo_url: imageUrl })
+      closeLoading()
+      showSuccess('تم رفع الصورة بنجاح')
+    } catch (error: any) {
+      closeLoading()
+      showError(error.message || 'فشل رفع الصورة')
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const handleVideoUploaded = (videoUrl: string) => {
+    setEditData({ ...editData, video_url: videoUrl })
+  }
+
+  const handleSave = async () => {
+    if (!editData.name_ar.trim()) {
+      showError('الرجاء إدخال اسم المكان بالعربية')
+      return
+    }
+
+    showLoading('جاري حفظ التعديلات...')
+    try {
+      const { error } = await supabase
+        .from('places')
+        .update({
+          name_ar: editData.name_ar.trim(),
+          name_en: editData.name_en.trim() || null,
+          description_ar: editData.description_ar.trim() || null,
+          logo_url: editData.logo_url || null,
+          video_url: editData.video_url || null,
+        })
+        .eq('id', placeId)
+
+      if (error) throw error
+
+      closeLoading()
+      showSuccess('تم حفظ التعديلات بنجاح')
+      setIsEditing(false)
+      loadData() // Reload data to reflect changes
+    } catch (error: any) {
+      closeLoading()
+      showError(error.message || 'حدث خطأ في حفظ التعديلات')
     }
   }
 
@@ -129,35 +234,130 @@ export default function PlaceDetailsPage() {
             ← العودة للوحة التحكم
           </Link>
           <div className="flex gap-2">
-            <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              <Trash2 size={18} />
-              حذف المكان
-            </button>
+            {!isEditing ? (
+              <>
+                <button
+                  onClick={handleStartEdit}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  <Edit size={18} />
+                  تعديل المعلومات
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  <Trash2 size={18} />
+                  حذف المكان
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  <Save size={18} />
+                  حفظ التعديلات
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  <X size={18} />
+                  إلغاء
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Place Info */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-6">
-            {place.logo_url && (
-              <div className="flex-shrink-0">
-                <img
-                  src={place.logo_url}
-                  alt={place.name_ar}
-                  className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-lg border-2 border-gray-200"
-                />
-              </div>
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{place.name_ar}</h1>
-              {place.name_en && (
-                <p className="text-lg text-gray-600 mb-2">{place.name_en}</p>
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              {isEditing ? (
+                <div className="space-y-2">
+                  {(editData.logo_url || place.logo_url) && (
+                    <img
+                      src={editData.logo_url || place.logo_url || ''}
+                      alt={editData.name_ar || place.name_ar}
+                      className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-lg border-2 border-gray-200"
+                    />
+                  )}
+                  <label className="flex flex-col items-center justify-center w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                    <Upload size={24} className="text-gray-400 mb-2" />
+                    <span className="text-xs text-gray-600 text-center px-2">رفع صورة</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      disabled={uploadingLogo}
+                    />
+                  </label>
+                </div>
+              ) : (
+                place.logo_url && (
+                  <img
+                    src={place.logo_url}
+                    alt={place.name_ar}
+                    className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-lg border-2 border-gray-200"
+                  />
+                )
               )}
-              {place.description_ar && (
-                <p className="text-gray-600 mb-4">{place.description_ar}</p>
+            </div>
+            <div className="flex-1">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                      اسم المكان (عربي) *
+                    </label>
+                    <input
+                      type="text"
+                      value={editData.name_ar}
+                      onChange={(e) => setEditData({ ...editData, name_ar: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                      placeholder="اسم المكان بالعربية"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                      اسم المكان (إنجليزي)
+                    </label>
+                    <input
+                      type="text"
+                      value={editData.name_en}
+                      onChange={(e) => setEditData({ ...editData, name_en: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                      placeholder="اسم المكان بالإنجليزية"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                      الوصف
+                    </label>
+                    <textarea
+                      value={editData.description_ar}
+                      onChange={(e) => setEditData({ ...editData, description_ar: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                      placeholder="وصف المكان"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-4">{place.name_ar}</h1>
+                  {place.name_en && (
+                    <p className="text-lg text-gray-600 mb-2">{place.name_en}</p>
+                  )}
+                  {place.description_ar && (
+                    <p className="text-gray-600 mb-4">{place.description_ar}</p>
+                  )}
+                </>
               )}
               
               <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
@@ -215,19 +415,45 @@ export default function PlaceDetailsPage() {
         </div>
 
         {/* Video */}
-        {videoId && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 text-gray-900">فيديو المكان</h2>
-            <div className="aspect-video rounded-lg overflow-hidden">
-              <iframe
-                src={videoId}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">فيديو المكان</h2>
+          {isEditing ? (
+            <div className="space-y-4">
+              {(editData.video_url || place.video_url) && (
+                <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                  {(() => {
+                    const currentVideoUrl = editData.video_url || place.video_url || ''
+                    const currentVideoId = currentVideoUrl ? currentVideoUrl.replace('watch?v=', 'embed/') : null
+                    return currentVideoId ? (
+                      <iframe
+                        src={currentVideoId}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : null
+                  })()}
+                </div>
+              )}
+              <YouTubeUpload
+                onVideoUploaded={handleVideoUploaded}
+                maxVideos={1}
+                currentVideos={editData.video_url ? 1 : 0}
               />
             </div>
-          </div>
-        )}
+          ) : (
+            videoId && (
+              <div className="aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  src={videoId}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )
+          )}
+        </div>
 
         {/* Products */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
