@@ -39,21 +39,34 @@ async function getOwnerCredentials() {
   }
 
   // If not in env, try to get from database (admin user)
-  const { supabase } = await import('@/lib/supabase')
-  const { data: adminProfile } = await supabase
-    .from('user_profiles')
-    .select('youtube_access_token, youtube_refresh_token, youtube_token_expiry')
-    .eq('is_admin', true)
-    .not('youtube_access_token', 'is', null)
-    .limit(1)
-    .single()
+  try {
+    const { supabase } = await import('@/lib/supabase')
+    const { data: adminProfile, error: dbError } = await supabase
+      .from('user_profiles')
+      .select('youtube_access_token, youtube_refresh_token, youtube_token_expiry')
+      .eq('is_admin', true)
+      .not('youtube_access_token', 'is', null)
+      .limit(1)
+      .maybeSingle()
 
-  if (adminProfile?.youtube_access_token && adminProfile?.youtube_refresh_token) {
-    return {
-      access_token: adminProfile.youtube_access_token,
-      refresh_token: adminProfile.youtube_refresh_token,
-      expiry_date: adminProfile.youtube_token_expiry ? new Date(adminProfile.youtube_token_expiry).getTime() : null,
+    if (dbError) {
+      console.error('Error fetching YouTube credentials from database:', dbError)
+      throw new Error('فشل في الوصول إلى بيانات YouTube. يرجى التحقق من إعدادات قاعدة البيانات.')
     }
+
+    if (adminProfile?.youtube_access_token && adminProfile?.youtube_refresh_token) {
+      return {
+        access_token: adminProfile.youtube_access_token,
+        refresh_token: adminProfile.youtube_refresh_token,
+        expiry_date: adminProfile.youtube_token_expiry ? new Date(adminProfile.youtube_token_expiry).getTime() : null,
+      }
+    }
+  } catch (error: any) {
+    // If it's already our custom error, re-throw it
+    if (error.message && error.message.includes('فشل في الوصول')) {
+      throw error
+    }
+    console.error('Error in getOwnerCredentials:', error)
   }
 
   throw new Error('YouTube credentials not configured. Please set up owner YouTube account.')
