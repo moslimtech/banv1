@@ -5,89 +5,23 @@ import { Place, Product } from '@/lib/types'
 import { getPlaces } from '@/lib/api/places'
 import { searchProducts } from '@/lib/api/products'
 import { getSiteStats, recordSiteVisit } from '@/lib/api/visits'
-import { supabase } from '@/lib/supabase'
 import PlaceCard from '@/components/PlaceCard'
 import FeaturedPlaces from '@/components/FeaturedPlaces'
-import { Search, Eye, TrendingUp, LogOut, User } from 'lucide-react'
+import { Search, Eye, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
 export default function HomePage() {
-  const router = useRouter()
   const [places, setPlaces] = useState<Place[]>([])
   const [featuredPlaces, setFeaturedPlaces] = useState<Place[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [siteStats, setSiteStats] = useState({ today: 0, total: 0 })
-  const [user, setUser] = useState<any>(null)
-  const [userProfile, setUserProfile] = useState<any>(null)
-
   useEffect(() => {
     loadData()
-    checkUser()
     recordSiteVisit().catch(err => {
       console.error('Error recording visit:', err)
     })
   }, [])
-
-  const checkUser = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (userError) {
-        console.error('Error getting user:', userError)
-        return
-      }
-      
-      setUser(user)
-      
-      if (user) {
-        // Check if profile exists, if not create it
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        
-        if (profileError) {
-          // Profile doesn't exist, create it
-          if (profileError.code === 'PGRST116' || profileError.message.includes('No rows')) {
-            const { data: newProfile, error: insertError } = await supabase
-              .from('user_profiles')
-              .insert({
-                id: user.id,
-                email: user.email,
-                full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
-                avatar_url: user.user_metadata?.avatar_url || null,
-                is_admin: false,
-                is_affiliate: false,
-              })
-              .select()
-              .single()
-            
-            if (insertError) {
-              console.error('Error creating profile:', insertError)
-            } else {
-              setUserProfile(newProfile)
-            }
-          } else {
-            console.error('Error loading profile:', profileError)
-          }
-        } else {
-          setUserProfile(profile)
-        }
-      }
-    } catch (error) {
-      console.error('Error in checkUser:', error)
-    }
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setUserProfile(null)
-    router.refresh()
-  }
 
   const loadData = async () => {
     try {
