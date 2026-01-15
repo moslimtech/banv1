@@ -103,11 +103,6 @@ https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback
 NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID=YOUR_NEW_CLIENT_ID
 ```
 
-### ملف `/mobile/.env`:
-```env
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=YOUR_NEW_CLIENT_ID
-```
-
 ## استكشاف الأخطاء
 
 ### خطأ: "redirect_uri_mismatch"

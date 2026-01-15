@@ -1,6 +1,6 @@
 # دليل المحلات والصيدليات
 
-مشروع شامل يتكون من موقع ويب وتطبيق موبايل لدليل المحلات والصيدليات والأماكن التجارية والخدمات.
+مشروع موقع ويب شامل لدليل المحلات والصيدليات والأماكن التجارية والخدمات.
 
 ## المميزات
 
@@ -41,17 +41,9 @@
 - YouTube API
 - ImgBB API (لرفع الصور مع تحويلها إلى WebP)
 
-### التطبيق (Mobile):
-- React Native Expo
-- TypeScript
-- Supabase
-- React Navigation
-- React Native Maps
-- Expo Image Picker
-
 ## الإعداد
 
-### 1. إعداد الموقع (Web)
+### إعداد الموقع (Web)
 
 ```bash
 cd web
@@ -77,32 +69,6 @@ IMGBB_API_5=your_imgbb_api_5
 
 ```bash
 npm run dev
-```
-
-### 2. إعداد التطبيق (Mobile)
-
-```bash
-cd mobile
-npm install
-```
-
-أنشئ ملف `.env` في مجلد `mobile`:
-
-```env
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_client_id
-IMGBB_API_1=your_imgbb_api_1
-IMGBB_API_2=your_imgbb_api_2
-IMGBB_API_3=your_imgbb_api_3
-IMGBB_API_4=your_imgbb_api_4
-IMGBB_API_5=your_imgbb_api_5
-```
-
-قم بتشغيل التطبيق:
-
-```bash
-npm start
 ```
 
 ## قاعدة البيانات
@@ -131,9 +97,6 @@ BANV1/
 │   ├── app/            # صفحات Next.js
 │   ├── components/     # المكونات
 │   ├── lib/            # المكتبات والمساعدين
-│   └── ...
-├── mobile/             # تطبيق React Native Expo
-│   ├── src/           # الكود المصدري
 │   └── ...
 └── banenv             # ملف البيئة
 ```

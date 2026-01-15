@@ -63,46 +63,14 @@ npm run dev
 
 الموقع سيعمل على `http://localhost:3000`
 
-## 3. إعداد التطبيق (Mobile)
-
-### تثبيت الحزم
-```bash
-cd mobile
-npm install
-```
-
-### إعداد ملف البيئة
-أنشئ ملف `.env` في مجلد `mobile`:
-
-```env
-EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_client_id
-IMGBB_API_1=your_imgbb_api_1
-IMGBB_API_2=your_imgbb_api_2
-IMGBB_API_3=your_imgbb_api_3
-IMGBB_API_4=your_imgbb_api_4
-IMGBB_API_5=your_imgbb_api_5
-```
-
-### تشغيل التطبيق
-```bash
-npm start
-```
-
-ثم اختر:
-- `a` لتشغيل على Android
-- `i` لتشغيل على iOS
-- `w` لتشغيل على Web
-
-## 4. إعداد ImgBB APIs
+## 3. إعداد ImgBB APIs
 
 1. اذهب إلى [ImgBB](https://api.imgbb.com)
 2. سجّل الدخول أو أنشئ حساب
 3. احصل على API Keys (يمكنك الحصول على 5 مفاتيح)
 4. أضفها في ملفات البيئة
 
-## 5. إعداد قاعدة البيانات
+## 4. إعداد قاعدة البيانات
 
 تم إنشاء جميع الجداول تلقائياً عند تشغيل Migration الأول.
 
@@ -136,7 +104,7 @@ SET is_affiliate = true, affiliate_code = 'TESTCODE'
 WHERE id = 'user-uuid-here';
 ```
 
-## 6. Row Level Security (RLS) Policies
+## 5. Row Level Security (RLS) Policies
 
 يجب إضافة RLS Policies في Supabase:
 
@@ -183,7 +151,7 @@ CREATE POLICY "Authenticated users can send messages" ON messages
   FOR INSERT WITH CHECK (auth.uid() = sender_id);
 ```
 
-## 7. الاختبار
+## 6. الاختبار
 
 ### اختبار الموقع
 1. افتح `http://localhost:3000`
@@ -192,27 +160,13 @@ CREATE POLICY "Authenticated users can send messages" ON messages
 4. أضف منتج تجريبي
 5. جرب البحث
 
-### اختبار التطبيق
-1. شغّل التطبيق على جهاز أو محاكي
-2. جرب نفس الخطوات
-
-## 8. النشر
+## 7. النشر
 
 ### نشر الموقع
 يمكنك نشر الموقع على:
 - Vercel (موصى به لـ Next.js)
 - Netlify
 - أي استضافة تدعم Node.js
-
-### نشر التطبيق
-استخدم Expo Application Services (EAS):
-```bash
-cd mobile
-npm install -g eas-cli
-eas login
-eas build
-eas submit
-```
 
 ## ملاحظات مهمة
 
@@ -226,4 +180,3 @@ eas submit
 إذا واجهت أي مشاكل، راجع:
 - [Supabase Documentation](https://supabase.com/docs)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Expo Documentation](https://docs.expo.dev)
