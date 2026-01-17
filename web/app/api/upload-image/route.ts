@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Server-side ImgBB upload function (uses IMGBB_API_* without NEXT_PUBLIC_)
+// Server-side ImgBB upload function (can use NEXT_PUBLIC_IMGBB_API_* or IMGBB_API_*)
 async function uploadImageToImgBB(file: File | Blob): Promise<string> {
   const IMGBB_APIS = [
-    process.env.IMGBB_API_1,
-    process.env.IMGBB_API_2,
-    process.env.IMGBB_API_3,
-    process.env.IMGBB_API_4,
-    process.env.IMGBB_API_5,
+    process.env.IMGBB_API_1 || process.env.NEXT_PUBLIC_IMGBB_API_1,
+    process.env.IMGBB_API_2 || process.env.NEXT_PUBLIC_IMGBB_API_2,
+    process.env.IMGBB_API_3 || process.env.NEXT_PUBLIC_IMGBB_API_3,
+    process.env.IMGBB_API_4 || process.env.NEXT_PUBLIC_IMGBB_API_4,
+    process.env.IMGBB_API_5 || process.env.NEXT_PUBLIC_IMGBB_API_5,
   ].filter(Boolean) as string[]
 
   if (IMGBB_APIS.length === 0) {
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'حجم الصورة كبير جداً. الحد الأقصى هو 32MB' }, { status: 400 })
     }
 
-    // Upload to ImgBB (server-side, can use IMGBB_API_* without NEXT_PUBLIC_)
+    // Upload to ImgBB (server-side, can use IMGBB_API_* or NEXT_PUBLIC_IMGBB_API_*)
     const imageUrl = await uploadImageToImgBB(file)
 
     return NextResponse.json({ success: true, url: imageUrl })

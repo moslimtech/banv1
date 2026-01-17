@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { Place, Product, Message } from '@/lib/types'
 import { getPlaceById, incrementPlaceView } from '@/lib/api/places'
 import { getProductsByPlace } from '@/lib/api/products'
 import { supabase } from '@/lib/supabase'
 import { extractYouTubeId, getYouTubeEmbedUrl } from '@/lib/youtube'
-import { MapPin, Phone, MessageCircle, Send, Image as ImageIcon, Users, X, Reply, Mic, Square, Loader2, Package } from 'lucide-react'
-import { showError, showSuccess } from '@/components/SweetAlert'
+import { MapPin, Phone, MessageCircle, Send, Image as ImageIcon, Users, X, Reply, Mic, Square, Loader2, Package, UserPlus, CheckCircle, Plus, Trash2, Video, Upload } from 'lucide-react'
+import { showError, showSuccess, showLoading, closeLoading } from '@/components/SweetAlert'
 import { AudioRecorder } from '@/lib/audio-recorder'
 
 // Component that uses useSearchParams - must be wrapped in Suspense
@@ -21,6 +21,7 @@ function ProductIdHandler({ children }: { children: (productId: string | null) =
 
 function PlacePageContent({ productId }: { productId: string | null }) {
   const params = useParams()
+  const router = useRouter()
   const placeId = params.id as string
 
   const [place, setPlace] = useState<Place | null>(null)
@@ -40,6 +41,26 @@ function PlacePageContent({ productId }: { productId: string | null }) {
   const [sendingMessages, setSendingMessages] = useState<Set<string>>(new Set())
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showProductPicker, setShowProductPicker] = useState(false)
+  const [showEmployeeRequestModal, setShowEmployeeRequestModal] = useState(false)
+  const [employeePhone, setEmployeePhone] = useState('')
+  const [isEmployee, setIsEmployee] = useState(false)
+  const [employeePermissions, setEmployeePermissions] = useState<'basic' | 'messages_posts' | 'full' | null>(null)
+  const [hasPendingRequest, setHasPendingRequest] = useState(false)
+  const [activeTab, setActiveTab] = useState<'posts' | 'products'>('posts')
+  const [posts, setPosts] = useState<any[]>([])
+  const [showAddPostModal, setShowAddPostModal] = useState(false)
+  const [showAddProductModal, setShowAddProductModal] = useState(false)
+  const [postData, setPostData] = useState({
+    content: '',
+    post_type: 'text' as 'text' | 'image' | 'video',
+    image_url: '',
+    video_url: '',
+  })
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [videoTitle, setVideoTitle] = useState('')
+  const [videoUploadMethod, setVideoUploadMethod] = useState<'link' | 'upload'>('link')
 
   useEffect(() => {
     loadData()
@@ -53,6 +74,13 @@ function PlacePageContent({ productId }: { productId: string | null }) {
     }
   }, [user, placeId])
 
+  useEffect(() => {
+    // Check if user is employee or has pending request
+    if (user && place) {
+      checkEmployeeStatus()
+    }
+  }, [user, place])
+
   const loadData = async () => {
     try {
       const [placeData, productsData] = await Promise.all([
@@ -63,6 +91,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
       setProducts(productsData)
       if (placeData) {
         await incrementPlaceView(placeId)
+        loadPosts()
       }
     } catch (error) {
       showError('حدث خطأ في تحميل البيانات')
@@ -74,6 +103,112 @@ function PlacePageContent({ productId }: { productId: string | null }) {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setUser(user)
+  }
+
+  const loadPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('place_id', placeId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error loading posts:', error)
+        return
+      }
+
+      setPosts(data || [])
+    } catch (error) {
+      console.error('Error loading posts:', error)
+    }
+  }
+
+  const checkEmployeeStatus = async () => {
+    if (!user || !place) return
+
+    try {
+      // Check if user is an employee
+      const { data: employeeData, error: employeeError } = await supabase
+        .from('place_employees')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('place_id', place.id)
+        .eq('is_active', true)
+        .maybeSingle()
+
+      if (employeeError) {
+        console.error('Error checking employee status:', employeeError)
+      }
+
+      if (employeeData) {
+        setIsEmployee(true)
+        setEmployeePermissions(employeeData.permissions || 'basic')
+        setHasPendingRequest(false)
+        return
+      }
+
+      setIsEmployee(false)
+      setEmployeePermissions(null)
+
+      // Check if user has a pending request
+      const { data: requestData, error: requestError } = await supabase
+        .from('employee_requests')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('place_id', place.id)
+        .eq('status', 'pending')
+        .maybeSingle()
+
+      if (requestError) {
+        console.error('Error checking pending request:', requestError)
+      }
+
+      if (requestData) {
+        setHasPendingRequest(true)
+      } else {
+        setHasPendingRequest(false)
+      }
+    } catch (error) {
+      console.error('Error checking employee status:', error)
+    }
+  }
+
+  const handleEmployeeRequest = async () => {
+    if (!user || !place || !employeePhone.trim()) {
+      showError('يرجى إدخال رقم الهاتف')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('employee_requests')
+        .insert({
+          user_id: user.id,
+          place_id: place.id,
+          phone: employeePhone.trim(),
+          status: 'pending',
+          permissions: 'basic'
+        })
+
+      if (error) {
+        console.error('Error creating employee request:', error)
+        showError('حدث خطأ في إرسال الطلب. حاول مرة أخرى')
+        return
+      }
+
+      showSuccess('تم إرسال طلبك بنجاح! سيتم مراجعته قريباً')
+      setShowEmployeeRequestModal(false)
+      setEmployeePhone('')
+      setHasPendingRequest(true)
+      
+      // Refresh employee status
+      await checkEmployeeStatus()
+    } catch (error) {
+      console.error('Error handling employee request:', error)
+      showError('حدث خطأ في إرسال الطلب')
+    }
   }
 
   const loadMessages = async () => {
@@ -342,9 +477,22 @@ function PlacePageContent({ productId }: { productId: string | null }) {
     setReplyingTo(null)
 
     try {
+      // Determine recipient_id
+      let recipientId = null
+      if (selectedConversation) {
+        recipientId = selectedConversation
+      } else if (messageReplyTo) {
+        recipientId = messageReplyTo.sender_id
+      } else if (place && place.user_id === user.id) {
+        recipientId = null
+      } else {
+        recipientId = place?.user_id || null
+      }
+
       const messageData: any = {
         sender_id: user.id,
         place_id: placeId,
+        recipient_id: recipientId,
         content: messageContent || null,
         audio_url: audioUrl,
         reply_to: messageReplyTo?.id || null,
@@ -454,9 +602,28 @@ function PlacePageContent({ productId }: { productId: string | null }) {
         }
       }
 
+      // Determine recipient_id
+      // If there's a selected conversation, recipient is the conversation partner
+      // Otherwise, if user is owner, recipient should be the last sender they're replying to
+      let recipientId = null
+      if (selectedConversation) {
+        recipientId = selectedConversation
+      } else if (messageReplyTo) {
+        // If replying to a message, recipient is the sender of that message
+        recipientId = messageReplyTo.sender_id
+      } else if (place && place.user_id === user.id) {
+        // If owner sending a message without conversation selected, we can't determine recipient
+        // This case shouldn't happen as owner should use sidebar for messaging
+        recipientId = null
+      } else {
+        // Client sending to owner - recipient is the place owner
+        recipientId = place?.user_id || null
+      }
+
       const messageData: any = {
         sender_id: user.id,
         place_id: placeId,
+        recipient_id: recipientId,
         content: messageContent || null,
         reply_to: messageReplyTo?.id || null,
       }
@@ -554,6 +721,242 @@ function PlacePageContent({ productId }: { productId: string | null }) {
   // Check if current user is the place owner
   const isOwner = user && place && user.id === place.user_id
   
+  // Check if user can manage posts (owner or employee with messages_posts/full permissions)
+  const canManagePosts = isOwner || (isEmployee && (employeePermissions === 'messages_posts' || employeePermissions === 'full'))
+  
+  // Check if user can manage products (owner or employee with full permissions)
+  const canManageProducts = isOwner || (isEmployee && employeePermissions === 'full')
+  
+  // Delete post
+  const handleDeletePost = async (postId: string) => {
+    if (!canManagePosts) return
+    
+    if (!confirm('هل أنت متأكد من حذف هذا المنشور؟')) return
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId)
+      
+      if (error) {
+        console.error('Error deleting post:', error)
+        showError('حدث خطأ في حذف المنشور')
+        return
+      }
+      
+      showSuccess('تم حذف المنشور بنجاح')
+      loadPosts()
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      showError('حدث خطأ في حذف المنشور')
+    }
+  }
+  
+  // Handle image upload for post
+  const handlePostImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      showError('الرجاء اختيار ملف صورة صحيح')
+      return
+    }
+
+    if (file.size > 32 * 1024 * 1024) {
+      showError('حجم الصورة كبير جداً. الحد الأقصى هو 32MB')
+      return
+    }
+
+    setUploadingImage(true)
+    showLoading('جاري رفع الصورة...')
+
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'حدث خطأ في رفع الصورة')
+      }
+
+      setPostData({ ...postData, image_url: result.url, post_type: 'image' })
+      closeLoading()
+      showSuccess('تم رفع الصورة بنجاح')
+    } catch (error: any) {
+      closeLoading()
+      showError(error.message || 'حدث خطأ في رفع الصورة')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  // Handle video file select
+  const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('video/')) {
+      showError('الرجاء اختيار ملف فيديو صحيح')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024 * 1024) {
+      showError('حجم الفيديو كبير جداً. الحد الأقصى هو 2GB')
+      return
+    }
+
+    setSelectedVideoFile(file)
+    if (!videoTitle) {
+      setVideoTitle(file.name.replace(/\.[^/.]+$/, ''))
+    }
+  }
+
+  // Handle video upload to YouTube
+  const handleVideoUpload = async () => {
+    if (!selectedVideoFile || !videoTitle.trim()) {
+      showError('الرجاء اختيار فيديو وإدخال عنوان')
+      return
+    }
+
+    setUploadingVideo(true)
+    showLoading('جاري رفع الفيديو إلى YouTube...')
+
+    try {
+      const formData = new FormData()
+      formData.append('video', selectedVideoFile)
+      formData.append('title', videoTitle)
+      formData.append('description', postData.content || '')
+      formData.append('tags', '')
+      formData.append('privacyStatus', 'unlisted')
+
+      const response = await fetch('/api/youtube/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'فشل رفع الفيديو')
+      }
+
+      if (data.videoUrl) {
+        setPostData({ ...postData, video_url: data.videoUrl, post_type: 'video' })
+        setSelectedVideoFile(null)
+        setVideoTitle('')
+        setVideoUploadMethod('link')
+        closeLoading()
+        showSuccess('تم رفع الفيديو بنجاح إلى YouTube')
+      } else {
+        throw new Error('لم يتم إرجاع رابط الفيديو من YouTube')
+      }
+    } catch (error: any) {
+      closeLoading()
+      showError(error.message || 'حدث خطأ في رفع الفيديو. تأكد من ربط حساب YouTube في لوحة الإدارة.')
+      console.error('YouTube upload error:', error)
+    } finally {
+      setUploadingVideo(false)
+    }
+  }
+
+  // Handle save post
+  const handleSavePost = async () => {
+    if (!user || !place) return
+
+    if (!postData.content.trim()) {
+      showError('الرجاء إدخال محتوى المنشور')
+      return
+    }
+
+    if (postData.post_type === 'image' && !postData.image_url) {
+      showError('الرجاء رفع صورة')
+      return
+    }
+
+    if (postData.post_type === 'video' && !postData.video_url) {
+      if (videoUploadMethod === 'upload') {
+        showError('الرجاء رفع الفيديو أولاً')
+      } else {
+        showError('الرجاء إدخال رابط الفيديو')
+      }
+      return
+    }
+
+      showLoading('جاري إضافة المنشور...')
+
+    try {
+      const postPayload: any = {
+        place_id: placeId,
+        created_by: user.id,
+        content: postData.content.trim(),
+        post_type: postData.post_type,
+        is_active: true,
+      }
+
+      if (postData.post_type === 'image') {
+        postPayload.image_url = postData.image_url
+        postPayload.video_url = null
+      } else if (postData.post_type === 'video') {
+        postPayload.video_url = postData.video_url
+        postPayload.image_url = null
+      } else {
+        postPayload.image_url = null
+        postPayload.video_url = null
+      }
+
+      const { error } = await supabase
+        .from('posts')
+        .insert(postPayload)
+
+      if (error) throw error
+
+      showSuccess('تم إضافة المنشور بنجاح')
+      closeLoading()
+      setShowAddPostModal(false)
+      setPostData({ content: '', post_type: 'text', image_url: '', video_url: '' })
+      setSelectedVideoFile(null)
+      setVideoTitle('')
+      setVideoUploadMethod('link')
+      loadPosts()
+    } catch (error: any) {
+      closeLoading()
+      showError(error.message || 'حدث خطأ في إضافة المنشور')
+    }
+  }
+
+  // Delete product
+  const handleDeleteProduct = async (productId: string) => {
+    if (!canManageProducts) return
+    
+    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
+    
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId)
+      
+      if (error) {
+        console.error('Error deleting product:', error)
+        showError('حدث خطأ في حذف المنتج')
+        return
+      }
+      
+      showSuccess('تم حذف المنتج بنجاح')
+      loadData()
+    } catch (error) {
+      console.error('Error deleting product:', error)
+      showError('حدث خطأ في حذف المنتج')
+    }
+  }
+  
   // Get messages for client view (only messages between client and place)
   const getClientMessages = () => {
     if (!user || isOwner) return []
@@ -606,71 +1009,294 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                   <span className="truncate max-w-[200px] sm:max-w-none">{place.address || 'العنوان غير متاح'}</span>
                 </a>
               </div>
+              
+              {/* Employee Request Button - Only for logged-in clients */}
+              {user && !isOwner && !isEmployee && (
+                <div className="mt-4 flex justify-center md:justify-start">
+                  {hasPendingRequest ? (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <CheckCircle size={18} />
+                      <span className="text-sm font-medium">طلبك قيد المراجعة</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowEmployeeRequestModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                    >
+                      <UserPlus size={18} />
+                      <span>انضمام كموظف</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Video - Small inline video */}
+              {videoId && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">فيديو المكان</h3>
+                  <div className="aspect-video rounded-lg overflow-hidden max-w-sm mx-auto md:mx-0">
+                    <iframe
+                      src={getYouTubeEmbedUrl(videoId)}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Video */}
-        {videoId && (
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gray-900">فيديو المكان</h2>
-            <div className="aspect-video rounded-lg overflow-hidden">
-              <iframe
-                src={getYouTubeEmbedUrl(videoId)}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+        {/* Employee Request Modal */}
+        {showEmployeeRequestModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">طلب انضمام كموظف</h3>
+                <button
+                  onClick={() => {
+                    setShowEmployeeRequestModal(false)
+                    setEmployeePhone('')
+                  }}
+                  className="text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <p className="text-gray-600 dark:text-slate-400 mb-4">
+                أدخل رقم هاتفك لإرسال طلب الانضمام كموظف في {place.name_ar}
+              </p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                  رقم الهاتف
+                </label>
+                <input
+                  type="tel"
+                  value={employeePhone}
+                  onChange={(e) => setEmployeePhone(e.target.value)}
+                  placeholder="مثال: 01234567890"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={handleEmployeeRequest}
+                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
+                >
+                  إرسال الطلب
+                </button>
+                <button
+                  onClick={() => {
+                    setShowEmployeeRequestModal(false)
+                    setEmployeePhone('')
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition-colors"
+                >
+                  إلغاء
+                </button>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Products */}
-        {products.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gray-900">المنتجات والخدمات</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className={`border rounded-lg p-4 transition-all ${
-                    productId === product.id ? 'ring-2 ring-blue-500' : ''
-                  }`}
-                >
-                  {product.images && product.images.length > 0 && (
-                    <img
-                      src={product.images[0].image_url}
-                      alt={product.name_ar}
-                      className="w-full h-40 sm:h-48 object-cover rounded-lg mb-2 sm:mb-3"
-                    />
-                  )}
-                  <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2 text-gray-900">{product.name_ar}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">{product.description_ar}</p>
-                  {product.price && (
-                    <p className="text-blue-600 font-semibold">
-                      {product.price} {product.currency}
-                    </p>
-                  )}
-                  {product.variants && product.variants.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500 mb-1">المتغيرات المتاحة:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {product.variants.map((variant) => (
-                          <span
-                            key={variant.id}
-                            className="px-2 py-1 bg-gray-100 rounded text-xs"
-                          >
-                            {variant.variant_name_ar}: {variant.variant_value}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+        {/* Posts and Products Tabs */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          {/* Tabs */}
+          <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-slate-700">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab('posts')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'posts'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
+                }`}
+              >
+                المنشورات ({posts.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('products')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'products'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200'
+                }`}
+              >
+                المنتجات ({products.length})
+              </button>
             </div>
+            
+            {/* Add Buttons */}
+            {canManagePosts && activeTab === 'posts' && (
+              <button
+                onClick={() => setShowAddPostModal(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                <Plus size={16} />
+                <span>إضافة منشور</span>
+              </button>
+            )}
+            {canManageProducts && activeTab === 'products' && (
+              <button
+                onClick={() => router.push(`/dashboard/places/${placeId}/products/new`)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                <Plus size={16} />
+                <span>إضافة منتج</span>
+              </button>
+            )}
           </div>
-        )}
+
+          {/* Posts Tab Content */}
+          {activeTab === 'posts' && (
+            <div>
+              {posts.length === 0 ? (
+                <p className="text-center text-gray-500 dark:text-slate-400 py-8">
+                  لا توجد منشورات حالياً
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {posts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="border border-gray-200 dark:border-slate-700 rounded-lg p-3 sm:p-4 relative"
+                    >
+                      {/* Delete Button */}
+                      {canManagePosts && (
+                        <button
+                          onClick={() => handleDeletePost(post.id)}
+                          className="absolute top-2 left-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                          title="حذف المنشور"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                      
+                      {/* Post Content */}
+                      <p className="text-sm text-gray-900 dark:text-slate-100 mb-3 whitespace-pre-wrap">
+                        {post.content}
+                      </p>
+
+                      {/* Post Image */}
+                      {post.post_type === 'image' && post.image_url && (
+                        <div className="mb-3">
+                          <img
+                            src={post.image_url}
+                            alt="منشور"
+                            className="w-full max-w-xl mx-auto rounded-lg"
+                          />
+                        </div>
+                      )}
+
+                      {/* Post Video */}
+                      {post.post_type === 'video' && post.video_url && (
+                        <div className="mb-3">
+                          <div className="aspect-video rounded-lg overflow-hidden max-w-xl mx-auto">
+                            {extractYouTubeId(post.video_url) ? (
+                              <iframe
+                                src={getYouTubeEmbedUrl(extractYouTubeId(post.video_url)!)}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <video
+                                src={post.video_url}
+                                controls
+                                className="w-full h-full"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Post Date */}
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
+                        {new Date(post.created_at).toLocaleDateString('ar-EG', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Products Tab Content */}
+          {activeTab === 'products' && (
+            <div>
+              {products.length === 0 ? (
+                <p className="text-center text-gray-500 dark:text-slate-400 py-8">
+                  لا توجد منتجات حالياً
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      className={`border rounded-lg p-4 transition-all relative ${
+                        productId === product.id ? 'ring-2 ring-blue-500' : ''
+                      }`}
+                    >
+                      {/* Delete Button */}
+                      {canManageProducts && (
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="absolute top-2 left-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors z-10"
+                          title="حذف المنتج"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                      {product.images && product.images.length > 0 && (
+                        <img
+                          src={product.images[0].image_url}
+                          alt={product.name_ar}
+                          className="w-full h-40 sm:h-48 object-cover rounded-lg mb-2 sm:mb-3"
+                        />
+                      )}
+                      <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2 text-gray-900 dark:text-slate-100">
+                        {product.name_ar}
+                      </h3>
+                      <p className="text-gray-600 dark:text-slate-400 text-xs sm:text-sm mb-2 line-clamp-2">
+                        {product.description_ar}
+                      </p>
+                      {product.price && (
+                        <p className="text-blue-600 dark:text-blue-400 font-semibold">
+                          {product.price} {product.currency}
+                        </p>
+                      )}
+                      {product.variants && product.variants.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500 dark:text-slate-500 mb-1">المتغيرات المتاحة:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {product.variants.map((variant) => (
+                              <span
+                                key={variant.id}
+                                className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs"
+                              >
+                                {variant.variant_name_ar}: {variant.variant_value}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Messages - Hidden for owners (they have sidebar), shown for clients */}
         {!(user && isOwner) && (
@@ -1448,6 +2074,282 @@ function PlacePageContent({ productId }: { productId: string | null }) {
         </div>
         )}
       </div>
+
+      {/* Add Post Modal */}
+      {showAddPostModal && canManagePosts && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b dark:border-slate-700 p-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">إضافة منشور جديد</h3>
+              <button
+                onClick={() => {
+                  setShowAddPostModal(false)
+                  setPostData({ content: '', post_type: 'text', image_url: '', video_url: '' })
+                  setSelectedVideoFile(null)
+                  setVideoTitle('')
+                  setVideoUploadMethod('link')
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Post Type Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                  نوع المنشور
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPostData({ ...postData, post_type: 'text', image_url: '', video_url: '' })}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      postData.post_type === 'text'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    نص
+                  </button>
+                  <button
+                    onClick={() => setPostData({ ...postData, post_type: 'image', video_url: '' })}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      postData.post_type === 'image'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    صورة
+                  </button>
+                  <button
+                    onClick={() => setPostData({ ...postData, post_type: 'video', image_url: '' })}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      postData.post_type === 'video'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    فيديو
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                  المحتوى
+                </label>
+                <textarea
+                  value={postData.content}
+                  onChange={(e) => setPostData({ ...postData, content: e.target.value })}
+                  placeholder="اكتب محتوى المنشور هنا..."
+                  rows={6}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                />
+              </div>
+
+              {/* Image Upload */}
+              {postData.post_type === 'image' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                    الصورة
+                  </label>
+                  {postData.image_url ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={postData.image_url}
+                        alt="Preview"
+                        className="max-w-full h-64 object-contain rounded-lg border border-gray-300 dark:border-slate-600"
+                      />
+                      <button
+                        onClick={() => setPostData({ ...postData, image_url: '' })}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700">
+                      <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-600 dark:text-slate-400">
+                        {uploadingImage ? 'جاري الرفع...' : 'انقر لرفع صورة'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePostImageUpload}
+                        className="hidden"
+                        disabled={uploadingImage}
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
+              {/* Video Upload/Link */}
+              {postData.post_type === 'video' && (
+                <div className="space-y-4">
+                  {/* Video Method Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      طريقة إضافة الفيديو
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setVideoUploadMethod('link')
+                          setSelectedVideoFile(null)
+                          setVideoTitle('')
+                        }}
+                        className={`px-4 py-2 rounded-lg transition-colors ${
+                          videoUploadMethod === 'link'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                        }`}
+                      >
+                        رابط YouTube
+                      </button>
+                      <button
+                        onClick={() => {
+                          setVideoUploadMethod('upload')
+                          setPostData({ ...postData, video_url: '' })
+                        }}
+                        className={`px-4 py-2 rounded-lg transition-colors ${
+                          videoUploadMethod === 'upload'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                        }`}
+                      >
+                        رفع من الجهاز
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Video Link Method */}
+                  {videoUploadMethod === 'link' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        رابط الفيديو (YouTube)
+                      </label>
+                      <input
+                        type="text"
+                        value={postData.video_url}
+                        onChange={(e) => setPostData({ ...postData, video_url: e.target.value })}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                      />
+                    </div>
+                  )}
+
+                  {/* Video Upload Method */}
+                  {videoUploadMethod === 'upload' && (
+                    <div className="space-y-4">
+                      {/* File Selection */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                          اختر فيديو للرفع *
+                        </label>
+                        {selectedVideoFile ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
+                              <Video className="text-gray-400" size={20} />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
+                                  {selectedVideoFile.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-slate-400">
+                                  الحجم: {(selectedVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedVideoFile(null)
+                                  setVideoTitle('')
+                                }}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                            <button
+                              onClick={handleVideoUpload}
+                              disabled={uploadingVideo || !videoTitle.trim()}
+                              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                              {uploadingVideo ? 'جاري الرفع...' : 'رفع الفيديو إلى YouTube'}
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700">
+                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                            <span className="text-sm text-gray-600 dark:text-slate-400">
+                              انقر لاختيار فيديو
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+                              الحد الأقصى: 2GB
+                            </span>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              onChange={handleVideoFileSelect}
+                              className="hidden"
+                              disabled={uploadingVideo}
+                            />
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Video Title */}
+                      {selectedVideoFile && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                            عنوان الفيديو *
+                          </label>
+                          <input
+                            type="text"
+                            value={videoTitle}
+                            onChange={(e) => setVideoTitle(e.target.value)}
+                            placeholder="أدخل عنوان الفيديو"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                            maxLength={100}
+                          />
+                          <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">
+                            {videoTitle.length}/100
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleSavePost}
+                  disabled={uploadingImage || uploadingVideo || !postData.content.trim() || (postData.post_type === 'video' && videoUploadMethod === 'upload' && !postData.video_url)}
+                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {uploadingVideo ? 'جاري الرفع...' : 'إضافة المنشور'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddPostModal(false)
+                    setPostData({ content: '', post_type: 'text', image_url: '', video_url: '' })
+                    setSelectedVideoFile(null)
+                    setVideoTitle('')
+                    setVideoUploadMethod('link')
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition-colors"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Image Enlargement Modal */}
       {enlargedImage && (

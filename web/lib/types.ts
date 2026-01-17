@@ -103,12 +103,14 @@ export interface Message {
   id: string
   sender_id: string
   place_id: string
+  recipient_id: string | null
   content: string | null
   image_url: string | null
   audio_url: string | null
   product_id: string | null
   is_read: boolean
   reply_to: string | null
+  employee_id: string | null
   created_at: string
   sender?: UserProfile
   replied_message?: Message
@@ -142,4 +144,45 @@ export interface DiscountCode {
   description_en: string | null
   created_at: string
   updated_at: string
+}
+
+export interface EmployeeRequest {
+  id: string
+  user_id: string
+  place_id: string
+  phone: string
+  status: 'pending' | 'accepted' | 'rejected'
+  permissions: 'basic' | 'messages_posts' | 'full'
+  created_at: string
+  updated_at: string
+  user?: UserProfile
+  place?: Place
+}
+
+export interface PlaceEmployee {
+  id: string
+  user_id: string
+  place_id: string
+  permissions: 'basic' | 'messages_posts' | 'full'
+  phone: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  user?: UserProfile
+  place?: Place
+}
+
+export interface Post {
+  id: string
+  place_id: string
+  created_by: string
+  content: string
+  image_url: string | null
+  video_url: string | null
+  post_type: 'text' | 'image' | 'video'
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  place?: Place
+  creator?: UserProfile
 }

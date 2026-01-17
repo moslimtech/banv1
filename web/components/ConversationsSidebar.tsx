@@ -52,7 +52,7 @@ export default function ConversationsSidebar() {
   const [messages, setMessages] = useState<Message[]>([])
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true) // Default open on desktop
   const [newMessage, setNewMessage] = useState('')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [replyingTo, setReplyingTo] = useState<Message | null>(null)
@@ -64,6 +64,8 @@ export default function ConversationsSidebar() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [showProductPicker, setShowProductPicker] = useState(false)
   const [products, setProducts] = useState<any[]>([])
+  const [currentEmployee, setCurrentEmployee] = useState<any>(null)
+  const [placeEmployees, setPlaceEmployees] = useState<Map<string, any[]>>(new Map())
 
   useEffect(() => {
     checkUser()
@@ -71,6 +73,7 @@ export default function ConversationsSidebar() {
 
   useEffect(() => {
     if (user && userPlaces.length > 0) {
+      loadPlaceEmployees()
       loadAllMessages()
     }
   }, [user, userPlaces])
@@ -80,6 +83,21 @@ export default function ConversationsSidebar() {
       loadProducts(selectedPlaceId)
     }
   }, [selectedPlaceId])
+
+  // Update CSS variable for sidebar width when sidebar opens/closes on desktop
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const root = document.documentElement
+      const isDesktop = window.innerWidth >= 1024 // lg breakpoint
+      if (isDesktop) {
+        if (isOpen) {
+          root.style.setProperty('--sidebar-width', '384px') // w-96 = 24rem = 384px
+        } else {
+          root.style.setProperty('--sidebar-width', '0px')
+        }
+      }
+    }
+  }, [isOpen])
 
   // Scroll to bottom when conversation changes or messages update
   useEffect(() => {
@@ -101,39 +119,207 @@ export default function ConversationsSidebar() {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
+      console.log('👤 [CHECK USER] No user found')
       return
     }
 
+    console.log('👤 [CHECK USER] User found:', { id: user.id, email: user.email })
     setUser(user)
 
-    // Load user places
-    const { data: placesData } = await supabase
+    // Load user places (owned places)
+    const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
+    if (placesError) {
+      console.error('❌ [CHECK USER] Error loading places:', placesError)
+    } else {
+      console.log('✅ [CHECK USER] User places loaded:', { 
+        count: placesData?.length || 0,
+        places: placesData?.map(p => ({ id: p.id, name: p.name_ar }))
+      })
+    }
+
     setUserPlaces(placesData || [])
   }
 
-  const loadAllMessages = async () => {
+  // Load employees for all user places
+  const loadPlaceEmployees = async () => {
     if (!user || userPlaces.length === 0) return
 
     try {
       const placeIds = userPlaces.map(p => p.id)
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*, sender:user_profiles(*), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
+      const { data: employeesData, error } = await supabase
+        .from('place_employees')
+        .select('*')
         .in('place_id', placeIds)
-        .order('created_at', { ascending: true })
+        .eq('is_active', true)
+
+      if (error) {
+        console.error('Error loading place employees:', error)
+        return
+      }
+
+      // Load user profiles for employees
+      if (employeesData && employeesData.length > 0) {
+        const userIds = employeesData.map(e => e.user_id)
+        const { data: userProfiles } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .in('id', userIds)
+
+        // Map user profiles to employees
+        const profilesMap = new Map()
+        if (userProfiles) {
+          userProfiles.forEach(profile => {
+            profilesMap.set(profile.id, profile)
+          })
+        }
+
+        // Attach user profiles to employees
+        employeesData.forEach(employee => {
+          employee.user = profilesMap.get(employee.user_id)
+        })
+      }
+
+      // Group employees by place_id
+      const employeesMap = new Map<string, any[]>()
+      if (employeesData) {
+        employeesData.forEach(employee => {
+          const placeId = employee.place_id
+          if (!employeesMap.has(placeId)) {
+            employeesMap.set(placeId, [])
+          }
+          employeesMap.get(placeId)!.push(employee)
+        })
+      }
+
+      setPlaceEmployees(employeesMap)
+      console.log('✅ [LOAD EMPLOYEES] Employees loaded:', {
+        places: Array.from(employeesMap.entries()).map(([placeId, employees]) => ({
+          placeId,
+          count: employees.length,
+          employees: employees.map(e => ({ id: e.user_id, name: e.user?.full_name || e.user?.email }))
+        }))
+      })
+    } catch (error) {
+      console.error('Error loading place employees:', error)
+    }
+  }
+
+  // Check if user is employee for a specific place
+  const checkEmployeeForPlace = async (placeId: string) => {
+    if (!user) return null
+
+    const { data: employeeData, error } = await supabase
+      .from('place_employees')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('place_id', placeId)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error checking employee status:', error)
+      setCurrentEmployee(null)
+      return null
+    }
+
+    if (employeeData) {
+      setCurrentEmployee(employeeData)
+      return employeeData
+    }
+
+    setCurrentEmployee(null)
+    return null
+  }
+
+  const loadAllMessages = async () => {
+    console.log('📥 [LOAD MESSAGES] Starting loadAllMessages:', { 
+      hasUser: !!user, 
+      userPlacesCount: userPlaces.length,
+      userPlaces: userPlaces.map(p => ({ id: p.id, name: p.name_ar }))
+    })
+    
+    if (!user) {
+      console.log('📥 [LOAD MESSAGES] Skipping - no user')
+      return
+    }
+
+    try {
+      // Load messages in two scenarios:
+      // 1. Messages in places owned by user (owner view)
+      // 2. Messages where user is recipient (client view)
+      
+      const placeIds = userPlaces.map(p => p.id)
+      console.log('📥 [LOAD MESSAGES] Fetching messages for places:', placeIds)
+      
+        // First: messages in user's places
+        let allMessages: any[] = []
+        
+        if (placeIds.length > 0) {
+          const { data: ownerMessages, error: ownerError } = await supabase
+            .from('messages')
+            .select('*, sender:user_profiles(*), place:places(id, name_ar), employee:place_employees(id, place_id, user_id), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
+            .in('place_id', placeIds)
+            .order('created_at', { ascending: true })
+        
+        if (ownerError) {
+          console.error('❌ [LOAD MESSAGES] Error loading owner messages:', ownerError)
+        } else {
+          console.log('✅ [LOAD MESSAGES] Owner messages loaded:', ownerMessages?.length || 0)
+          if (ownerMessages) allMessages = [...allMessages, ...ownerMessages]
+        }
+      }
+      
+        // Second: messages where user is recipient (sent to user)
+        const { data: clientMessages, error: clientError } = await supabase
+          .from('messages')
+          .select('*, sender:user_profiles(*), place:places(id, name_ar), employee:place_employees(id, place_id, user_id), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
+          .eq('recipient_id', user.id)
+          .order('created_at', { ascending: true })
+      
+      if (clientError) {
+        console.error('❌ [LOAD MESSAGES] Error loading client messages:', clientError)
+      } else {
+        console.log('✅ [LOAD MESSAGES] Client messages loaded:', clientMessages?.length || 0)
+        if (clientMessages) {
+          // Merge client messages (avoid duplicates)
+          const existingIds = new Set(allMessages.map(m => m.id))
+          const newMessages = clientMessages.filter(m => !existingIds.has(m.id))
+          allMessages = [...allMessages, ...newMessages]
+        }
+      }
+      
+        // Third: messages sent by user (to track conversations user started)
+        const { data: sentMessages, error: sentError } = await supabase
+          .from('messages')
+          .select('*, sender:user_profiles(*), place:places(id, name_ar), employee:place_employees(id, place_id, user_id), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
+          .eq('sender_id', user.id)
+          .order('created_at', { ascending: true })
+      
+      if (sentError) {
+        console.error('❌ [LOAD MESSAGES] Error loading sent messages:', sentError)
+      } else {
+        console.log('✅ [LOAD MESSAGES] Sent messages loaded:', sentMessages?.length || 0)
+        if (sentMessages) {
+          const existingIds = new Set(allMessages.map(m => m.id))
+          const newMessages = sentMessages.filter(m => !existingIds.has(m.id))
+          allMessages = [...allMessages, ...newMessages]
+        }
+      }
+      
+      const data = allMessages
 
       // Load replied messages
-      if (data) {
+      if (data && data.length > 0) {
         const replyIds = data.filter(m => m.reply_to).map(m => m.reply_to).filter(Boolean)
         if (replyIds.length > 0) {
           const { data: repliedMessages } = await supabase
             .from('messages')
-            .select('*, sender:user_profiles(*), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
+            .select('*, sender:user_profiles(*), place:places(id, name_ar), employee:place_employees(id, place_id, user_id), product:products(*, images:product_images(*), videos:product_videos(*), variants:product_variants(*))')
             .in('id', replyIds)
           
           if (repliedMessages) {
@@ -147,10 +333,16 @@ export default function ConversationsSidebar() {
         }
       }
 
-      if (error) {
-        console.error('Error loading messages:', error)
-        return
-      }
+      console.log('✅ [LOAD MESSAGES] Messages loaded:', { 
+        count: data?.length || 0,
+        messages: data?.map(m => ({ 
+          id: m.id, 
+          sender_id: m.sender_id, 
+          recipient_id: m.recipient_id, 
+          place_id: m.place_id,
+          content: m.content?.substring(0, 20) 
+        }))
+      })
 
       setMessages(data || [])
     } catch (error) {
@@ -179,41 +371,223 @@ export default function ConversationsSidebar() {
 
   // Group messages by place and sender (conversations)
   const getConversations = (): Conversation[] => {
-    if (!user || messages.length === 0) return []
+    if (!user || messages.length === 0) {
+      console.log('📋 [GET CONVERSATIONS] No user or messages:', { hasUser: !!user, messagesCount: messages.length })
+      return []
+    }
+    
+    console.log('📋 [GET CONVERSATIONS] Starting with:', { 
+      userId: user.id, 
+      userPlacesCount: userPlaces.length,
+      messagesCount: messages.length,
+      places: userPlaces.map(p => ({ id: p.id, name: p.name_ar }))
+    })
     
     const conversationsMap = new Map<string, Conversation>()
 
-    messages.forEach((msg) => {
-      if (msg.sender_id === user.id) return // Skip own messages
-      
-      const key = `${msg.place_id}_${msg.sender_id}`
-      
-      if (!conversationsMap.has(key)) {
-        const place = userPlaces.find(p => p.id === msg.place_id)
-        conversationsMap.set(key, {
-          senderId: msg.sender_id,
-          sender: msg.sender,
-          lastMessage: msg,
-          unreadCount: msg.is_read ? 0 : 1,
-          messageCount: 1,
-          placeId: msg.place_id,
-          placeName: place?.name_ar,
-        })
-      } else {
-        const conv = conversationsMap.get(key)!
-        conv.messageCount++
-        if (!msg.is_read) conv.unreadCount++
-        if (new Date(msg.created_at) > new Date(conv.lastMessage?.created_at || 0)) {
-          conv.lastMessage = msg
-        }
+    // Group messages by place first
+    const messagesByPlace = new Map<string, Message[]>()
+    messages.forEach(msg => {
+      if (!messagesByPlace.has(msg.place_id)) {
+        messagesByPlace.set(msg.place_id, [])
       }
+      messagesByPlace.get(msg.place_id)!.push(msg)
     })
 
-    return Array.from(conversationsMap.values()).sort((a, b) => {
+    // Load place names for all places in messages (if not already loaded)
+    const placeIdsInMessages = Array.from(messagesByPlace.keys())
+    const missingPlaceIds = placeIdsInMessages.filter(id => !userPlaces.find(p => p.id === id))
+    
+    // If there are places not in userPlaces, we'll fetch their names
+    // For now, we'll use placeId as name_ar if not found
+    
+    // For each place, find all conversation partners
+    messagesByPlace.forEach((placeMessages, placeId) => {
+      // Find place in userPlaces
+      let place = userPlaces.find(p => p.id === placeId)
+      
+      // If place not in userPlaces, create a placeholder
+      if (!place) {
+        place = { id: placeId, name_ar: `مكان ${placeId.substring(0, 8)}` } as any
+      }
+
+      // Get conversations from two sources:
+      // 1. Messages from other senders (they sent messages to user)
+      // 2. Messages from user with recipient_id (user sent messages to someone)
+      
+      const allSenders = Array.from(new Set(placeMessages.map(m => m.sender_id)))
+      const allRecipients = Array.from(new Set(
+        placeMessages
+          .filter(m => m.recipient_id)
+          .map(m => m.recipient_id!)
+      ))
+      
+      // Process conversations where someone else sent a message
+      allSenders.forEach((senderId) => {
+        if (senderId === user.id) return
+        
+        const key = `${placeId}_${senderId}`
+        
+        // Get all messages in this conversation (from both sides)
+        const conversationMessages = placeMessages.filter(m => 
+          m.sender_id === senderId || 
+          (m.sender_id === user.id && m.recipient_id === senderId)
+        )
+        
+        if (conversationMessages.length === 0) return
+        
+        // Get the last message
+        const sortedMessages = [...conversationMessages].sort((a, b) => 
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        )
+        const lastMessage = sortedMessages[sortedMessages.length - 1]
+        
+        // Get unread count (messages from partner)
+        const unreadCount = conversationMessages.filter(m => 
+          m.sender_id === senderId && !m.is_read
+        ).length
+        
+        // Get sender info
+        const partnerMessage = conversationMessages.find(m => m.sender_id === senderId)
+        const sender = partnerMessage?.sender
+        
+        if (!conversationsMap.has(key)) {
+          conversationsMap.set(key, {
+            senderId: senderId,
+            sender: sender || undefined,
+            lastMessage: lastMessage,
+            unreadCount: unreadCount,
+            messageCount: conversationMessages.length,
+            placeId: placeId,
+            placeName: place.name_ar,
+          })
+        } else {
+          const conv = conversationsMap.get(key)!
+          conv.messageCount = conversationMessages.length
+          conv.unreadCount = unreadCount
+          if (new Date(lastMessage.created_at) > new Date(conv.lastMessage?.created_at || 0)) {
+            conv.lastMessage = lastMessage
+          }
+        }
+      })
+
+      // Handle case where user sent messages without recipient_id (from places page)
+      // Group messages by unique combinations to find conversations
+      const userMessagesWithoutRecipient = placeMessages.filter(m => 
+        m.sender_id === user.id && !m.recipient_id
+      )
+      
+      // If user sent messages without recipient_id, we can't determine the conversation
+      // These will only show if there's a reply from someone else
+      
+      // Process conversations where user sent messages to recipients (even if they didn't reply)
+      allRecipients.forEach((recipientId) => {
+        if (recipientId === user.id) return
+        
+        const key = `${placeId}_${recipientId}`
+        
+        // Skip if we already have this conversation from the sender loop
+        if (conversationsMap.has(key)) return
+        
+        // Get all messages in this conversation (user's messages to this recipient)
+        const conversationMessages = placeMessages.filter(m => 
+          (m.sender_id === user.id && m.recipient_id === recipientId) ||
+          (m.sender_id === recipientId && (m.recipient_id === user.id || m.recipient_id === null))
+        )
+        
+        if (conversationMessages.length === 0) return
+        
+        // If no messages from recipient yet, we need to get their profile
+        // For now, we'll show the conversation with limited info
+        
+        // Get the last message
+        const sortedMessages = [...conversationMessages].sort((a, b) => 
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        )
+        const lastMessage = sortedMessages[sortedMessages.length - 1]
+        
+        // Get unread count (messages from recipient)
+        const unreadCount = conversationMessages.filter(m => 
+          m.sender_id === recipientId && !m.is_read
+        ).length
+        
+        // Try to get recipient info from their messages or fetch profile
+        const recipientMessage = conversationMessages.find(m => m.sender_id === recipientId)
+        const sender = recipientMessage?.sender
+        
+        conversationsMap.set(key, {
+          senderId: recipientId,
+          sender: sender || undefined,
+          lastMessage: lastMessage,
+          unreadCount: unreadCount,
+          messageCount: conversationMessages.length,
+          placeId: placeId,
+          placeName: place.name_ar,
+        })
+      })
+    })
+
+    // Add employees as conversations even if no messages yet
+    userPlaces.forEach(place => {
+      const employees = placeEmployees.get(place.id) || []
+      employees.forEach(employee => {
+        const employeeUserId = employee.user_id
+        const key = `${place.id}_${employeeUserId}`
+        
+        // Skip if conversation already exists (from messages)
+        if (conversationsMap.has(key)) return
+        
+        // Check if there are any messages with this employee (even if not shown yet)
+        const employeeMessages = messages.filter(m => 
+          m.place_id === place.id && 
+          (m.sender_id === employeeUserId || m.recipient_id === employeeUserId)
+        )
+        
+        // Only add if there are messages or if we want to show all employees
+        // For now, we'll add employees even without messages
+        if (employeeMessages.length === 0) {
+          // Add empty conversation for employee (allows starting new conversation)
+          const employeeUser = employee.user
+          conversationsMap.set(key, {
+            senderId: employeeUserId,
+            sender: employeeUser ? {
+              id: employeeUser.id,
+              full_name: employeeUser.full_name || `موظف - ${employee.phone || 'غير متاح'}`,
+              email: employeeUser.email,
+              avatar_url: employeeUser.avatar_url
+            } : undefined,
+            lastMessage: undefined,
+            unreadCount: 0,
+            messageCount: 0,
+            placeId: place.id,
+            placeName: place.name_ar,
+          })
+        }
+      })
+    })
+
+    const result = Array.from(conversationsMap.values()).sort((a, b) => {
+      // Sort conversations with messages first, then employees without messages
+      if (a.lastMessage && !b.lastMessage) return -1
+      if (!a.lastMessage && b.lastMessage) return 1
+      
       const timeA = new Date(a.lastMessage?.created_at || 0).getTime()
       const timeB = new Date(b.lastMessage?.created_at || 0).getTime()
       return timeB - timeA
     })
+    
+    console.log('📋 [GET CONVERSATIONS] Result:', { 
+      conversationsCount: result.length,
+      conversations: result.map(c => ({ 
+        senderId: c.senderId, 
+        placeId: c.placeId, 
+        placeName: c.placeName,
+        messageCount: c.messageCount,
+        hasMessages: !!c.lastMessage
+      }))
+    })
+    
+    return result
   }
 
   // Get messages for selected conversation
@@ -224,10 +598,32 @@ export default function ConversationsSidebar() {
     }
     
     // Get all messages in this conversation (from both current user and the selected conversation partner)
+    // Include messages where:
+    // 1. Partner sent message (sender_id === selectedConversation)
+    // 2. User sent message to partner (sender_id === user.id && recipient_id === selectedConversation)
+    // 3. User sent message and partner is recipient (for backward compatibility)
     const filtered = messages.filter(
-      (msg) => 
-        msg.place_id === selectedPlaceId && 
-        (msg.sender_id === selectedConversation || msg.sender_id === user.id)
+      (msg) => {
+        if (msg.place_id !== selectedPlaceId) return false
+        
+        // Partner sent message
+        if (msg.sender_id === selectedConversation) return true
+        
+        // User sent message to partner
+        if (msg.sender_id === user.id && msg.recipient_id === selectedConversation) return true
+        
+        // Backward compatibility: if no recipient_id, check if it's user's message in same conversation
+        if (msg.sender_id === user.id && !msg.recipient_id) {
+          // Check if there are messages from partner in same place
+          const hasPartnerMessage = messages.some(m => 
+            m.place_id === selectedPlaceId && 
+            m.sender_id === selectedConversation
+          )
+          return hasPartnerMessage
+        }
+        
+        return false
+      }
     )
     
     // Sort by created_at to show in chronological order
@@ -256,6 +652,9 @@ export default function ConversationsSidebar() {
     setSelectedConversation(senderId)
     setSelectedPlaceId(placeId)
     setIsOpen(true)
+    
+    // Check if user is employee for this place
+    checkEmployeeForPlace(placeId)
     
     // Mark messages as read
     markAsRead(senderId, placeId)
@@ -334,14 +733,23 @@ export default function ConversationsSidebar() {
         }
       }
 
+      // Check if user is employee for this place
+      const employee = await checkEmployeeForPlace(selectedPlaceId)
+      
       const messageData: any = {
         place_id: selectedPlaceId,
         sender_id: user.id,
+        recipient_id: selectedConversation, // The conversation partner is the recipient
         content: messageContent || null,
         image_url: imageUrl || null,
         product_id: messageProduct?.id || null,
         reply_to: messageReplyTo?.id || null,
         is_read: false,
+      }
+
+      // Add employee_id if user is employee (not owner)
+      if (employee) {
+        messageData.employee_id = employee.id
       }
 
       console.log('📤 [SEND MESSAGE] Sending message:', messageData)
@@ -470,14 +878,23 @@ export default function ConversationsSidebar() {
     }
 
     try {
+      // Check if user is employee for this place
+      const employee = await checkEmployeeForPlace(selectedPlaceId)
+      
       const messageData: any = {
         place_id: selectedPlaceId,
         sender_id: user.id,
+        recipient_id: selectedConversation, // The conversation partner is the recipient
         content: null,
         audio_url: audioUrl,
         product_id: null,
         reply_to: replyingTo?.id || null,
         is_read: false,
+      }
+
+      // Add employee_id if user is employee (not owner)
+      if (employee) {
+        messageData.employee_id = employee.id
       }
 
       console.log('📤 [SEND AUDIO MESSAGE] Sending audio message:', messageData)
@@ -540,17 +957,40 @@ export default function ConversationsSidebar() {
   const conversations = getConversations()
   const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0)
 
-  // Don't show sidebar if user has no places
-  if (!user || userPlaces.length === 0) {
+  // Show sidebar if user has places OR has sent/received messages
+  if (!user) {
+    return null
+  }
+  
+  // Show sidebar if user has places or messages
+  const hasMessages = messages.length > 0
+  const hasPlaces = userPlaces.length > 0
+  
+  if (!hasPlaces && !hasMessages) {
     return null
   }
 
   return (
     <>
-      {/* Desktop Sidebar - Fixed on right side */}
-      <div className="hidden lg:flex fixed top-0 right-0 h-screen w-96 bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-700 z-40 flex-col">
+      {/* Desktop Toggle Button - Always visible */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="hidden lg:flex fixed top-20 right-4 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all z-50 items-center justify-center relative"
+      >
+        <MessageCircle size={24} />
+        {totalUnread > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+            {totalUnread > 9 ? '9+' : totalUnread}
+          </span>
+        )}
+      </button>
+
+      {/* Desktop Sidebar - Fixed on right side with slide animation */}
+      <div className={`hidden lg:flex fixed top-16 h-[calc(100vh-4rem)] w-96 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-l border-gray-200/50 dark:border-slate-700/50 z-40 flex-col transition-transform duration-300 ease-in-out ${
+        isOpen ? 'right-0' : 'right-[-384px]'
+      }`}>
         {/* Header */}
-        <div className="bg-gray-50 dark:bg-slate-900 p-4 border-b dark:border-slate-700 flex-shrink-0">
+        <div className="bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border-b dark:border-slate-700/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-base text-gray-900 dark:text-slate-100 flex items-center gap-2">
               <MessageCircle size={20} />
@@ -561,6 +1001,13 @@ export default function ConversationsSidebar() {
                 </span>
               )}
             </h3>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-2 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-700 dark:hover:text-slate-200 rounded-lg transition-colors"
+              title="إخفاء المحادثات"
+            >
+              <X size={24} />
+            </button>
           </div>
         </div>
 
@@ -654,9 +1101,9 @@ export default function ConversationsSidebar() {
 
         {/* Conversation View - Bottom of sidebar */}
         {selectedConversation && selectedPlaceId && (
-          <div className="border-t dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col" style={{ height: '550px', minHeight: '550px' }}>
+          <div className="border-t dark:border-slate-700/50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex flex-col" style={{ height: '550px', minHeight: '550px' }}>
             {/* Conversation Header */}
-            <div className="bg-gray-50 dark:bg-slate-900 p-3 border-b dark:border-slate-700 flex-shrink-0">
+            <div className="bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-sm p-3 border-b dark:border-slate-700/50 flex-shrink-0">
               {(() => {
                 const conversation = conversations.find(
                   (c) => c.senderId === selectedConversation && c.placeId === selectedPlaceId
@@ -705,7 +1152,7 @@ export default function ConversationsSidebar() {
             </div>
 
             {/* Messages */}
-            <div className="overflow-y-auto p-2 bg-gray-50 dark:bg-slate-900/50" style={{ height: '400px', flexShrink: 1 }}>
+            <div className="overflow-y-auto p-2 bg-gray-50/60 dark:bg-slate-900/60 backdrop-blur-sm" style={{ height: '400px', flexShrink: 1 }}>
               {(() => {
                 const msgs = getConversationMessages()
                 return msgs.length > 0 ? (
@@ -762,7 +1209,7 @@ export default function ConversationsSidebar() {
                           className={`p-1.5 rounded-lg text-sm ${
                             message.sender_id === user.id
                               ? 'bg-blue-500 text-white max-w-[200px]'
-                              : 'bg-white dark:bg-slate-800 border dark:border-slate-700 max-w-[200px]'
+                              : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border dark:border-slate-700/50 max-w-[200px]'
                           }`}
                         >
                           {message.content && (
@@ -806,12 +1253,20 @@ export default function ConversationsSidebar() {
                               </p>
                             </div>
                           )}
-                          <p className={`text-[10px] mt-1 ${message.sender_id === user.id ? 'opacity-70' : 'text-gray-500 dark:text-slate-400'}`}>
-                            {new Date(message.created_at).toLocaleTimeString('ar-EG', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className={`text-[10px] ${message.sender_id === user.id ? 'opacity-70' : 'text-gray-500 dark:text-slate-400'}`}>
+                              {new Date(message.created_at).toLocaleTimeString('ar-EG', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                            {/* Show place name if message is from employee (not owner) */}
+                            {message.employee_id && message.place && message.sender_id === user.id && (
+                              <p className="text-[9px] opacity-70 text-gray-400 dark:text-slate-500">
+                                {message.place.name_ar}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -826,7 +1281,7 @@ export default function ConversationsSidebar() {
             </div>
 
             {/* Message Input */}
-            <div className="flex flex-col gap-2 p-3 border-t dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+            <div className="flex flex-col gap-2 p-3 border-t dark:border-slate-700/50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex-shrink-0">
               {replyingTo && (
                 <div className="bg-blue-50 dark:bg-blue-900/30 border-r-4 border-blue-500 p-2 rounded-lg">
                   <div className="flex items-start justify-between">

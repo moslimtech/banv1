@@ -53,9 +53,7 @@ export default function RootLayout({
       >
         <NavBar />
         <Breadcrumbs />
-        <div className="lg:pr-96">
-          {children}
-        </div>
+        {children}
         <ConversationsSidebar />
         <Script
           src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
