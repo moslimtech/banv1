@@ -73,6 +73,7 @@ export default function ConversationsSidebar() {
   const [currentEmployee, setCurrentEmployee] = useState<any>(null)
   const [placeEmployees, setPlaceEmployees] = useState<Map<string, any[]>>(new Map())
   const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<{ id: string, name_ar?: string } | null>(null)
+  const [selectedSenderInfo, setSelectedSenderInfo] = useState<{ id: string, full_name?: string, email?: string, avatar_url?: string } | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -150,15 +151,26 @@ export default function ConversationsSidebar() {
           const placeOwnerId = placeData.user_id
           console.log('✅ [OPEN CONVERSATION] Opening conversation with place owner:', { placeOwnerId, placeId: openConversationPlaceId })
           
-          // Fetch place info to show place name
-          const { data: placeInfo } = await supabase
-            .from('places')
-            .select('id, name_ar')
-            .eq('id', openConversationPlaceId)
-            .single()
+          // Fetch place info and sender info to show in header
+          const [placeResult, senderResult] = await Promise.all([
+            supabase
+              .from('places')
+              .select('id, name_ar')
+              .eq('id', openConversationPlaceId)
+              .single(),
+            supabase
+              .from('user_profiles')
+              .select('id, full_name, email, avatar_url')
+              .eq('id', placeOwnerId)
+              .single()
+          ])
           
-          if (placeInfo) {
-            setSelectedPlaceInfo(placeInfo)
+          if (placeResult.data) {
+            setSelectedPlaceInfo(placeResult.data)
+          }
+          
+          if (senderResult.data) {
+            setSelectedSenderInfo(senderResult.data)
           }
           
           // Open conversation with place owner
@@ -773,6 +785,27 @@ export default function ConversationsSidebar() {
           }
         })
     }
+    
+    // Fetch sender info if not already loaded (for cases where conversation doesn't exist yet)
+    if (!selectedSenderInfo || selectedSenderInfo.id !== senderId) {
+      // Check if sender info is in messages
+      const messageWithSender = messages.find(m => m.sender_id === senderId && m.sender)
+      if (messageWithSender?.sender) {
+        setSelectedSenderInfo(messageWithSender.sender)
+      } else {
+        // Fetch sender profile from database
+        supabase
+          .from('user_profiles')
+          .select('id, full_name, email, avatar_url')
+          .eq('id', senderId)
+          .single()
+          .then(({ data }) => {
+            if (data) {
+              setSelectedSenderInfo(data)
+            }
+          })
+      }
+    }
   }
 
   const markAsRead = async (senderId: string, placeId: string) => {
@@ -1223,28 +1256,8 @@ export default function ConversationsSidebar() {
                 const conversation = conversations.find(
                   (c) => c.senderId === selectedConversation && c.placeId === selectedPlaceId
                 )
-                // If no conversation found but we have placeId, try to get sender info from messages or fetch profile
-                let senderInfo = conversation?.sender
-                if (!senderInfo && selectedConversation) {
-                  // Try to get sender info from messages
-                  const messageWithSender = messages.find(m => m.sender_id === selectedConversation)
-                  if (messageWithSender?.sender) {
-                    senderInfo = messageWithSender.sender
-                  } else {
-                    // Fetch sender profile if not in messages
-                    supabase
-                      .from('user_profiles')
-                      .select('id, full_name, email, avatar_url')
-                      .eq('id', selectedConversation)
-                      .single()
-                      .then(({ data }) => {
-                        if (data) {
-                          senderInfo = data
-                        }
-                      })
-                  }
-                }
-                
+                // Use conversation sender if available, otherwise use selectedSenderInfo
+                const senderInfo = conversation?.sender || selectedSenderInfo
                 const placeName = conversation?.placeName || selectedPlaceInfo?.name_ar
                 
                 return (
@@ -1281,6 +1294,7 @@ export default function ConversationsSidebar() {
                         setSelectedConversation(null)
                         setSelectedPlaceId(null)
                         setSelectedPlaceInfo(null)
+                        setSelectedSenderInfo(null)
                       }}
                       className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                     >
