@@ -1730,7 +1730,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         <div className="px-4 pb-4">
                           <div className="relative inline-block border-2 border-purple-300 rounded-lg p-2 bg-purple-50">
                             <div className="flex items-center gap-2">
-                              {selectedProduct!.images && (selectedProduct!.images.length ?? 0) > 0 && selectedProduct!.images[0] && (
+                              {selectedProduct!.images?.length && selectedProduct!.images.length > 0 && selectedProduct!.images[0] && (
                                 <img
                                   src={selectedProduct!.images[0].image_url}
                                   alt={selectedProduct!.name_ar}
