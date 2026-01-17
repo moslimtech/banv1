@@ -72,6 +72,7 @@ export default function ConversationsSidebar() {
   const [products, setProducts] = useState<any[]>([])
   const [currentEmployee, setCurrentEmployee] = useState<any>(null)
   const [placeEmployees, setPlaceEmployees] = useState<Map<string, any[]>>(new Map())
+  const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<{ id: string, name_ar?: string } | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -148,6 +149,18 @@ export default function ConversationsSidebar() {
         if (placeData) {
           const placeOwnerId = placeData.user_id
           console.log('✅ [OPEN CONVERSATION] Opening conversation with place owner:', { placeOwnerId, placeId: openConversationPlaceId })
+          
+          // Fetch place info to show place name
+          const { data: placeInfo } = await supabase
+            .from('places')
+            .select('id, name_ar')
+            .eq('id', openConversationPlaceId)
+            .single()
+          
+          if (placeInfo) {
+            setSelectedPlaceInfo(placeInfo)
+          }
+          
           // Open conversation with place owner
           selectConversation(placeOwnerId, openConversationPlaceId)
           // Remove query parameter from URL
@@ -742,6 +755,24 @@ export default function ConversationsSidebar() {
     
     // Mark messages as read
     markAsRead(senderId, placeId)
+    
+    // Fetch place info if not already loaded
+    const userPlace = userPlaces.find(p => p.id === placeId)
+    if (userPlace) {
+      setSelectedPlaceInfo(userPlace)
+    } else if (!selectedPlaceInfo || selectedPlaceInfo.id !== placeId) {
+      // Fetch place info from database
+      supabase
+        .from('places')
+        .select('id, name_ar')
+        .eq('id', placeId)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setSelectedPlaceInfo(data)
+          }
+        })
+    }
   }
 
   const markAsRead = async (senderId: string, placeId: string) => {
@@ -1192,13 +1223,37 @@ export default function ConversationsSidebar() {
                 const conversation = conversations.find(
                   (c) => c.senderId === selectedConversation && c.placeId === selectedPlaceId
                 )
+                // If no conversation found but we have placeId, try to get sender info from messages or fetch profile
+                let senderInfo = conversation?.sender
+                if (!senderInfo && selectedConversation) {
+                  // Try to get sender info from messages
+                  const messageWithSender = messages.find(m => m.sender_id === selectedConversation)
+                  if (messageWithSender?.sender) {
+                    senderInfo = messageWithSender.sender
+                  } else {
+                    // Fetch sender profile if not in messages
+                    supabase
+                      .from('user_profiles')
+                      .select('id, full_name, email, avatar_url')
+                      .eq('id', selectedConversation)
+                      .single()
+                      .then(({ data }) => {
+                        if (data) {
+                          senderInfo = data
+                        }
+                      })
+                  }
+                }
+                
+                const placeName = conversation?.placeName || selectedPlaceInfo?.name_ar
+                
                 return (
                   <div className="flex items-center gap-2">
-                    {conversation?.sender?.avatar_url ? (
+                    {senderInfo?.avatar_url ? (
                       <div className="relative flex-shrink-0">
                         <img
-                          src={conversation.sender.avatar_url}
-                          alt={conversation.sender.full_name || conversation.sender.email || ''}
+                          src={senderInfo.avatar_url}
+                          alt={senderInfo.full_name || senderInfo.email || ''}
                           className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-slate-600 object-cover shadow-sm"
                         />
                         <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
@@ -1206,18 +1261,18 @@ export default function ConversationsSidebar() {
                     ) : (
                       <div className="relative flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-sm border-2 border-gray-200 dark:border-slate-600">
-                          {(conversation?.sender?.full_name?.[0] || conversation?.sender?.email?.[0] || 'U').toUpperCase()}
+                          {(senderInfo?.full_name?.[0] || senderInfo?.email?.[0] || 'U').toUpperCase()}
                         </div>
                         <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-sm text-gray-900 dark:text-slate-100 truncate">
-                        {conversation?.sender?.full_name || conversation?.sender?.email || 'مستخدم'}
+                        {senderInfo?.full_name || senderInfo?.email || 'مستخدم'}
                       </p>
-                      {conversation?.placeName && (
+                      {placeName && (
                         <p className="text-[10px] text-gray-700 dark:text-slate-400">
-                          {conversation.placeName}
+                          {placeName}
                         </p>
                       )}
                     </div>
@@ -1225,6 +1280,7 @@ export default function ConversationsSidebar() {
                       onClick={() => {
                         setSelectedConversation(null)
                         setSelectedPlaceId(null)
+                        setSelectedPlaceInfo(null)
                       }}
                       className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                     >
