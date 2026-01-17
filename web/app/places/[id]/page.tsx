@@ -1414,7 +1414,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                               {conversation.sender?.avatar_url ? (
                                 <div className="relative flex-shrink-0">
                                   <img
-                                    src={conversation.sender.avatar_url || ''}
+                                    src={conversation.sender?.avatar_url || ''}
                                     alt={conversation.sender?.full_name || conversation.sender?.email || ''}
                                     className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-gray-200 dark:border-slate-600 object-cover shadow-sm"
                                     onError={(e) => {
