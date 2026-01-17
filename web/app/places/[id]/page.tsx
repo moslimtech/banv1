@@ -970,13 +970,31 @@ function PlacePageContent({ productId }: { productId: string | null }) {
         {/* Place Header */}
         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
-            {place.logo_url && (
+            {place.logo_url ? (
               <div className="flex-shrink-0 mx-auto md:mx-0">
                 <img
                   src={place.logo_url}
                   alt={place.name_ar}
                   className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 object-cover rounded-lg border-2 border-gray-200"
+                  onError={(e) => {
+                    // Hide broken image and show placeholder
+                    const target = e.target as HTMLImageElement
+                    target.style.display = 'none'
+                    const parent = target.parentElement
+                    if (parent && !parent.querySelector('.logo-placeholder')) {
+                      const placeholder = document.createElement('div')
+                      placeholder.className = 'logo-placeholder w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg border-2 border-gray-200 flex items-center justify-center text-white text-2xl sm:text-3xl md:text-4xl font-bold'
+                      placeholder.textContent = place.name_ar?.[0]?.toUpperCase() || 'M'
+                      parent.appendChild(placeholder)
+                    }
+                  }}
                 />
+              </div>
+            ) : (
+              <div className="flex-shrink-0 mx-auto md:mx-0">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg border-2 border-gray-200 flex items-center justify-center text-white text-2xl sm:text-3xl md:text-4xl font-bold">
+                  {place.name_ar?.[0]?.toUpperCase() || 'M'}
+                </div>
               </div>
             )}
             <div className="flex-1 text-center md:text-right">
