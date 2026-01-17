@@ -1735,7 +1735,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             <div className="flex items-center gap-2">
                               {firstImage && (
                                 <img
-                                  src={firstImage.image_url || ''}
+                                  src={firstImage!.image_url || ''}
                                   alt={product.name_ar}
                                   className="h-16 w-16 object-cover rounded"
                                 />
