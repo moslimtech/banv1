@@ -55,10 +55,11 @@ export default function NavBar() {
     { href: '/dashboard/packages', label: 'الباقات', icon: Package },
   ]
 
-  // Combine visible links (admin links moved to dashboard dropdown)
+  // Combine visible links
   const visibleLinks = [
     ...publicLinks,
     ...(user ? authLinks : []),
+    ...(userProfile?.is_admin ? [{ href: '/admin', label: 'لوحة الإدارة', icon: Settings }] : []),
   ]
 
   return (
