@@ -96,18 +96,59 @@ export default function ConversationsSidebar() {
       const params = new URLSearchParams(window.location.search)
       const openConversationPlaceId = params.get('openConversation')
       
-      if (openConversationPlaceId && user && userPlaces.length > 0 && messages.length > 0) {
-        // Find conversation with this place
-        const conversations = getConversations()
-        const conversation = conversations.find(c => c.placeId === openConversationPlaceId)
+      if (openConversationPlaceId && user) {
+        // First try to find existing conversation
+        if (messages.length > 0) {
+          const conversations = getConversations()
+          const conversation = conversations.find(c => c.placeId === openConversationPlaceId)
+          
+          if (conversation) {
+            selectConversation(conversation.senderId, conversation.placeId)
+            // Remove query parameter from URL
+            params.delete('openConversation')
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
+            window.history.replaceState({}, '', newUrl)
+            return
+          }
+        }
         
-        if (conversation) {
-          selectConversation(conversation.senderId, conversation.placeId)
+        // If no conversation found, check if user owns this place
+        const userPlace = userPlaces.find(p => p.id === openConversationPlaceId)
+        if (userPlace) {
+          // User owns the place - open sidebar but don't select conversation yet
+          // (will show when client sends a message)
+          setIsOpen(true)
           // Remove query parameter from URL
           params.delete('openConversation')
           const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
           window.history.replaceState({}, '', newUrl)
+          return
         }
+        
+        // If user doesn't own the place, fetch place owner to open conversation
+        const openConversation = async () => {
+          try {
+            const { data: placeData, error } = await supabase
+              .from('places')
+              .select('user_id')
+              .eq('id', openConversationPlaceId)
+              .single()
+            
+            if (!error && placeData) {
+              const placeOwnerId = placeData.user_id
+              // Open conversation with place owner
+              selectConversation(placeOwnerId, openConversationPlaceId)
+              // Remove query parameter from URL
+              params.delete('openConversation')
+              const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '')
+              window.history.replaceState({}, '', newUrl)
+            }
+          } catch (error) {
+            console.error('Error fetching place owner:', error)
+          }
+        }
+        
+        openConversation()
       }
     }
   }, [user, userPlaces, messages])
