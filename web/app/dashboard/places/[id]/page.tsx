@@ -302,9 +302,23 @@ export default function PlaceDetailsPage() {
           >
             ← العودة للوحة التحكم
           </Link>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {!isEditing ? (
               <>
+                <Link
+                  href={`/dashboard/places/${placeId}/employees`}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                >
+                  <Users size={18} />
+                  إدارة الموظفين
+                </Link>
+                <Link
+                  href={`/dashboard/places/${placeId}/posts`}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  <FileText size={18} />
+                  إدارة المنشورات
+                </Link>
                 <button
                   onClick={handleStartEdit}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
