@@ -1011,35 +1011,24 @@ function PlacePageContent({ productId }: { productId: string | null }) {
               </div>
               
               {/* Employee Request and Message Buttons - Only for logged-in clients */}
-              {user && !isOwner && !isEmployee && (
-                <div className="mt-4 flex justify-center md:justify-start gap-2 flex-wrap">
-                  {hasPendingRequest ? (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <CheckCircle size={18} />
-                      <span className="text-sm font-medium">طلبك قيد المراجعة</span>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowEmployeeRequestModal(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
-                    >
-                      <UserPlus size={18} />
-                      <span>انضمام كموظف</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => router.push(`/dashboard?openConversation=${placeId}`)}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium"
-                  >
-                    <MessageCircle size={18} />
-                    <span>إرسال رسالة</span>
-                  </button>
-                </div>
-              )}
-              
-              {/* Message Button for logged-in users (including employees) */}
               {user && !isOwner && (
-                <div className="mt-4 flex justify-center md:justify-start">
+                <div className="mt-4 flex justify-center md:justify-start gap-2 flex-wrap">
+                  {!isEmployee && (
+                    hasPendingRequest ? (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                        <CheckCircle size={18} />
+                        <span className="text-sm font-medium">طلبك قيد المراجعة</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowEmployeeRequestModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <UserPlus size={18} />
+                        <span>انضمام كموظف</span>
+                      </button>
+                    )
+                  )}
                   <button
                     onClick={() => router.push(`/dashboard?openConversation=${placeId}`)}
                     className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium"
