@@ -1445,7 +1445,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                                   {sender?.full_name || sender?.email || 'مستخدم'}
                                 </p>
                                 <p className="text-[10px] sm:text-xs text-gray-700 dark:text-slate-400">
-                                  {conversation.messageCount || 0} رسالة
+                                  {conversation!.messageCount || 0} رسالة
                                 </p>
                               </div>
                             </div>
