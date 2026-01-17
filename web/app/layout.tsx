@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -54,7 +55,9 @@ export default function RootLayout({
         <NavBar />
         <Breadcrumbs />
         {children}
-        <ConversationsSidebar />
+        <Suspense fallback={null}>
+          <ConversationsSidebar />
+        </Suspense>
         <Script
           src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
           strategy="lazyOnload"
