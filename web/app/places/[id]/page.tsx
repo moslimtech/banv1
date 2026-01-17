@@ -1639,10 +1639,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <p className="text-xs font-semibold text-gray-700 mb-1">
-                                  رد على: {replyingTo.sender?.full_name || replyingTo.sender?.email || 'مستخدم'}
+                                  رد على: {replyingTo!.sender?.full_name || replyingTo!.sender?.email || 'مستخدم'}
                                 </p>
                                 <p className="text-sm text-gray-600 line-clamp-2">
-                                  {replyingTo.content || 'صورة'}
+                                  {replyingTo!.content || 'صورة'}
                                 </p>
                               </div>
                               <button
@@ -1975,10 +1975,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <p className="text-xs font-semibold text-gray-700 mb-1">
-                            رد على: {replyingTo.sender?.full_name || replyingTo.sender?.email || place.name_ar}
+                            رد على: {replyingTo!.sender?.full_name || replyingTo!.sender?.email || place.name_ar}
                           </p>
                           <p className="text-sm text-gray-600 line-clamp-2">
-                            {replyingTo.content || 'صورة'}
+                            {replyingTo!.content || 'صورة'}
                           </p>
                         </div>
                         <button
