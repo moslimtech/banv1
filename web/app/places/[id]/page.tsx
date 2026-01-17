@@ -1732,7 +1732,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             <div className="flex items-center gap-2">
                               {selectedProduct!.images?.length && selectedProduct!.images.length > 0 && selectedProduct!.images[0] && (
                                 <img
-                                  src={selectedProduct!.images[0].image_url}
+                                  src={selectedProduct!.images[0]?.image_url || ''}
                                   alt={selectedProduct!.name_ar}
                                   className="h-16 w-16 object-cover rounded"
                                 />
