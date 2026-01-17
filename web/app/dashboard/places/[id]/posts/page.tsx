@@ -78,7 +78,7 @@ export default function PlacePostsPage() {
       .eq('place_id', placeId)
       .eq('is_active', true)
       .in('permissions', ['messages_posts', 'full'])
-      .single()
+      .maybeSingle()
 
     if (employeeData) {
       setHasPermission(true)

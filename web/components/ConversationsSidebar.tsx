@@ -1370,20 +1370,23 @@ export default function ConversationsSidebar() {
                 )}
               </div>
               )}
-              {selectedProduct && (
+              {selectedProduct && (() => {
+                const product = selectedProduct!
+                const firstImage = product.images?.[0]
+                return (
                 <div className="border-2 border-purple-300 rounded-lg p-2 bg-purple-50">
                   <div className="flex items-center gap-2">
-                    {selectedProduct.images && selectedProduct.images.length > 0 && (
+                    {firstImage && (
                       <img
-                        src={selectedProduct.images[0].image_url}
-                        alt={selectedProduct.name_ar}
+                        src={firstImage!.image_url || ''}
+                        alt={product.name_ar}
                         className="h-12 w-12 object-cover rounded"
                       />
                     )}
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-900">{selectedProduct.name_ar}</p>
-                      {selectedProduct.price && (
-                        <p className="text-xs text-blue-600">{selectedProduct.price} {selectedProduct.currency}</p>
+                      <p className="text-xs font-semibold text-gray-900">{product.name_ar}</p>
+                      {product.price && (
+                        <p className="text-xs text-blue-600">{product.price} {product.currency}</p>
                       )}
                     </div>
                     <button
@@ -1398,7 +1401,7 @@ export default function ConversationsSidebar() {
               {selectedImage && (
                 <div className="relative inline-block">
                   <img
-                    src={URL.createObjectURL(selectedImage)}
+                    src={URL.createObjectURL(selectedImage!)}
                     alt="Selected"
                     className="h-16 w-16 object-cover rounded border-2 border-gray-200"
                   />

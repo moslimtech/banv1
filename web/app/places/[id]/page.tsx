@@ -1761,7 +1761,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         <div className="px-4 pb-4">
                           <div className="relative inline-block">
                             <img
-                              src={URL.createObjectURL(selectedImage)}
+                              src={URL.createObjectURL(selectedImage!)}
                               alt="Selected"
                               className="h-20 w-20 object-cover rounded border-2 border-gray-200"
                             />
@@ -2057,7 +2057,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                   <div className="mt-2">
                     <div className="relative inline-block">
                       <img
-                        src={URL.createObjectURL(selectedImage)}
+                        src={URL.createObjectURL(selectedImage!)}
                         alt="Selected"
                         className="h-20 w-20 object-cover rounded border-2 border-gray-200"
                       />
@@ -2262,10 +2262,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                               <Video className="text-gray-400" size={20} />
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
-                                  {selectedVideoFile.name}
+                                  {selectedVideoFile!.name}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-slate-400">
-                                  الحجم: {(selectedVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                                  الحجم: {(selectedVideoFile!.size / (1024 * 1024)).toFixed(2)} MB
                                 </p>
                               </div>
                               <button
