@@ -59,9 +59,9 @@ export default function PlaceEmployeesPage() {
 
   const loadRequests = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: requestsData, error } = await supabase
         .from('employee_requests')
-        .select('*, user:user_profiles(*)')
+        .select('*')
         .eq('place_id', placeId)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
@@ -71,7 +71,29 @@ export default function PlaceEmployeesPage() {
         return
       }
 
-      setRequests(data || [])
+      // Load user profiles for requests
+      if (requestsData && requestsData.length > 0) {
+        const userIds = requestsData.map(r => r.user_id)
+        const { data: userProfiles } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .in('id', userIds)
+
+        // Map user profiles to requests
+        const profilesMap = new Map()
+        if (userProfiles) {
+          userProfiles.forEach(profile => {
+            profilesMap.set(profile.id, profile)
+          })
+        }
+
+        // Attach user profiles to requests
+        requestsData.forEach(request => {
+          request.user = profilesMap.get(request.user_id)
+        })
+      }
+
+      setRequests(requestsData || [])
     } catch (error) {
       console.error('Error loading requests:', error)
     }
@@ -79,9 +101,9 @@ export default function PlaceEmployeesPage() {
 
   const loadEmployees = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: employeesData, error } = await supabase
         .from('place_employees')
-        .select('*, user:user_profiles(*)')
+        .select('*')
         .eq('place_id', placeId)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -91,7 +113,29 @@ export default function PlaceEmployeesPage() {
         return
       }
 
-      setEmployees(data || [])
+      // Load user profiles for employees
+      if (employeesData && employeesData.length > 0) {
+        const userIds = employeesData.map(e => e.user_id)
+        const { data: userProfiles } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .in('id', userIds)
+
+        // Map user profiles to employees
+        const profilesMap = new Map()
+        if (userProfiles) {
+          userProfiles.forEach(profile => {
+            profilesMap.set(profile.id, profile)
+          })
+        }
+
+        // Attach user profiles to employees
+        employeesData.forEach(employee => {
+          employee.user = profilesMap.get(employee.user_id)
+        })
+      }
+
+      setEmployees(employeesData || [])
     } catch (error) {
       console.error('Error loading employees:', error)
     }
