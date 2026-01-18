@@ -39,7 +39,7 @@ export default function FeaturedPlaces({ places }: FeaturedPlacesProps) {
 
   return (
     <div className="mb-6 sm:mb-8">
-      <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900">الأماكن المميزة</h2>
+      <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 app-text-main">الأماكن المميزة</h2>
       <div
         ref={scrollContainerRef}
         className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 scrollbar-hide"

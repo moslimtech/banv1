@@ -203,10 +203,10 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
 
   if (!mounted) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center rounded-lg app-bg-surface">
         <div className="text-center">
-          <Loader2 className="animate-spin mx-auto mb-2" size={24} />
-          <p className="text-gray-600">جاري تحميل الخريطة...</p>
+          <Loader2 className="animate-spin mx-auto mb-2" size={24} style={{ color: 'var(--primary-color)' }} />
+          <p className="app-text-muted">جاري تحميل الخريطة...</p>
         </div>
       </div>
     )
@@ -215,9 +215,9 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
   return (
     <div className="w-full h-full relative">
       {loadingLocation && (
-        <div className="absolute top-2 left-2 z-[1000] bg-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2">
-          <Loader2 className="animate-spin" size={16} />
-          <span className="text-sm">جاري تحديد موقعك...</span>
+        <div className="absolute top-2 left-2 z-[1000] px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 app-card">
+          <Loader2 className="animate-spin" size={16} style={{ color: 'var(--primary-color)' }} />
+          <span className="text-sm app-text-main">جاري تحديد موقعك...</span>
         </div>
       )}
 
@@ -225,7 +225,20 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
       <button
         onClick={handleGetCurrentLocation}
         disabled={loadingLocation}
-        className="absolute bottom-4 left-4 z-[1000] bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center"
+        className="absolute bottom-4 left-4 z-[1000] text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center"
+        style={{ 
+          background: loadingLocation ? 'var(--text-muted)' : 'var(--primary-color)'
+        }}
+        onMouseEnter={(e) => {
+          if (!loadingLocation) {
+            e.currentTarget.style.opacity = '0.9'
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!loadingLocation) {
+            e.currentTarget.style.opacity = '1'
+          }
+        }}
         title="تحديد موقعي"
       >
         {loadingLocation ? (
@@ -257,29 +270,29 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
           <Popup className="min-w-[250px]">
             <div className="text-right">
               <div className="flex items-start gap-2 mb-2">
-                <MapPin className="text-blue-500 mt-1 flex-shrink-0" size={18} />
+                <MapPin className="mt-1 flex-shrink-0" size={18} style={{ color: 'var(--primary-color)' }} />
                 <div className="flex-1">
-                  <p className="font-semibold text-lg mb-1">الموقع المحدد</p>
+                  <p className="font-semibold text-lg mb-1 app-text-main">الموقع المحدد</p>
                   {locationInfo ? (
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-800 font-medium">{locationInfo.fullAddress}</p>
+                      <p className="text-sm font-medium app-text-main">{locationInfo.fullAddress}</p>
                       {locationInfo.district && (
-                        <p className="text-xs text-gray-600">المنطقة: {locationInfo.district}</p>
+                        <p className="text-xs app-text-muted">المنطقة: {locationInfo.district}</p>
                       )}
                       {locationInfo.city && (
-                        <p className="text-xs text-gray-600">المدينة: {locationInfo.city}</p>
+                        <p className="text-xs app-text-muted">المدينة: {locationInfo.city}</p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-600">جاري جلب معلومات الموقع...</p>
+                    <p className="text-sm app-text-muted">جاري جلب معلومات الموقع...</p>
                   )}
                 </div>
               </div>
-              <div className="mt-2 pt-2 border-t border-gray-200">
-                <p className="text-xs text-gray-500">
+              <div className="mt-2 pt-2 border-t app-border">
+                <p className="text-xs app-text-muted">
                   الإحداثيات: {markerPosition[0].toFixed(6)}, {markerPosition[1].toFixed(6)}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">اسحب العلامة أو انقر على الخريطة لتغيير الموقع</p>
+                <p className="text-xs app-text-subtle mt-1">اسحب العلامة أو انقر على الخريطة لتغيير الموقع</p>
               </div>
             </div>
           </Popup>

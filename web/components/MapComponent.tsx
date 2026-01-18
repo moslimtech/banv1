@@ -48,8 +48,8 @@ export default function MapComponent({ latitude, longitude, placeName }: MapComp
 
   if (!mounted) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
-        <p className="text-gray-600">جاري تحميل الخريطة...</p>
+      <div className="w-full h-full flex items-center justify-center rounded-lg app-bg-surface">
+        <p className="app-text-muted">جاري تحميل الخريطة...</p>
       </div>
     )
   }
@@ -71,26 +71,26 @@ export default function MapComponent({ latitude, longitude, placeName }: MapComp
           <Popup className="min-w-[250px]">
             <div className="text-right">
               <div className="flex items-start gap-2 mb-2">
-                <MapPin className="text-blue-500 mt-1 flex-shrink-0" size={18} />
+                <MapPin className="mt-1 flex-shrink-0" size={18} style={{ color: 'var(--primary-color)' }} />
                 <div className="flex-1">
-                  <p className="font-semibold text-lg mb-1">{placeName}</p>
+                  <p className="font-semibold text-lg mb-1 app-text-main">{placeName}</p>
                   {locationInfo ? (
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-800 font-medium">{locationInfo.fullAddress}</p>
+                      <p className="text-sm font-medium app-text-main">{locationInfo.fullAddress}</p>
                       {locationInfo.district && (
-                        <p className="text-xs text-gray-600">المنطقة: {locationInfo.district}</p>
+                        <p className="text-xs app-text-muted">المنطقة: {locationInfo.district}</p>
                       )}
                       {locationInfo.city && (
-                        <p className="text-xs text-gray-600">المدينة: {locationInfo.city}</p>
+                        <p className="text-xs app-text-muted">المدينة: {locationInfo.city}</p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-600">جاري جلب معلومات الموقع...</p>
+                    <p className="text-sm app-text-muted">جاري جلب معلومات الموقع...</p>
                   )}
                 </div>
               </div>
-              <div className="mt-2 pt-2 border-t border-gray-200">
-                <p className="text-xs text-gray-500">
+              <div className="mt-2 pt-2 border-t app-border">
+                <p className="text-xs app-text-muted">
                   الإحداثيات: {latitude.toFixed(6)}, {longitude.toFixed(6)}
                 </p>
               </div>

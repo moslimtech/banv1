@@ -965,10 +965,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-bg-base">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Place Header */}
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="app-card shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
             {place.logo_url ? (
               <div className="flex-shrink-0 mx-auto md:mx-0">
@@ -1034,7 +1034,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                 <div className="mt-4 flex justify-center md:justify-start gap-2 flex-wrap">
                   {!isEmployee && (
                     hasPendingRequest ? (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-lg border app-border" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>
                         <CheckCircle size={18} />
                         <span className="text-sm font-medium">طلبك قيد المراجعة</span>
                       </div>
@@ -1066,7 +1066,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
               {/* Video - Small inline video */}
               {videoId && (
                 <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">فيديو المكان</h3>
+                  <h3 className="text-sm font-semibold app-text-main mb-2">فيديو المكان</h3>
                   <div className="aspect-video rounded-lg overflow-hidden max-w-sm mx-auto md:mx-0">
                     <iframe
                       src={getYouTubeEmbedUrl(videoId)}
@@ -1084,7 +1084,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
         {/* Employee Request Modal */}
         {showEmployeeRequestModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="app-card shadow-xl max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">طلب انضمام كموظف</h3>
                 <button
@@ -1111,7 +1111,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                   value={employeePhone}
                   onChange={(e) => setEmployeePhone(e.target.value)}
                   placeholder="مثال: 01234567890"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                  className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                 />
               </div>
               
@@ -1127,7 +1130,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                     setShowEmployeeRequestModal(false)
                     setEmployeePhone('')
                   }}
-                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 rounded-lg transition-colors app-bg-surface app-hover-bg app-text-main"
                 >
                   إلغاء
                 </button>
@@ -1137,7 +1140,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
         )}
 
         {/* Posts and Products Tabs */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="app-card shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
           {/* Tabs */}
           <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-slate-700">
             <div className="flex gap-2">
@@ -1315,7 +1318,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             {product.variants.map((variant) => (
                               <span
                                 key={variant.id}
-                                className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs"
+                                className="px-2 py-1 rounded text-xs app-bg-surface"
                               >
                                 {variant.variant_name_ar}: {variant.variant_value}
                               </span>
@@ -1336,8 +1339,8 @@ function PlacePageContent({ productId }: { productId: string | null }) {
       {/* Add Post Modal */}
       {showAddPostModal && canManagePosts && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b dark:border-slate-700 p-4 flex items-center justify-between">
+          <div className="app-card shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 app-card border-b app-border p-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">إضافة منشور جديد</h3>
               <button
                 onClick={() => {
@@ -1364,9 +1367,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                     onClick={() => setPostData({ ...postData, post_type: 'text', image_url: '', video_url: '' })}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       postData.post_type === 'text'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                        ? 'text-white'
+                        : 'app-bg-surface app-text-main'
                     }`}
+                    style={postData.post_type === 'text' ? { background: 'var(--primary-color)' } : {}}
                   >
                     نص
                   </button>
@@ -1374,9 +1378,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                     onClick={() => setPostData({ ...postData, post_type: 'image', video_url: '' })}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       postData.post_type === 'image'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                        ? 'text-white'
+                        : 'app-bg-surface app-text-main'
                     }`}
+                    style={postData.post_type === 'image' ? { background: 'var(--primary-color)' } : {}}
                   >
                     صورة
                   </button>
@@ -1384,9 +1389,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                     onClick={() => setPostData({ ...postData, post_type: 'video', image_url: '' })}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       postData.post_type === 'video'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                        ? 'text-white'
+                        : 'app-bg-surface app-text-main'
                     }`}
+                    style={postData.post_type === 'video' ? { background: 'var(--primary-color)' } : {}}
                   >
                     فيديو
                   </button>
@@ -1403,7 +1409,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                   onChange={(e) => setPostData({ ...postData, content: e.target.value })}
                   placeholder="اكتب محتوى المنشور هنا..."
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                  className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                 />
               </div>
 
@@ -1428,9 +1437,9 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700">
-                      <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600 dark:text-slate-400">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer app-border app-hover-bg">
+                      <ImageIcon className="w-8 h-8 mb-2" style={{ color: 'var(--text-muted)' }} />
+                      <span className="text-sm app-text-muted">
                         {uploadingImage ? 'جاري الرفع...' : 'انقر لرفع صورة'}
                       </span>
                       <input
@@ -1462,9 +1471,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         }}
                         className={`px-4 py-2 rounded-lg transition-colors ${
                           videoUploadMethod === 'link'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                            ? 'text-white'
+                            : 'app-bg-surface app-text-main'
                         }`}
+                        style={videoUploadMethod === 'link' ? { background: 'var(--primary-color)' } : {}}
                       >
                         رابط YouTube
                       </button>
@@ -1475,9 +1485,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         }}
                         className={`px-4 py-2 rounded-lg transition-colors ${
                           videoUploadMethod === 'upload'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                            ? 'text-white'
+                            : 'app-bg-surface app-text-main'
                         }`}
+                        style={videoUploadMethod === 'upload' ? { background: 'var(--primary-color)' } : {}}
                       >
                         رفع من الجهاز
                       </button>
@@ -1495,7 +1506,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         value={postData.video_url}
                         onChange={(e) => setPostData({ ...postData, video_url: e.target.value })}
                         placeholder="https://www.youtube.com/watch?v=..."
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                        className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                       />
                     </div>
                   )}
@@ -1510,7 +1524,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                         </label>
                         {selectedVideoFile ? (
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
+                            <div className="flex items-center gap-2 p-3 app-bg-surface rounded-lg">
                               <Video className="text-gray-400" size={20} />
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
@@ -1533,13 +1547,16 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             <button
                               onClick={handleVideoUpload}
                               disabled={uploadingVideo || !videoTitle.trim()}
-                              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                              className="w-full px-4 py-2 text-white rounded-lg transition-colors font-medium disabled:cursor-not-allowed"
+                              style={{ background: (uploadingVideo || !videoTitle.trim()) ? 'var(--text-muted)' : 'var(--secondary-color)' }}
+                              onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.opacity = '0.9')}
+                              onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.opacity = '1')}
                             >
                               {uploadingVideo ? 'جاري الرفع...' : 'رفع الفيديو إلى YouTube'}
                             </button>
                           </div>
                         ) : (
-                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer app-border app-hover-bg">
                             <Upload className="w-8 h-8 text-gray-400 mb-2" />
                             <span className="text-sm text-gray-600 dark:text-slate-400">
                               انقر لاختيار فيديو
@@ -1569,7 +1586,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                             value={videoTitle}
                             onChange={(e) => setVideoTitle(e.target.value)}
                             placeholder="أدخل عنوان الفيديو"
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                            className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                             maxLength={100}
                           />
                           <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">
@@ -1587,7 +1607,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                 <button
                   onClick={handleSavePost}
                   disabled={uploadingImage || uploadingVideo || !postData.content.trim() || (postData.post_type === 'video' && videoUploadMethod === 'upload' && !postData.video_url)}
-                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 text-white rounded-lg transition-colors font-medium disabled:cursor-not-allowed"
+                  style={{ background: (uploadingImage || uploadingVideo || !postData.content.trim() || (postData.post_type === 'video' && videoUploadMethod === 'upload' && !postData.video_url)) ? 'var(--text-muted)' : 'var(--primary-color)' }}
+                  onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.opacity = '0.9')}
+                  onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.opacity = '1')}
                 >
                   {uploadingVideo ? 'جاري الرفع...' : 'إضافة المنشور'}
                 </button>
@@ -1599,7 +1622,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                     setVideoTitle('')
                     setVideoUploadMethod('link')
                   }}
-                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 rounded-lg transition-colors app-bg-surface app-hover-bg app-text-main"
                 >
                   إلغاء
                 </button>
@@ -1642,10 +1665,10 @@ function PlacePageContent({ productId }: { productId: string | null }) {
             onClick={() => setShowProductPicker(false)}
           />
           {/* Bottom Sheet */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 max-h-[80vh] flex flex-col animate-slide-up">
+          <div className="fixed bottom-0 left-0 right-0 app-card rounded-t-2xl shadow-2xl z-50 max-h-[80vh] flex flex-col animate-slide-up">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 bg-gray-300 rounded-full" />
+              <div className="w-12 h-1 rounded-full" style={{ background: 'var(--border-color)' }} />
             </div>
             
             {/* Header */}
@@ -1654,7 +1677,7 @@ function PlacePageContent({ productId }: { productId: string | null }) {
                 <h3 className="text-lg font-bold text-gray-900">اختر منتج للمشاركة</h3>
                 <button
                   onClick={() => setShowProductPicker(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 rounded-full transition-colors app-hover-bg"
                 >
                   <X size={20} />
                 </button>

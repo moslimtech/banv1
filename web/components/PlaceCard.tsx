@@ -11,25 +11,42 @@ interface PlaceCardProps {
 }
 
 export default function PlaceCard({ place, cardStyle = 'default' }: PlaceCardProps) {
-  const getCardClassName = () => {
+  const getCardStyle = (): React.CSSProperties => {
     switch (cardStyle) {
       case 'premium':
-        return 'border-2 border-yellow-400 shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50'
+        return {
+          border: '2px solid var(--status-warning)',
+          background: 'linear-gradient(to bottom right, var(--status-yellow-bg), rgba(245, 158, 11, 0.1))',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+        }
       case 'gold':
-        return 'border-2 border-amber-500 shadow-xl bg-gradient-to-br from-amber-50 to-yellow-50'
+        return {
+          border: '2px solid var(--status-warning)',
+          background: 'linear-gradient(to bottom right, var(--status-yellow-bg), rgba(245, 158, 11, 0.1))',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+        }
       case 'silver':
-        return 'border border-gray-300 shadow-md bg-gradient-to-br from-gray-50 to-slate-50'
+        return {
+          border: '1px solid var(--border-color)',
+          background: 'linear-gradient(to bottom right, var(--surface-color), var(--bg-color))',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        }
       default:
-        return 'border border-gray-200 shadow-sm bg-white'
+        return {
+          border: '1px solid var(--border-color)',
+          background: 'var(--background)',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+        }
     }
   }
 
   return (
     <Link href={`/places/${place.id}`}>
       <div
-        className={`rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 cursor-pointer ${getCardClassName()}`}
+        className="rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 cursor-pointer"
+        style={getCardStyle()}
       >
-        <div className="relative h-40 sm:h-48 w-full bg-gray-200">
+        <div className="relative h-40 sm:h-48 w-full app-bg-surface">
           {place.logo_url ? (
             <div className="w-full h-full relative">
               <img
@@ -54,20 +71,20 @@ export default function PlaceCard({ place, cardStyle = 'default' }: PlaceCardPro
               allowFullScreen
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
+            <div className="w-full h-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
               <MapPin size={36} className="sm:w-12 sm:h-12" />
             </div>
           )}
           {place.is_featured && (
-            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-yellow-400 text-yellow-900 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold">
+            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold" style={{ background: 'var(--status-warning)', color: '#000' }}>
               مميز
             </div>
           )}
         </div>
         <div className="p-3 sm:p-4">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 line-clamp-1">{place.name_ar}</h3>
-          <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">{place.description_ar}</p>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
+          <h3 className="text-base sm:text-lg font-bold app-text-main mb-1.5 sm:mb-2 line-clamp-1">{place.name_ar}</h3>
+          <p className="text-xs sm:text-sm app-text-muted mb-2 sm:mb-3 line-clamp-2">{place.description_ar}</p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm app-text-muted">
             <div className="flex items-center gap-1">
               <Phone size={14} className="sm:w-4 sm:h-4" />
               <span className="truncate">{place.phone_1}</span>

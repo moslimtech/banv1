@@ -106,8 +106,8 @@ export default function YouTubeUpload({
 
   return (
     <div className="space-y-4">
-      <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
-        <p className="text-sm text-blue-700">
+      <div className="p-4 border rounded-lg app-border" style={{ background: 'var(--status-blue-bg)', borderColor: 'var(--primary-color)' }}>
+        <p className="text-sm" style={{ color: 'var(--primary-color)' }}>
           <strong>ملاحظة:</strong> جميع الفيديوهات تُرفع على حساب YouTube الخاص بالموقع. لا حاجة لربط حساب YouTube شخصي.
         </p>
       </div>
@@ -116,7 +116,10 @@ export default function YouTubeUpload({
         <label className="block text-sm font-medium mb-2">
           اختر فيديو للرفع *
         </label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+        <div className="border-2 border-dashed rounded-lg p-6 text-center transition-colors app-border" style={{ borderColor: 'var(--border-color)' }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+        >
           <input
             type="file"
             accept="video/*"
@@ -129,21 +132,22 @@ export default function YouTubeUpload({
             htmlFor="video-upload"
             className="cursor-pointer flex flex-col items-center gap-2"
           >
-            <Upload className="text-gray-400" size={32} />
-            <span className="text-sm text-gray-600">
+            <Upload size={32} style={{ color: 'var(--text-muted)' }} />
+            <span className="text-sm app-text-muted">
               {selectedFile ? selectedFile.name : 'انقر لاختيار فيديو'}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs app-text-muted">
               الحد الأقصى: 2GB
             </span>
           </label>
         </div>
         {selectedFile && (
-          <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+          <div className="mt-2 flex items-center gap-2 text-sm app-text-muted">
             <span>الحجم: {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</span>
             <button
               onClick={() => setSelectedFile(null)}
-              className="text-red-600 hover:text-red-700"
+              className="app-hover-bg"
+              style={{ color: 'var(--status-error)' }}
             >
               <X size={16} />
             </button>
@@ -152,7 +156,7 @@ export default function YouTubeUpload({
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-900">
+        <label className="block text-sm font-semibold mb-2 app-text-main">
           عنوان الفيديو *
         </label>
         <input
@@ -160,14 +164,17 @@ export default function YouTubeUpload({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="أدخل عنوان الفيديو"
-          className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+          style={{ borderColor: 'var(--border-color)' }}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
           maxLength={100}
         />
-        <p className="text-xs text-gray-600 mt-1">{title.length}/100</p>
+        <p className="text-xs app-text-muted mt-1">{title.length}/100</p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-900">
+        <label className="block text-sm font-semibold mb-2 app-text-main">
           وصف الفيديو (اختياري)
         </label>
         <textarea
@@ -175,14 +182,17 @@ export default function YouTubeUpload({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="أدخل وصف الفيديو"
           rows={4}
-          className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+          style={{ borderColor: 'var(--border-color)' }}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
           maxLength={5000}
         />
-        <p className="text-xs text-gray-600 mt-1">{description.length}/5000</p>
+        <p className="text-xs app-text-muted mt-1">{description.length}/5000</p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-2 text-gray-900">
+        <label className="block text-sm font-semibold mb-2 app-text-main">
           العلامات (Tags) - مفصولة بفواصل
         </label>
         <input
@@ -190,20 +200,38 @@ export default function YouTubeUpload({
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="مثال: منتج، تسوق، عرض"
-          className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+          style={{ borderColor: 'var(--border-color)' }}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
         />
       </div>
 
       <button
         onClick={handleUpload}
         disabled={!selectedFile || !title.trim() || uploading || (!allowReplace && currentVideos >= maxVideos)}
-        className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold"
+        className="w-full px-4 py-3 text-white rounded-lg disabled:cursor-not-allowed transition-colors font-semibold"
+        style={{ 
+          background: !selectedFile || !title.trim() || uploading || (!allowReplace && currentVideos >= maxVideos) 
+            ? 'var(--text-muted)' 
+            : 'var(--primary-color)' 
+        }}
+        onMouseEnter={(e) => {
+          if (!(!selectedFile || !title.trim() || uploading || (!allowReplace && currentVideos >= maxVideos))) {
+            e.currentTarget.style.opacity = '0.9'
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!(!selectedFile || !title.trim() || uploading || (!allowReplace && currentVideos >= maxVideos))) {
+            e.currentTarget.style.opacity = '1'
+          }
+        }}
       >
         {uploading ? 'جاري الرفع...' : allowReplace && currentVideos > 0 ? 'استبدال الفيديو' : 'رفع الفيديو إلى YouTube'}
       </button>
 
       {!allowReplace && currentVideos >= maxVideos && (
-        <p className="text-sm text-red-600 text-center">
+        <p className="text-sm text-center" style={{ color: 'var(--status-error)' }}>
           تم الوصول للحد الأقصى من الفيديوهات ({maxVideos})
         </p>
       )}
