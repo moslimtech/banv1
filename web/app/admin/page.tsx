@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { UserProfile } from '@/lib/types'
 import { showError } from '@/components/SweetAlert'
 import Link from 'next/link'
-import { Package, Users, TrendingUp, Settings, Video, Ticket } from 'lucide-react'
+import { Package, Users, TrendingUp, Settings, Video, Ticket, FileCheck } from 'lucide-react'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
@@ -172,6 +172,19 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-gray-600">أكواد الخصم</p>
                 <p className="text-lg font-bold">إدارة أكواد الخصم</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/subscriptions"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
+            <div className="flex items-center gap-4">
+              <FileCheck className="text-indigo-500" size={32} />
+              <div>
+                <p className="text-gray-600">الاشتراكات</p>
+                <p className="text-lg font-bold">مراجعة الاشتراكات</p>
               </div>
             </div>
           </Link>

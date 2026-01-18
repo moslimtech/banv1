@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { UserProfile, Place, Package, Message } from '@/lib/types'
 import Link from 'next/link'
-import { Plus, Package as PackageIcon, MessageSquare, TrendingUp, Clock, Settings, Users, ChevronDown } from 'lucide-react'
+import { Plus, Package as PackageIcon, MessageSquare, TrendingUp, Clock, Settings, Users, ChevronDown, FileCheck } from 'lucide-react'
 import { showSuccess, showError } from '@/components/SweetAlert'
 
 // Component that uses useSearchParams - must be wrapped in Suspense
@@ -335,6 +335,14 @@ export default function DashboardPage() {
                     >
                       <PackageIcon size={18} className="text-orange-500" />
                       <span>كوبونات الخصم</span>
+                    </Link>
+                    <Link
+                      href="/admin/subscriptions"
+                      onClick={() => setAdminMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-900 border-b border-gray-100"
+                    >
+                      <FileCheck size={18} className="text-indigo-500" />
+                      <span>مراجعة الاشتراكات</span>
                     </Link>
                     <Link
                       href="/admin/settings"
