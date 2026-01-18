@@ -78,10 +78,7 @@ export default function AdminSubscriptionsPage() {
 
   const handleApprove = async (subscription: any) => {
     const confirmed = await showConfirm(
-      'تأكيد الموافقة',
-      `هل أنت متأكد من الموافقة على اشتراك ${subscription.user?.full_name || subscription.user?.email || 'المستخدم'} في باقة ${subscription.package?.name_ar || ''}؟`,
-      'نعم، موافق',
-      'إلغاء'
+      `هل أنت متأكد من الموافقة على اشتراك ${subscription.user?.full_name || subscription.user?.email || 'المستخدم'} في باقة ${subscription.package?.name_ar || ''}؟`
     )
 
     if (!confirmed.isConfirmed) return
@@ -109,10 +106,7 @@ export default function AdminSubscriptionsPage() {
 
   const handleReject = async (subscription: any) => {
     const confirmed = await showConfirm(
-      'تأكيد الرفض',
-      `هل أنت متأكد من رفض اشتراك ${subscription.user?.full_name || subscription.user?.email || 'المستخدم'} في باقة ${subscription.package?.name_ar || ''}؟`,
-      'نعم، رفض',
-      'إلغاء'
+      `هل أنت متأكد من رفض اشتراك ${subscription.user?.full_name || subscription.user?.email || 'المستخدم'} في باقة ${subscription.package?.name_ar || ''}؟`
     )
 
     if (!confirmed.isConfirmed) return
