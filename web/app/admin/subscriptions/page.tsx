@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { showError, showSuccess, showConfirm, showLoading, closeLoading } from '@/components/SweetAlert'
-import { Check, X, Eye, User, Package as PackageIcon, Calendar, DollarSign } from 'lucide-react'
+import { Check, X, Eye, User, Package as PackageIcon, Calendar, DollarSign, Clock } from 'lucide-react'
 import Image from 'next/image'
 
 export default function AdminSubscriptionsPage() {
@@ -69,6 +69,15 @@ export default function AdminSubscriptionsPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
+      console.log('📋 [SUBSCRIPTIONS] Loaded subscriptions:', data?.map(s => ({ 
+        id: s.id, 
+        status: s.status, 
+        receipt_image_url: s.receipt_image_url,
+        has_receipt: !!s.receipt_image_url,
+        user: s.user?.email,
+        package: s.package?.name_ar
+      })))
+      console.log('📋 [SUBSCRIPTIONS] Full subscription data:', data)
       setSubscriptions(data || [])
     } catch (error: any) {
       console.error('Error loading subscriptions:', error)
@@ -85,20 +94,30 @@ export default function AdminSubscriptionsPage() {
 
     showLoading('جاري الموافقة على الاشتراك...')
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_subscriptions')
         .update({
           status: 'approved',
           is_active: true,
         })
         .eq('id', subscription.id)
+        .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ [APPROVE ERROR]', error)
+        throw error
+      }
+
+      console.log('✅ [APPROVE SUCCESS]', data)
 
       closeLoading()
       showSuccess('تم الموافقة على الاشتراك بنجاح!')
-      loadSubscriptions()
+      
+      // Reload subscriptions after a short delay to ensure DB is updated
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await loadSubscriptions()
     } catch (error: any) {
+      console.error('❌ [APPROVE ERROR]', error)
       closeLoading()
       showError(error.message || 'حدث خطأ في الموافقة على الاشتراك')
     }
@@ -113,20 +132,30 @@ export default function AdminSubscriptionsPage() {
 
     showLoading('جاري رفض الاشتراك...')
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_subscriptions')
         .update({
           status: 'rejected',
           is_active: false,
         })
         .eq('id', subscription.id)
+        .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ [REJECT ERROR]', error)
+        throw error
+      }
+
+      console.log('✅ [REJECT SUCCESS]', data)
 
       closeLoading()
       showSuccess('تم رفض الاشتراك بنجاح!')
-      loadSubscriptions()
+      
+      // Reload subscriptions after a short delay to ensure DB is updated
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await loadSubscriptions()
     } catch (error: any) {
+      console.error('❌ [REJECT ERROR]', error)
       closeLoading()
       showError(error.message || 'حدث خطأ في رفض الاشتراك')
     }
@@ -203,53 +232,59 @@ export default function AdminSubscriptionsPage() {
                     {getStatusBadge(subscription.status)}
                   </div>
 
-                  {subscription.receipt_image_url && (
-                    <div className="mb-4">
-                      <div className="mb-2">
-                        <p className="text-sm font-medium text-gray-700 mb-2">صورة الإيصال:</p>
-                        <div className="relative border border-gray-300 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                  <div className="mb-4">
+                    {subscription.receipt_image_url ? (
+                      <>
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700 mb-2">صورة الإيصال:</p>
+                          <div className="relative border border-gray-300 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => {
+                              setSelectedSubscription(subscription)
+                              setShowImageModal(true)
+                            }}
+                          >
+                            <img
+                              src={subscription.receipt_image_url}
+                              alt="Receipt"
+                              className="w-full h-32 object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
+                              <Eye size={24} className="text-white opacity-0 hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        </div>
+                        <button
                           onClick={() => {
                             setSelectedSubscription(subscription)
                             setShowImageModal(true)
                           }}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full justify-center"
                         >
-                          <img
-                            src={subscription.receipt_image_url}
-                            alt="Receipt"
-                            className="w-full h-32 object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
-                            <Eye size={24} className="text-white opacity-0 hover:opacity-100 transition-opacity" />
-                          </div>
-                        </div>
+                          <Eye size={18} />
+                          <span>عرض صورة الإيصال بالحجم الكامل</span>
+                        </button>
+                      </>
+                    ) : (
+                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">⚠️ لم يتم رفع صورة إيصال الدفع</p>
                       </div>
-                      <button
-                        onClick={() => {
-                          setSelectedSubscription(subscription)
-                          setShowImageModal(true)
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full justify-center"
-                      >
-                        <Eye size={18} />
-                        <span>عرض صورة الإيصال بالحجم الكامل</span>
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() => handleReject(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                    >
-                      <X size={18} />
-                      <span>رفض</span>
-                    </button>
-                    <button
                       onClick={() => handleApprove(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
                     >
                       <Check size={18} />
                       <span>موافق</span>
+                    </button>
+                    <button
+                      onClick={() => handleReject(subscription)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                    >
+                      <X size={18} />
+                      <span>رفض</span>
                     </button>
                   </div>
                 </div>
@@ -270,7 +305,8 @@ export default function AdminSubscriptionsPage() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الباقة</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الطلب</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإيصال</th>
                   </tr>
                 </thead>
@@ -344,9 +380,18 @@ export default function AdminSubscriptionsPage() {
                 <p className="text-gray-600 mb-1">
                   <span className="font-semibold">الباقة:</span> {selectedSubscription.package?.name_ar || 'باقة غير معروفة'}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-1">
                   <span className="font-semibold">المبلغ:</span> {selectedSubscription.amount_paid} EGP
                 </p>
+                {selectedSubscription.expires_at && (
+                  <p className="text-gray-600">
+                    <span className="font-semibold">تاريخ الانتهاء:</span> {new Date(selectedSubscription.expires_at).toLocaleDateString('ar-EG', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                )}
               </div>
               {selectedSubscription.receipt_image_url && (
                 <div className="border border-gray-300 rounded-lg overflow-hidden">
@@ -361,25 +406,25 @@ export default function AdminSubscriptionsPage() {
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => {
-                      handleReject(selectedSubscription)
-                      setShowImageModal(false)
-                      setSelectedSubscription(null)
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    <X size={18} />
-                    <span>رفض</span>
-                  </button>
-                  <button
-                    onClick={() => {
                       handleApprove(selectedSubscription)
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
                   >
                     <Check size={18} />
                     <span>موافق</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleReject(selectedSubscription)
+                      setShowImageModal(false)
+                      setSelectedSubscription(null)
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                  >
+                    <X size={18} />
+                    <span>رفض</span>
                   </button>
                 </div>
               )}

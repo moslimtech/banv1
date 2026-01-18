@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase'
 import { Package } from '@/lib/types'
 import { showError, showSuccess, showConfirm } from '@/components/SweetAlert'
 import { Check, Crown, Star, Upload, X } from 'lucide-react'
-import { uploadImageToImgBB } from '@/lib/imgbb'
 import Link from 'next/link'
 
 export default function PackagesPage() {
@@ -197,8 +196,22 @@ export default function PackagesPage() {
 
       setUploadingReceipt(true)
 
-      // Upload receipt image
-      const receiptImageUrl = await uploadImageToImgBB(receiptFile)
+      // Upload receipt image via API route
+      const formData = new FormData()
+      formData.append('image', receiptFile)
+      
+      const uploadResponse = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+      
+      const uploadData = await uploadResponse.json()
+      
+      if (!uploadData.success || !uploadData.url) {
+        throw new Error(uploadData.error || 'فشل رفع صورة الإيصال')
+      }
+      
+      const receiptImageUrl = uploadData.url
 
       // Ensure user profile exists (required for foreign key constraint)
       const { data: existingProfile } = await supabase
@@ -336,6 +349,28 @@ export default function PackagesPage() {
           </div>
         )}
 
+        {/* Discount Code Input */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+              كود الخصم:
+            </label>
+            <input
+              type="text"
+              value={discountCode}
+              onChange={(e) => handleDiscountCodeChange(e.target.value)}
+              placeholder="أدخل كود الخصم (اختياري)"
+              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
+            />
+            {selectedDiscount && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
+                <Check size={16} />
+                خصم {selectedDiscount.discount_percentage}%
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {packages.map((pkg) => {
             const isCurrentPackage = currentSubscription?.package_id === pkg.id
@@ -451,7 +486,8 @@ export default function PackagesPage() {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  رفع صورة إيصال الدفع *
+                  رفع صورة إيصال الدفع <span className="text-red-500">*</span>
+                  <span className="block text-xs text-gray-500 mt-1">(إلزامي - مطلوب للموافقة على الاشتراك)</span>
                 </label>
                 {receiptPreview ? (
                   <div className="relative">
