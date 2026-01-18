@@ -302,47 +302,66 @@ export default function PackagesPage() {
     }
   }
 
-  const getCardStyle = (pkg: Package) => {
-    if (pkg.is_featured) return 'border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50'
-    if (pkg.card_style === 'gold') return 'border-2 border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50'
-    if (pkg.card_style === 'silver') return 'border border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50'
-    return 'border border-gray-200 bg-white'
+  const getCardStyle = (pkg: Package): React.CSSProperties => {
+    if (pkg.is_featured) {
+      return {
+        border: '2px solid var(--status-warning)',
+        background: 'linear-gradient(to bottom right, var(--status-yellow-bg), rgba(245, 158, 11, 0.1))'
+      }
+    }
+    if (pkg.card_style === 'gold') {
+      return {
+        border: '2px solid var(--status-warning)',
+        background: 'linear-gradient(to bottom right, var(--status-yellow-bg), rgba(245, 158, 11, 0.1))'
+      }
+    }
+    if (pkg.card_style === 'silver') {
+      return {
+        border: '1px solid var(--border-color)',
+        background: 'linear-gradient(to bottom right, var(--surface-color), var(--bg-color))'
+      }
+    }
+    return {
+      border: '1px solid var(--border-color)',
+      background: 'var(--background)'
+    }
   }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href="/dashboard"
-            className="text-blue-500 hover:underline mb-4 inline-block"
+            className="mb-4 inline-block"
+            style={{ color: 'var(--primary-color)' }}
           >
             ← العودة للوحة التحكم
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">الباقات المتاحة</h1>
-          <p className="text-gray-600 mt-2">اختر الباقة المناسبة لك</p>
+          <h1 className="text-3xl font-bold app-text-main">الباقات المتاحة</h1>
+          <p className="app-text-muted mt-2">اختر الباقة المناسبة لك</p>
         </div>
 
         {currentSubscription && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="rounded-lg p-4 mb-6 border" style={{ background: 'var(--status-blue-bg)', borderColor: 'var(--primary-color)' }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-blue-900">
+                <p className="font-semibold" style={{ color: 'var(--primary-color)' }}>
                   اشتراكك الحالي: {(currentSubscription.package as Package)?.name_ar}
                 </p>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm" style={{ color: 'var(--primary-color)', opacity: 0.8 }}>
                   ينتهي في: {new Date(currentSubscription.expires_at).toLocaleDateString('ar-EG')}
                 </p>
               </div>
-              <span className="px-3 py-1 bg-green-500 text-white rounded-full text-sm">
+              <span className="px-3 py-1 text-white rounded-full text-sm" style={{ background: 'var(--secondary-color)' }}>
                 نشط
               </span>
             </div>
@@ -350,9 +369,9 @@ export default function PackagesPage() {
         )}
 
         {/* Discount Code Input */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="app-card shadow-md p-4 mb-6">
           <div className="flex items-center gap-4">
-            <label className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+            <label className="text-sm font-semibold app-text-main whitespace-nowrap">
               كود الخصم:
             </label>
             <input
@@ -360,10 +379,13 @@ export default function PackagesPage() {
               value={discountCode}
               onChange={(e) => handleDiscountCodeChange(e.target.value)}
               placeholder="أدخل كود الخصم (اختياري)"
-              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
+              className="app-input flex-1 px-4 py-2 rounded-lg focus:outline-none"
+              style={{ borderColor: 'var(--border-color)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
             />
             {selectedDiscount && (
-              <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-semibold" style={{ background: 'var(--status-green-bg)', color: 'var(--secondary-color)' }}>
                 <Check size={16} />
                 خصم {selectedDiscount.discount_percentage}%
               </div>
@@ -377,32 +399,33 @@ export default function PackagesPage() {
             return (
               <div
                 key={pkg.id}
-                className={`rounded-lg shadow-lg p-6 ${getCardStyle(pkg)} relative`}
+                className="rounded-lg shadow-lg p-6 relative"
+                style={getCardStyle(pkg)}
               >
                 {pkg.is_featured && (
-                  <div className="absolute top-4 left-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                  <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1" style={{ background: 'var(--status-warning)', color: '#000' }}>
                     <Star size={12} />
                     مميز
                   </div>
                 )}
                 
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900">{pkg.name_ar}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{pkg.name_en}</p>
+                  <h3 className="text-2xl font-bold mb-2 app-text-main">{pkg.name_ar}</h3>
+                  <p className="app-text-muted text-sm mb-4">{pkg.name_en}</p>
                   {selectedDiscount ? (
                     <div>
-                      <div className="text-2xl font-bold text-gray-400 line-through mb-1">
+                      <div className="text-2xl font-bold line-through mb-1 app-text-subtle">
                         {pkg.price} <span className="text-sm">EGP</span>
                       </div>
-                      <div className="text-4xl font-bold text-green-600 mb-2">
+                      <div className="text-4xl font-bold mb-2" style={{ color: 'var(--secondary-color)' }}>
                         {(pkg.price - (pkg.price * selectedDiscount.discount_percentage) / 100).toFixed(2)} <span className="text-lg">EGP</span>
                       </div>
-                      <div className="text-sm text-green-600 font-semibold">
+                      <div className="text-sm font-semibold" style={{ color: 'var(--secondary-color)' }}>
                         خصم {selectedDiscount.discount_percentage}%
                       </div>
                     </div>
                   ) : (
-                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                    <div className="text-4xl font-bold mb-2" style={{ color: 'var(--primary-color)' }}>
                       {pkg.price} <span className="text-lg">EGP</span>
                     </div>
                   )}
@@ -410,24 +433,24 @@ export default function PackagesPage() {
 
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-2">
-                    <Check size={18} className="text-green-500" />
-                    <span className="text-sm">{pkg.max_places} مكان/خدمة</span>
+                    <Check size={18} style={{ color: 'var(--secondary-color)' }} />
+                    <span className="text-sm app-text-main">{pkg.max_places} مكان/خدمة</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check size={18} className="text-green-500" />
+                    <Check size={18} style={{ color: 'var(--secondary-color)' }} />
                     <span className="text-sm">{pkg.max_product_images} صورة لكل منتج</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check size={18} className="text-green-500" />
+                    <Check size={18} style={{ color: 'var(--secondary-color)' }} />
                     <span className="text-sm">{pkg.max_product_videos} فيديو لكل منتج</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check size={18} className="text-green-500" />
+                    <Check size={18} style={{ color: 'var(--secondary-color)' }} />
                     <span className="text-sm">{pkg.max_place_videos} فيديو للمكان</span>
                   </div>
                   {pkg.is_featured && (
                     <div className="flex items-center gap-2">
-                      <Crown size={18} className="text-yellow-500" />
+                      <Crown size={18} style={{ color: 'var(--status-warning)' }} />
                       <span className="text-sm">ظهور مميز في الصفحة الرئيسية</span>
                     </div>
                   )}
@@ -436,13 +459,24 @@ export default function PackagesPage() {
                 <button
                   onClick={() => handleSubscribeClick(pkg)}
                   disabled={isCurrentPackage || !!currentSubscription}
-                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                    isCurrentPackage
-                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                      : currentSubscription
-                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                      : 'bg-blue-500 text-white hover:bg-blue-600'
-                  }`}
+                  className="w-full py-3 rounded-lg font-semibold transition-colors text-white"
+                  style={isCurrentPackage || currentSubscription ? {
+                    background: 'var(--surface-color)',
+                    color: 'var(--text-muted)',
+                    cursor: 'not-allowed'
+                  } : {
+                    background: 'var(--primary-color)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isCurrentPackage && !currentSubscription) {
+                      e.currentTarget.style.opacity = '0.9'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isCurrentPackage && !currentSubscription) {
+                      e.currentTarget.style.opacity = '1'
+                    }
+                  }}
                 >
                   {isCurrentPackage
                     ? 'الباقة الحالية'
@@ -456,7 +490,7 @@ export default function PackagesPage() {
         </div>
 
         {packages.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 app-text-muted">
             لا توجد باقات متاحة حالياً
           </div>
         )}
@@ -464,53 +498,56 @@ export default function PackagesPage() {
         {/* Receipt Upload Modal */}
         {showReceiptModal && selectedPackage && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="app-card shadow-xl max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">رفع إيصال الدفع</h2>
+                <h2 className="text-xl font-bold app-text-main">رفع إيصال الدفع</h2>
                 <button
                   onClick={() => {
                     setShowReceiptModal(false)
                     setReceiptFile(null)
                     setReceiptPreview(null)
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="app-text-muted app-hover-bg"
                 >
                   <X size={24} />
                 </button>
               </div>
 
               <div className="mb-4">
-                <p className="text-gray-600 mb-2">الباقة: <span className="font-semibold">{selectedPackage.name_ar}</span></p>
-                <p className="text-gray-600">المبلغ: <span className="font-semibold">{selectedPackage.price} EGP</span></p>
+                <p className="app-text-muted mb-2">الباقة: <span className="font-semibold">{selectedPackage.name_ar}</span></p>
+                <p className="app-text-muted">المبلغ: <span className="font-semibold">{selectedPackage.price} EGP</span></p>
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  رفع صورة إيصال الدفع <span className="text-red-500">*</span>
-                  <span className="block text-xs text-gray-500 mt-1">(إلزامي - مطلوب للموافقة على الاشتراك)</span>
+                <label className="block text-sm font-medium app-text-main mb-2">
+                  رفع صورة إيصال الدفع <span style={{ color: 'var(--status-error)' }}>*</span>
+                  <span className="block text-xs app-text-muted mt-1">(إلزامي - مطلوب للموافقة على الاشتراك)</span>
                 </label>
                 {receiptPreview ? (
                   <div className="relative">
                     <img
                       src={receiptPreview}
                       alt="Receipt preview"
-                      className="w-full h-64 object-contain border border-gray-300 rounded-lg"
+                      className="w-full h-64 object-contain border rounded-lg app-border"
                     />
                     <button
                       onClick={handleRemoveReceipt}
-                      className="absolute top-2 left-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                      className="absolute top-2 left-2 text-white p-2 rounded-full"
+                      style={{ background: 'var(--status-error)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       <X size={20} />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                  <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer app-hover-bg" style={{ borderColor: 'var(--border-color)', background: 'var(--surface-color)' }}>
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload size={48} className="text-gray-400 mb-2" />
-                      <p className="mb-2 text-sm text-gray-500">
+                      <Upload size={48} className="mb-2" style={{ color: 'var(--text-muted)' }} />
+                      <p className="mb-2 text-sm app-text-muted">
                         <span className="font-semibold">اضغط للرفع</span> أو اسحب الصورة هنا
                       </p>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF (MAX. 10MB)</p>
+                      <p className="text-xs app-text-muted">PNG, JPG, GIF (MAX. 10MB)</p>
                     </div>
                     <input
                       type="file"
@@ -529,7 +566,10 @@ export default function PackagesPage() {
                     setReceiptFile(null)
                     setReceiptPreview(null)
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="flex-1 px-4 py-2 rounded-lg transition-colors"
+                  style={{ background: 'var(--surface-color)', color: 'var(--text-color)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   disabled={uploadingReceipt}
                 >
                   إلغاء
@@ -537,7 +577,18 @@ export default function PackagesPage() {
                 <button
                   onClick={() => handleSubscribe(selectedPackage)}
                   disabled={!receiptFile || uploadingReceipt}
-                  className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+                  style={{ background: receiptFile && !uploadingReceipt ? 'var(--primary-color)' : 'var(--surface-color)' }}
+                  onMouseEnter={(e) => {
+                    if (receiptFile && !uploadingReceipt) {
+                      e.currentTarget.style.opacity = '0.9'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (receiptFile && !uploadingReceipt) {
+                      e.currentTarget.style.opacity = '1'
+                    }
+                  }}
                 >
                   {uploadingReceipt ? 'جاري الرفع...' : 'إرسال الطلب'}
                 </button>

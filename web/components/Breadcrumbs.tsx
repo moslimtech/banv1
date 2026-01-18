@@ -54,23 +54,26 @@ export default function Breadcrumbs() {
   ]
 
   return (
-    <nav className="bg-gray-50 border-b border-gray-200 py-2 sm:py-3">
+    <nav className="py-2 sm:py-3 border-b app-bg-surface app-border">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center gap-2 text-sm">
           {breadcrumbs.map((crumb, index) => (
             <div key={crumb.href} className="flex items-center gap-2">
               {index > 0 && (
-                <ChevronLeft size={14} className="text-gray-400 flex-shrink-0" />
+                <ChevronLeft size={14} className="flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
               )}
               {index === breadcrumbs.length - 1 ? (
-                <span className="text-gray-900 font-medium flex items-center gap-1">
+                <span className="app-text-main font-medium flex items-center gap-1">
                   {index === 0 && <Home size={14} />}
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1"
+                  className="app-text-muted transition-colors flex items-center gap-1"
+                  style={{ color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-color)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                 >
                   {index === 0 && <Home size={14} />}
                   {crumb.label}

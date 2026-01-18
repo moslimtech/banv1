@@ -17,8 +17,6 @@ export default function AdminSettingsPage() {
     siteEmail: '',
     maintenanceMode: false,
     allowRegistrations: true,
-    enableAffiliates: true,
-    affiliateCommission: 10,
     enableNotifications: true,
     enableAnalytics: true,
   })
@@ -91,179 +89,158 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8" style={{ background: 'var(--bg-color)' }}>
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="text-blue-500 hover:underline mb-4 inline-block"
+            className="hover:underline mb-4 inline-block"
+            style={{ color: 'var(--primary-color)' }}
           >
             ← العودة للوحة الإدارة
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">إعدادات النظام</h1>
-          <p className="text-gray-600 mt-2">إدارة إعدادات النظام العامة</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-color)' }}>إعدادات النظام</h1>
+          <p className="mt-2" style={{ color: 'var(--text-color)', opacity: 0.7 }}>إدارة إعدادات النظام العامة</p>
         </div>
 
         <div className="space-y-6">
           {/* General Settings */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="rounded-lg shadow-lg p-6" style={{ background: 'var(--background)' }}>
             <div className="flex items-center gap-3 mb-4">
-              <Globe className="text-blue-500" size={24} />
-              <h2 className="text-xl font-bold text-gray-900">الإعدادات العامة</h2>
+              <Globe size={24} style={{ color: 'var(--primary-color)' }} />
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>الإعدادات العامة</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
                   اسم الموقع
                 </label>
                 <input
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => handleChange('siteName', e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none"
+                  style={{ 
+                    borderColor: 'var(--border-color)',
+                    background: 'var(--bg-color)',
+                    color: 'var(--text-color)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
                   وصف الموقع
                 </label>
                 <textarea
                   value={settings.siteDescription}
                   onChange={(e) => handleChange('siteDescription', e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none"
+                  style={{ 
+                    borderColor: 'var(--border-color)',
+                    background: 'var(--bg-color)',
+                    color: 'var(--text-color)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
                   البريد الإلكتروني للموقع
                 </label>
                 <input
                   type="email"
                   value={settings.siteEmail}
                   onChange={(e) => handleChange('siteEmail', e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:outline-none"
+                  style={{ 
+                    borderColor: 'var(--border-color)',
+                    background: 'var(--bg-color)',
+                    color: 'var(--text-color)'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
             </div>
           </div>
 
-          {/* Affiliate Settings */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Shield className="text-yellow-500" size={24} />
-              <h2 className="text-xl font-bold text-gray-900">إعدادات التسويق بالعمولة</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900">
-                    تفعيل نظام التسويق بالعمولة
-                  </label>
-                  <p className="text-xs text-gray-600">السماح للمستخدمين بالتسجيل كمسوقين</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={settings.enableAffiliates}
-                    onChange={(e) => handleChange('enableAffiliates', e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-              {settings.enableAffiliates && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    نسبة العمولة (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={settings.affiliateCommission}
-                    onChange={(e) => handleChange('affiliateCommission', parseFloat(e.target.value) || 0)}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* System Settings */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="rounded-lg shadow-lg p-6" style={{ background: 'var(--background)' }}>
             <div className="flex items-center gap-3 mb-4">
-              <Eye className="text-purple-500" size={24} />
-              <h2 className="text-xl font-bold text-gray-900">إعدادات النظام</h2>
+              <Eye size={24} style={{ color: 'var(--accent)' }} />
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>إعدادات النظام</h2>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">
+                  <label className="block text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
                     وضع الصيانة
                   </label>
-                  <p className="text-xs text-gray-600">إغلاق الموقع للصيانة (للمستخدمين العاديين فقط)</p>
+                  <p className="text-xs" style={{ color: 'var(--text-color)', opacity: 0.6 }}>إغلاق الموقع للصيانة (للمستخدمين العاديين فقط)</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="cursor-pointer">
                   <input
                     type="checkbox"
                     checked={settings.maintenanceMode}
                     onChange={(e) => handleChange('maintenanceMode', e.target.checked)}
-                    className="sr-only peer"
+                    className="sr-only"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className={`toggle-switch ${settings.maintenanceMode ? 'checked' : ''}`}></div>
                 </label>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">
+                  <label className="block text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
                     السماح بالتسجيل
                   </label>
-                  <p className="text-xs text-gray-600">السماح للمستخدمين الجدد بالتسجيل</p>
+                  <p className="text-xs" style={{ color: 'var(--text-color)', opacity: 0.6 }}>السماح للمستخدمين الجدد بالتسجيل</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="cursor-pointer">
                   <input
                     type="checkbox"
                     checked={settings.allowRegistrations}
                     onChange={(e) => handleChange('allowRegistrations', e.target.checked)}
-                    className="sr-only peer"
+                    className="sr-only"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className={`toggle-switch ${settings.allowRegistrations ? 'checked' : ''}`}></div>
                 </label>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">
+                  <label className="block text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
                     تفعيل الإشعارات
                   </label>
-                  <p className="text-xs text-gray-600">إرسال إشعارات للمستخدمين</p>
+                  <p className="text-xs" style={{ color: 'var(--text-color)', opacity: 0.6 }}>إرسال إشعارات للمستخدمين</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="cursor-pointer">
                   <input
                     type="checkbox"
                     checked={settings.enableNotifications}
                     onChange={(e) => handleChange('enableNotifications', e.target.checked)}
-                    className="sr-only peer"
+                    className="sr-only"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className={`toggle-switch ${settings.enableNotifications ? 'checked' : ''}`}></div>
                 </label>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">
+                  <label className="block text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
                     تفعيل التحليلات
                   </label>
-                  <p className="text-xs text-gray-600">تتبع إحصائيات الموقع</p>
+                  <p className="text-xs" style={{ color: 'var(--text-color)', opacity: 0.6 }}>تتبع إحصائيات الموقع</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="cursor-pointer">
                   <input
                     type="checkbox"
                     checked={settings.enableAnalytics}
                     onChange={(e) => handleChange('enableAnalytics', e.target.checked)}
-                    className="sr-only peer"
+                    className="sr-only"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className={`toggle-switch ${settings.enableAnalytics ? 'checked' : ''}`}></div>
                 </label>
               </div>
             </div>
@@ -274,7 +251,16 @@ export default function AdminSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-semibold"
+              className="px-6 py-3 text-white rounded-lg disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-semibold"
+              style={{
+                background: saving ? '#9ca3af' : 'var(--primary-color)'
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.opacity = '0.9'
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.opacity = '1'
+              }}
             >
               <Save size={20} />
               {saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}

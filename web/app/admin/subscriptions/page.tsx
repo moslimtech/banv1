@@ -164,13 +164,13 @@ export default function AdminSubscriptionsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">قيد المراجعة</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>قيد المراجعة</span>
       case 'approved':
-        return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">موافق عليه</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'var(--status-green-bg)', color: 'var(--secondary-color)' }}>موافق عليه</span>
       case 'rejected':
-        return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">مرفوض</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'var(--status-red-bg)', color: 'var(--status-error)' }}>مرفوض</span>
       default:
-        return <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">غير معروف</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'var(--surface-color)', color: 'var(--text-color)' }}>غير معروف</span>
     }
   }
 
@@ -180,45 +180,45 @@ export default function AdminSubscriptionsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">مراجعة الاشتراكات</h1>
-          <p className="text-gray-600">مراجعة وتأكيد طلبات الاشتراك في الباقات</p>
+          <h1 className="text-3xl font-bold mb-2 app-text-main">مراجعة الاشتراكات</h1>
+          <p className="app-text-muted">مراجعة وتأكيد طلبات الاشتراك في الباقات</p>
         </div>
 
         {/* Pending Subscriptions */}
         {pendingSubscriptions.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 text-gray-900">الطلبات المعلقة ({pendingSubscriptions.length})</h2>
+            <h2 className="text-xl font-bold mb-4 app-text-main">الطلبات المعلقة ({pendingSubscriptions.length})</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {pendingSubscriptions.map((subscription) => (
-                <div key={subscription.id} className="bg-white rounded-lg shadow-lg p-6 border-2 border-yellow-200">
+                <div key={subscription.id} className="app-card shadow-lg p-6 border-2" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <User size={18} className="text-gray-500" />
-                        <span className="font-semibold text-gray-900">
+                        <User size={18} style={{ color: 'var(--text-muted)' }} />
+                        <span className="font-semibold app-text-main">
                           {subscription.user?.full_name || subscription.user?.email || 'مستخدم'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <PackageIcon size={18} className="text-blue-500" />
-                        <span className="text-gray-700">{subscription.package?.name_ar || 'باقة غير معروفة'}</span>
+                        <span className="app-text-main">{subscription.package?.name_ar || 'باقة غير معروفة'}</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <DollarSign size={18} className="text-green-500" />
-                        <span className="text-gray-700">{subscription.amount_paid} EGP</span>
+                        <span className="app-text-main">{subscription.amount_paid} EGP</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <Calendar size={18} className="text-gray-500" />
-                        <span className="text-gray-600 text-sm">
+                        <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
+                        <span className="app-text-muted text-sm">
                           {new Date(subscription.created_at).toLocaleDateString('ar-EG', {
                             year: 'numeric',
                             month: 'long',
@@ -236,8 +236,8 @@ export default function AdminSubscriptionsPage() {
                     {subscription.receipt_image_url ? (
                       <>
                         <div className="mb-2">
-                          <p className="text-sm font-medium text-gray-700 mb-2">صورة الإيصال:</p>
-                          <div className="relative border border-gray-300 rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                          <p className="text-sm font-medium app-text-main mb-2">صورة الإيصال:</p>
+                          <div className="relative border rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity app-border"
                             onClick={() => {
                               setSelectedSubscription(subscription)
                               setShowImageModal(true)
@@ -258,15 +258,18 @@ export default function AdminSubscriptionsPage() {
                             setSelectedSubscription(subscription)
                             setShowImageModal(true)
                           }}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full justify-center"
+                          className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors w-full justify-center"
+                          style={{ background: 'var(--primary-color)' }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                         >
                           <Eye size={18} />
                           <span>عرض صورة الإيصال بالحجم الكامل</span>
                         </button>
                       </>
                     ) : (
-                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p className="text-sm text-yellow-800">⚠️ لم يتم رفع صورة إيصال الدفع</p>
+                      <div className="p-3 rounded-lg" style={{ background: 'var(--status-yellow-bg)', borderColor: 'var(--status-warning)', border: '1px solid' }}>
+                        <p className="text-sm" style={{ color: 'var(--status-warning)' }}>⚠️ لم يتم رفع صورة إيصال الدفع</p>
                       </div>
                     )}
                   </div>
@@ -274,14 +277,20 @@ export default function AdminSubscriptionsPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleApprove(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
+                      style={{ background: 'var(--secondary-color)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       <Check size={18} />
                       <span>موافق</span>
                     </button>
                     <button
                       onClick={() => handleReject(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
+                      style={{ background: 'var(--status-error)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       <X size={18} />
                       <span>رفض</span>
@@ -295,37 +304,37 @@ export default function AdminSubscriptionsPage() {
 
         {/* All Subscriptions */}
         <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-900">جميع الاشتراكات ({allSubscriptions.length})</h2>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <h2 className="text-xl font-bold mb-4 app-text-main">جميع الاشتراكات ({allSubscriptions.length})</h2>
+          <div className="app-card shadow overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستخدم</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الباقة</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المبلغ</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الطلب</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإيصال</th>
+              <table className="min-w-full" style={{ borderColor: 'var(--border-color)' }}>
+                <thead className="app-bg-surface">
+                  <tr style={{ borderColor: 'var(--border-color)' }}>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">المستخدم</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">الباقة</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">المبلغ</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">الحالة</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">تاريخ الطلب</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">تاريخ الانتهاء</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider app-text-muted">الإيصال</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody style={{ borderColor: 'var(--border-color)' }}>
                   {allSubscriptions.map((subscription) => (
-                    <tr key={subscription.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr key={subscription.id} className="app-hover-bg" style={{ borderColor: 'var(--border-color)' }}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm app-text-main">
                         {subscription.user?.full_name || subscription.user?.email || 'مستخدم'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm app-text-main">
                         {subscription.package?.name_ar || 'باقة غير معروفة'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm app-text-main">
                         {subscription.amount_paid} EGP
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(subscription.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm app-text-muted">
                         {new Date(subscription.created_at).toLocaleDateString('ar-EG')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -335,13 +344,16 @@ export default function AdminSubscriptionsPage() {
                               setSelectedSubscription(subscription)
                               setShowImageModal(true)
                             }}
-                            className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                            className="flex items-center gap-1"
+                            style={{ color: 'var(--primary-color)' }}
+                            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                           >
                             <Eye size={16} />
                             <span>عرض</span>
                           </button>
                         ) : (
-                          <span className="text-gray-400">لا يوجد</span>
+                          <span className="app-text-subtle">لا يوجد</span>
                         )}
                       </td>
                     </tr>
@@ -350,7 +362,7 @@ export default function AdminSubscriptionsPage() {
               </table>
             </div>
             {allSubscriptions.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 app-text-muted">
                 لا توجد اشتراكات
               </div>
             )}
@@ -360,31 +372,31 @@ export default function AdminSubscriptionsPage() {
         {/* Image Modal */}
         {showImageModal && selectedSubscription && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6">
+            <div className="app-card shadow-xl max-w-4xl w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">صورة إيصال الدفع</h3>
+                <h3 className="text-xl font-bold app-text-main">صورة إيصال الدفع</h3>
                 <button
                   onClick={() => {
                     setShowImageModal(false)
                     setSelectedSubscription(null)
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="app-text-muted app-hover-bg"
                 >
                   <X size={24} />
                 </button>
               </div>
               <div className="mb-4">
-                <p className="text-gray-600 mb-1">
+                <p className="app-text-muted mb-1">
                   <span className="font-semibold">المستخدم:</span> {selectedSubscription.user?.full_name || selectedSubscription.user?.email || 'مستخدم'}
                 </p>
-                <p className="text-gray-600 mb-1">
+                <p className="app-text-muted mb-1">
                   <span className="font-semibold">الباقة:</span> {selectedSubscription.package?.name_ar || 'باقة غير معروفة'}
                 </p>
-                <p className="text-gray-600 mb-1">
+                <p className="app-text-muted mb-1">
                   <span className="font-semibold">المبلغ:</span> {selectedSubscription.amount_paid} EGP
                 </p>
                 {selectedSubscription.expires_at && (
-                  <p className="text-gray-600">
+                  <p className="app-text-muted">
                     <span className="font-semibold">تاريخ الانتهاء:</span> {new Date(selectedSubscription.expires_at).toLocaleDateString('ar-EG', {
                       year: 'numeric',
                       month: 'long',
@@ -394,7 +406,7 @@ export default function AdminSubscriptionsPage() {
                 )}
               </div>
               {selectedSubscription.receipt_image_url && (
-                <div className="border border-gray-300 rounded-lg overflow-hidden">
+                <div className="border rounded-lg overflow-hidden app-border">
                   <img
                     src={selectedSubscription.receipt_image_url}
                     alt="Receipt"
@@ -410,7 +422,10 @@ export default function AdminSubscriptionsPage() {
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
+                    style={{ background: 'var(--secondary-color)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     <Check size={18} />
                     <span>موافق</span>
@@ -421,7 +436,10 @@ export default function AdminSubscriptionsPage() {
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
+                    style={{ background: 'var(--status-error)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     <X size={18} />
                     <span>رفض</span>

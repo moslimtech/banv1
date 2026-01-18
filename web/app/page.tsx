@@ -76,19 +76,19 @@ export default function HomePage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen app-bg-base">
       {/* Stats Bar */}
-      <div className="bg-white border-b border-gray-200 py-2">
+      <div className="app-card border-b py-2 app-border">
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-center gap-4 text-xs sm:text-sm text-gray-600">
+          <div className="flex items-center justify-center gap-4 text-xs sm:text-sm app-text-muted">
             <div className="flex items-center gap-1.5">
               <Eye size={14} className="sm:w-4 sm:h-4" />
-              <span>اليوم: <strong className="text-gray-900">{siteStats.today}</strong></span>
+              <span>اليوم: <strong className="app-text-main">{siteStats.today}</strong></span>
             </div>
-            <span className="text-gray-300">|</span>
+            <span style={{ color: 'var(--border-color)' }}>|</span>
             <div className="flex items-center gap-1.5">
               <TrendingUp size={14} className="sm:w-4 sm:h-4" />
-              <span>الإجمالي: <strong className="text-gray-900">{siteStats.total}</strong></span>
+              <span>الإجمالي: <strong className="app-text-main">{siteStats.total}</strong></span>
             </div>
           </div>
         </div>
@@ -98,28 +98,31 @@ export default function HomePage() {
         {/* Search Bar */}
         <div className="mb-8">
           <div className="relative">
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: 'var(--text-muted)' }} />
             <input
               type="text"
               placeholder="ابحث عن منتج أو خدمة..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="app-input w-full pr-12 pl-4 py-3 rounded-lg focus:outline-none"
+              style={{ borderColor: 'var(--border-color)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
             />
           </div>
 
           {/* Search Results */}
           {searchQuery && (
-            <div className="mt-3 sm:mt-4 bg-white rounded-lg shadow-lg p-3 sm:p-4 max-h-96 overflow-y-auto">
+            <div className="mt-3 sm:mt-4 app-card rounded-lg shadow-lg p-3 sm:p-4 max-h-96 overflow-y-auto">
               {isSearching ? (
-                <div className="text-center py-4 text-sm sm:text-base text-gray-500">جاري البحث...</div>
+                <div className="text-center py-4 text-sm sm:text-base app-text-muted">جاري البحث...</div>
               ) : searchResults.length > 0 ? (
                 <div className="space-y-2">
                   {searchResults.map((product) => (
                     <Link
                       key={product.id}
                       href={`/places/${product.place_id}?product=${product.id}`}
-                      className="block p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="block p-2 sm:p-3 rounded-lg transition-colors app-hover-bg"
                     >
                       <div className="flex items-center gap-3 sm:gap-4">
                         {product.images && product.images.length > 0 && (
@@ -130,9 +133,9 @@ export default function HomePage() {
                           />
                         )}
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{product.name_ar}</h3>
+                          <h3 className="font-semibold text-sm sm:text-base app-text-main truncate">{product.name_ar}</h3>
                           {product.price && (
-                            <p className="text-xs sm:text-sm text-gray-600">
+                            <p className="text-xs sm:text-sm app-text-muted">
                               {product.price} {product.currency}
                             </p>
                           )}
@@ -142,7 +145,7 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 text-sm sm:text-base text-gray-500">لا توجد نتائج</div>
+                <div className="text-center py-4 text-sm sm:text-base app-text-muted">لا توجد نتائج</div>
               )}
             </div>
           )}
@@ -153,14 +156,14 @@ export default function HomePage() {
 
         {/* All Places */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">جميع الأماكن</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 app-text-main">جميع الأماكن</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {sortedPlaces.map((place) => (
               <PlaceCard key={place.id} place={place} cardStyle={place.is_featured ? 'premium' : 'default'} />
             ))}
           </div>
           {sortedPlaces.length === 0 && (
-            <div className="text-center py-12 text-gray-500">لا توجد أماكن متاحة حالياً</div>
+            <div className="text-center py-12 app-text-muted">لا توجد أماكن متاحة حالياً</div>
           )}
         </div>
       </main>

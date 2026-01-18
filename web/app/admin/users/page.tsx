@@ -130,35 +130,36 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="text-blue-500 hover:underline mb-4 inline-block"
+            className="mb-4 inline-block"
+            style={{ color: 'var(--primary-color)' }}
           >
             ← العودة للوحة الإدارة
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">إدارة المستخدمين</h1>
+          <h1 className="text-3xl font-bold app-text-main">إدارة المستخدمين</h1>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="app-card shadow-lg overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المستخدم</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">البريد</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
+            <thead className="app-bg-surface">
+              <tr style={{ borderColor: 'var(--border-color)' }}>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase app-text-muted">المستخدم</th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase app-text-muted">البريد</th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase app-text-muted">الحالة</th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase app-text-muted">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody style={{ borderColor: 'var(--border-color)' }}>
               {users.map((userProfile) => (
                 <tr key={userProfile.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -168,14 +169,15 @@ export default function AdminUsersPage() {
                           <img
                             src={userProfile.avatar_url}
                             alt={userProfile.full_name || userProfile.email || ''}
-                            className="w-10 h-10 rounded-full border-2 border-gray-200 object-cover shadow-sm"
+                            className="w-10 h-10 rounded-full border-2 object-cover shadow-sm app-border"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement
                               target.style.display = 'none'
                               const parent = target.parentElement
                               if (parent) {
                                 const fallback = document.createElement('div')
-                                fallback.className = 'w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-gray-200'
+                                fallback.className = 'w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 app-border'
+                                fallback.style.background = 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))'
                                 fallback.textContent = (userProfile.full_name?.[0] || userProfile.email?.[0] || 'U').toUpperCase()
                                 parent.appendChild(fallback)
                               }
@@ -185,7 +187,7 @@ export default function AdminUsersPage() {
                         </div>
                       ) : (
                         <div className="relative">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-gray-200">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 app-border" style={{ background: 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))' }}>
                             {(userProfile.full_name?.[0] || userProfile.email?.[0] || 'U').toUpperCase()}
                           </div>
                           <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
@@ -193,7 +195,7 @@ export default function AdminUsersPage() {
                       )}
                       <div>
                         <div className="font-medium">{userProfile.full_name || 'بدون اسم'}</div>
-                        <div className="text-sm text-gray-500 flex flex-wrap gap-1 mt-1">
+                        <div className="text-sm app-text-muted flex flex-wrap gap-1 mt-1">
                           {(() => {
                             const isAdmin = userProfile.is_admin || false
                             const isAffiliate = userProfile.is_affiliate || false
@@ -201,21 +203,21 @@ export default function AdminUsersPage() {
                             if (isAdmin && isAffiliate) {
                               return (
                                 <>
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium">مدير</span>
-                                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">مسوق</span>
+                                  <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--status-red-bg)', color: 'var(--status-error)' }}>مدير</span>
+                                  <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>مسوق</span>
                                 </>
                               )
                             } else if (isAdmin) {
                               return (
-                                <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium">مدير</span>
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--status-red-bg)', color: 'var(--status-error)' }}>مدير</span>
                               )
                             } else if (isAffiliate) {
                               return (
-                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">مسوق</span>
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>مسوق</span>
                               )
                             } else {
                               return (
-                                <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">مستخدم</span>
+                                <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--surface-color)', color: 'var(--text-color)' }}>مستخدم</span>
                               )
                             }
                           })()}
@@ -224,9 +226,9 @@ export default function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{userProfile.email}</div>
+                    <div className="text-sm app-text-main">{userProfile.email}</div>
                     {userProfile.affiliate_code && (
-                      <div className="text-xs text-gray-500">كود: {userProfile.affiliate_code}</div>
+                      <div className="text-xs app-text-muted">كود: {userProfile.affiliate_code}</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -238,21 +240,21 @@ export default function AdminUsersPage() {
                         if (isAdmin && isAffiliate) {
                           return (
                             <>
-                              <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs w-fit">مدير</span>
-                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs w-fit">مسوق</span>
+                              <span className="px-2 py-1 rounded text-xs w-fit" style={{ background: 'var(--status-red-bg)', color: 'var(--status-error)' }}>مدير</span>
+                              <span className="px-2 py-1 rounded text-xs w-fit" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>مسوق</span>
                             </>
                           )
                         } else if (isAdmin) {
                           return (
-                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs w-fit">مدير</span>
+                            <span className="px-2 py-1 rounded text-xs w-fit" style={{ background: 'var(--status-red-bg)', color: 'var(--status-error)' }}>مدير</span>
                           )
                         } else if (isAffiliate) {
                           return (
-                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs w-fit">مسوق</span>
+                            <span className="px-2 py-1 rounded text-xs w-fit" style={{ background: 'var(--status-yellow-bg)', color: 'var(--status-warning)' }}>مسوق</span>
                           )
                         } else {
                           return (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs w-fit">مستخدم</span>
+                            <span className="px-2 py-1 rounded text-xs w-fit" style={{ background: 'var(--surface-color)', color: 'var(--text-color)' }}>مستخدم</span>
                           )
                         }
                       })()}
@@ -262,22 +264,16 @@ export default function AdminUsersPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleAdmin(userProfile.id, userProfile.is_admin || false)}
-                        className={`p-2 rounded ${
-                          userProfile.is_admin
-                            ? 'text-red-500 hover:bg-red-50'
-                            : 'text-blue-500 hover:bg-blue-50'
-                        }`}
+                        className="p-2 rounded app-hover-bg"
+                        style={{ color: userProfile.is_admin ? 'var(--status-error)' : 'var(--primary-color)' }}
                         title={userProfile.is_admin ? 'إلغاء صلاحيات المدير' : 'تعيين كمدير'}
                       >
                         <Crown size={18} />
                       </button>
                       <button
                         onClick={() => toggleAffiliate(userProfile.id, userProfile.is_affiliate || false)}
-                        className={`p-2 rounded ${
-                          userProfile.is_affiliate
-                            ? 'text-red-500 hover:bg-red-50'
-                            : 'text-yellow-500 hover:bg-yellow-50'
-                        }`}
+                        className="p-2 rounded app-hover-bg"
+                        style={{ color: userProfile.is_affiliate ? 'var(--status-error)' : 'var(--status-warning)' }}
                         title={userProfile.is_affiliate ? 'إلغاء صلاحيات المسوق' : 'تعيين كمسوق'}
                       >
                         <TrendingUp size={18} />

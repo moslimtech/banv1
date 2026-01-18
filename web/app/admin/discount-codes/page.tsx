@@ -169,25 +169,26 @@ export default function AdminDiscountCodesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="text-blue-500 hover:underline mb-4 inline-block"
+            className="mb-4 inline-block"
+            style={{ color: 'var(--primary-color)' }}
           >
             ← العودة للوحة الإدارة
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">إدارة أكواد الخصم</h1>
-              <p className="text-gray-600 mt-2">إنشاء وإدارة أكواد الخصم مع تواريخ البداية والنهاية</p>
+              <h1 className="text-3xl font-bold app-text-main">إدارة أكواد الخصم</h1>
+              <p className="app-text-muted mt-2">إنشاء وإدارة أكواد الخصم مع تواريخ البداية والنهاية</p>
             </div>
             <button
               onClick={() => {
@@ -195,7 +196,10 @@ export default function AdminDiscountCodesPage() {
                 setEditingCode(null)
                 resetForm()
               }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-white rounded-lg transition-colors flex items-center gap-2"
+              style={{ background: 'var(--primary-color)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               <Plus size={20} />
               إضافة كود خصم
@@ -204,14 +208,14 @@ export default function AdminDiscountCodesPage() {
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 text-gray-900">
+          <div className="app-card shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4 app-text-main">
               {editingCode ? 'تعديل كود الخصم' : 'إضافة كود خصم جديد'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     كود الخصم *
                   </label>
                   <input
@@ -219,12 +223,15 @@ export default function AdminDiscountCodesPage() {
                     value={formData.code}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                     required
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="مثال: SUMMER2024"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     نسبة الخصم (%) *
                   </label>
                   <input
@@ -235,11 +242,14 @@ export default function AdminDiscountCodesPage() {
                     min="0"
                     max="100"
                     step="0.1"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     تاريخ البداية *
                   </label>
                   <input
@@ -247,11 +257,14 @@ export default function AdminDiscountCodesPage() {
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     تاريخ النهاية *
                   </label>
                   <input
@@ -259,11 +272,14 @@ export default function AdminDiscountCodesPage() {
                     value={formData.end_date}
                     onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     الحد الأقصى للاستخدام (اختياري)
                   </label>
                   <input
@@ -271,7 +287,10 @@ export default function AdminDiscountCodesPage() {
                     value={formData.max_uses || ''}
                     onChange={(e) => setFormData({ ...formData, max_uses: e.target.value ? parseInt(e.target.value) : null })}
                     min="1"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="اتركه فارغاً للاستخدام غير المحدود"
                   />
                 </div>
@@ -283,30 +302,36 @@ export default function AdminDiscountCodesPage() {
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                       className="w-5 h-5 text-blue-500 rounded focus:ring-blue-500"
                     />
-                    <span className="text-sm font-semibold text-gray-900">نشط</span>
+                    <span className="text-sm font-semibold app-text-main">نشط</span>
                   </label>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     الوصف (عربي)
                   </label>
                   <textarea
                     value={formData.description_ar}
                     onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
                     rows={2}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="وصف كود الخصم بالعربية"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className="block text-sm font-semibold app-text-main mb-2">
                     الوصف (إنجليزي)
                   </label>
                   <textarea
                     value={formData.description_en}
                     onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
                     rows={2}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500"
+                    className="app-input w-full focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="Discount code description in English"
                   />
                 </div>
@@ -314,7 +339,10 @@ export default function AdminDiscountCodesPage() {
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-6 py-2 text-white rounded-lg transition-colors"
+                  style={{ background: 'var(--primary-color)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                   {editingCode ? 'تحديث' : 'إنشاء'}
                 </button>
@@ -325,7 +353,10 @@ export default function AdminDiscountCodesPage() {
                     setEditingCode(null)
                     resetForm()
                   }}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  className="px-6 py-2 text-white rounded-lg transition-colors"
+                  style={{ background: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                   إلغاء
                 </button>
@@ -334,55 +365,52 @@ export default function AdminDiscountCodesPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="app-card shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">الكود</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">الخصم</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">تاريخ البداية</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">تاريخ النهاية</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">الاستخدام</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">الإجراءات</th>
+              <thead className="app-bg-surface">
+                <tr style={{ borderColor: 'var(--border-color)' }}>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">الكود</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">الخصم</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">تاريخ البداية</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">تاريخ النهاية</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">الاستخدام</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">الحالة</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase app-text-main">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody style={{ borderColor: 'var(--border-color)' }}>
                 {discountCodes.map((code) => {
                   const active = isCodeActive(code)
                   return (
-                    <tr key={code.id} className="hover:bg-gray-50">
+                    <tr key={code.id} className="app-hover-bg" style={{ borderColor: 'var(--border-color)' }}>
                       <td className="px-6 py-4">
-                        <span className="font-mono font-bold text-gray-900">{code.code}</span>
+                        <span className="font-mono font-bold app-text-main">{code.code}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-green-600 font-semibold">{code.discount_percentage}%</span>
+                        <span className="font-semibold" style={{ color: 'var(--secondary-color)' }}>{code.discount_percentage}%</span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <div className="flex items-center gap-2 text-sm app-text-main">
                           <Calendar size={14} />
                           {new Date(code.start_date).toLocaleString('ar-EG')}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <div className="flex items-center gap-2 text-sm app-text-main">
                           <Calendar size={14} />
                           {new Date(code.end_date).toLocaleString('ar-EG')}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-sm text-gray-700">
+                        <span className="text-sm app-text-main">
                           {code.used_count} / {code.max_uses || '∞'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                          className="px-3 py-1 rounded-full text-xs font-semibold"
+                          style={active ? { background: 'var(--status-green-bg)', color: 'var(--secondary-color)' } : { background: 'var(--surface-color)', color: 'var(--text-color)' }}
                         >
                           {active ? 'نشط' : 'غير نشط'}
                         </span>
@@ -391,14 +419,16 @@ export default function AdminDiscountCodesPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEdit(code)}
-                            className="p-2 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                            className="p-2 rounded transition-colors app-hover-bg"
+                            style={{ color: 'var(--primary-color)' }}
                             title="تعديل"
                           >
                             <Edit size={18} />
                           </button>
                           <button
                             onClick={() => handleDelete(code.id)}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                            className="p-2 rounded transition-colors app-hover-bg"
+                            style={{ color: 'var(--status-error)' }}
                             title="حذف"
                           >
                             <Trash2 size={18} />
@@ -412,7 +442,7 @@ export default function AdminDiscountCodesPage() {
             </table>
           </div>
           {discountCodes.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 app-text-muted">
               لا توجد أكواد خصم حالياً
             </div>
           )}

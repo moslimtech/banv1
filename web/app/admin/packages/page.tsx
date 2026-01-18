@@ -148,13 +148,13 @@ export default function AdminPackagesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
@@ -164,7 +164,7 @@ export default function AdminPackagesPage() {
             ← العودة للوحة الإدارة
           </Link>
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">إدارة الباقات</h1>
+            <h1 className="text-3xl font-bold app-text-main">إدارة الباقات</h1>
             <button
               onClick={() => {
                 setShowForm(true)
@@ -182,7 +182,10 @@ export default function AdminPackagesPage() {
                   is_featured: false,
                 })
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-base font-semibold shadow-md hover:shadow-lg transition-all"
+              className="flex items-center gap-2 px-6 py-3 text-white rounded-lg text-base font-semibold shadow-md hover:shadow-lg transition-all"
+              style={{ background: 'var(--primary-color)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               <Plus size={22} />
               إضافة باقة جديدة
@@ -191,14 +194,14 @@ export default function AdminPackagesPage() {
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">
+          <div className="app-card shadow-lg p-8 mb-6">
+            <h2 className="text-2xl font-bold mb-6 app-text-main">
               {editingPackage ? 'تعديل الباقة' : 'إضافة باقة جديدة'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     الاسم بالعربية <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -206,12 +209,15 @@ export default function AdminPackagesPage() {
                     required
                     value={formData.name_ar}
                     onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-medium focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="أدخل الاسم بالعربية"
                   />
                 </div>
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     الاسم بالإنجليزية <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -219,7 +225,10 @@ export default function AdminPackagesPage() {
                     required
                     value={formData.name_en}
                     onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-medium focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="Enter name in English"
                   />
                 </div>
@@ -227,7 +236,7 @@ export default function AdminPackagesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     السعر <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -237,12 +246,15 @@ export default function AdminPackagesPage() {
                     step="0.01"
                     value={formData.price || ''}
                     onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="0.00"
                   />
                 </div>
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     عدد الأماكن <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -251,12 +263,15 @@ export default function AdminPackagesPage() {
                     min="1"
                     value={formData.max_places || ''}
                     onChange={(e) => setFormData({ ...formData, max_places: parseInt(e.target.value) || 1 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="1"
                   />
                 </div>
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     الأولوية <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -264,7 +279,10 @@ export default function AdminPackagesPage() {
                     required
                     value={formData.priority || ''}
                     onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="0"
                   />
                 </div>
@@ -272,7 +290,7 @@ export default function AdminPackagesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     فيديوهات المنتج
                   </label>
                   <input
@@ -280,12 +298,15 @@ export default function AdminPackagesPage() {
                     min="0"
                     value={formData.max_product_videos || ''}
                     onChange={(e) => setFormData({ ...formData, max_product_videos: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     صور المنتج
                   </label>
                   <input
@@ -293,12 +314,15 @@ export default function AdminPackagesPage() {
                     min="1"
                     value={formData.max_product_images || ''}
                     onChange={(e) => setFormData({ ...formData, max_product_images: parseInt(e.target.value) || 5 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="5"
                   />
                 </div>
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     فيديوهات المكان
                   </label>
                   <input
@@ -306,7 +330,10 @@ export default function AdminPackagesPage() {
                     min="0"
                     value={formData.max_place_videos || ''}
                     onChange={(e) => setFormData({ ...formData, max_place_videos: parseInt(e.target.value) || 1 })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                     placeholder="1"
                   />
                 </div>
@@ -314,13 +341,16 @@ export default function AdminPackagesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-base font-semibold mb-3 text-gray-700">
+                  <label className="block text-base font-semibold mb-3 app-text-main">
                     نمط الكارت
                   </label>
                   <select
                     value={formData.card_style}
                     onChange={(e) => setFormData({ ...formData, card_style: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold text-gray-900 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="app-input w-full text-lg font-semibold focus:outline-none"
+                    style={{ borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                   >
                     <option value="default">افتراضي</option>
                     <option value="silver">فضي</option>
@@ -336,7 +366,7 @@ export default function AdminPackagesPage() {
                     onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
                     className="w-6 h-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                   />
-                  <label htmlFor="is_featured" className="text-base font-semibold text-gray-700 cursor-pointer">
+                  <label htmlFor="is_featured" className="text-base font-semibold app-text-main cursor-pointer">
                     باقة مميزة (تظهر في الأعلى)
                   </label>
                 </div>
@@ -352,7 +382,10 @@ export default function AdminPackagesPage() {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-base font-semibold transition-colors"
+                  className="px-8 py-3 rounded-lg text-base font-semibold transition-colors"
+                  style={{ background: 'var(--surface-color)', color: 'var(--text-color)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                   إلغاء
                 </button>
@@ -361,47 +394,49 @@ export default function AdminPackagesPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="app-card shadow-lg overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-4 text-right text-base font-bold text-gray-700">الاسم</th>
-                <th className="px-6 py-4 text-right text-base font-bold text-gray-700">السعر</th>
-                <th className="px-6 py-4 text-right text-base font-bold text-gray-700">الأماكن</th>
-                <th className="px-6 py-4 text-right text-base font-bold text-gray-700">الأولوية</th>
-                <th className="px-6 py-4 text-right text-base font-bold text-gray-700">الإجراءات</th>
+            <thead className="app-bg-surface">
+              <tr style={{ borderColor: 'var(--border-color)' }}>
+                <th className="px-6 py-4 text-right text-base font-bold app-text-main">الاسم</th>
+                <th className="px-6 py-4 text-right text-base font-bold app-text-main">السعر</th>
+                <th className="px-6 py-4 text-right text-base font-bold app-text-main">الأماكن</th>
+                <th className="px-6 py-4 text-right text-base font-bold app-text-main">الأولوية</th>
+                <th className="px-6 py-4 text-right text-base font-bold app-text-main">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody style={{ borderColor: 'var(--border-color)' }}>
               {packages.map((pkg) => (
-                <tr key={pkg.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={pkg.id} className="app-hover-bg transition-colors" style={{ borderColor: 'var(--border-color)' }}>
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div>
-                      <div className="font-semibold text-base text-gray-900">{pkg.name_ar}</div>
-                      <div className="text-sm text-gray-600 mt-1">{pkg.name_en}</div>
+                      <div className="font-semibold text-base app-text-main">{pkg.name_ar}</div>
+                      <div className="text-sm app-text-muted mt-1">{pkg.name_en}</div>
                     </div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <span className="text-base font-bold text-blue-600">{pkg.price} EGP</span>
+                    <span className="text-base font-bold" style={{ color: 'var(--primary-color)' }}>{pkg.price} EGP</span>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <span className="text-base text-gray-700">{pkg.max_places}</span>
+                    <span className="text-base app-text-main">{pkg.max_places}</span>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <span className="text-base text-gray-700">{pkg.priority}</span>
+                    <span className="text-base app-text-main">{pkg.priority}</span>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleEdit(pkg)}
-                        className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2.5 rounded-lg transition-colors app-hover-bg"
+                        style={{ color: 'var(--primary-color)' }}
                         title="تعديل"
                       >
                         <Edit size={20} />
                       </button>
                       <button
                         onClick={() => handleDelete(pkg.id)}
-                        className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2.5 rounded-lg transition-colors app-hover-bg"
+                        style={{ color: 'var(--status-error)' }}
                         title="حذف"
                       >
                         <Trash2 size={20} />

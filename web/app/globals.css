@@ -1,12 +1,98 @@
 @import "tailwindcss";
 
 :root {
+  /* Color Variables */
   --background: #ffffff;
   --foreground: #171717;
   --primary: #3b82f6;
   --primary-dark: #2563eb;
   --secondary: #10b981;
   --accent: #f59e0b;
+  
+  /* Unified Design Variables for WebView */
+  --primary-color: #3b82f6;
+  --primary-color-rgb: 59, 130, 246;
+  --secondary-color: #10b981;
+  --bg-color: #ffffff;
+  --text-color: #171717;
+  
+  /* Border & Divider Colors */
+  --border-color: #e5e7eb;
+  --border-color-hover: #d1d5db;
+  
+  /* Surface & Hover States */
+  --surface-color: #f9fafb;
+  --surface-hover: #f3f4f6;
+  --surface-active: #e5e7eb;
+  
+  /* Text Opacity Variants */
+  --text-muted: rgba(23, 23, 23, 0.7);
+  --text-subtle: rgba(23, 23, 23, 0.6);
+  
+  /* Status Colors (for badges, etc.) */
+  --status-online: #10b981;
+  --status-error: #ef4444;
+  --status-warning: #f59e0b;
+  
+  /* Status Background Colors (light versions) */
+  --status-blue-bg: #eff6ff;
+  --status-green-bg: #f0fdf4;
+  --status-yellow-bg: #fefce8;
+  --status-red-bg: #fef2f2;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  
+  /* Spacing Variables */
+  --main-padding: 16px;
+  --section-padding: 24px;
+  --element-gap: 12px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Mobile-friendly System Fonts */
+  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-mono-system: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    
+    /* Dark Mode Color Variables */
+    --bg-color: #1a1a1a;
+    --text-color: #e5e5e5;
+    
+    /* Dark Mode Borders */
+    --border-color: #374151;
+    --border-color-hover: #4b5563;
+    
+    /* Dark Mode Surfaces */
+    --surface-color: #111827;
+    --surface-hover: #1f2937;
+    --surface-active: #374151;
+    
+    /* Dark Mode Text Opacity */
+    --text-muted: rgba(229, 229, 229, 0.7);
+    --text-subtle: rgba(229, 229, 229, 0.6);
+    
+    /* Adjusted primary color for better visibility on dark backgrounds */
+    --primary-color: #60a5fa; /* Lighter blue */
+    --primary-color-rgb: 96, 165, 250;
+    --primary-dark: #3b82f6;
+    
+    /* Keep secondary and accent for consistency */
+    --secondary-color: #34d399; /* Slightly brighter green */
+    --accent: #fbbf24; /* Slightly brighter yellow */
+    
+    /* Dark Mode Status Backgrounds */
+    --status-blue-bg: rgba(59, 130, 246, 0.1);
+    --status-green-bg: rgba(16, 185, 129, 0.1);
+    --status-yellow-bg: rgba(245, 158, 11, 0.1);
+    --status-red-bg: rgba(239, 68, 68, 0.1);
+  }
 }
 
 @theme inline {
@@ -16,21 +102,56 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Cairo', Arial, Helvetica, sans-serif;
+  font-family: 'Cairo', var(--font-system), Arial, Helvetica, sans-serif;
+  /* WebView: Disable text selection for better mobile experience */
+  -webkit-user-select: none;
+  user-select: none;
+  /* Smooth transition between light and dark modes */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* WebView-specific fixes */
+/* Remove tap highlight on all interactive elements */
+button,
+a,
+input,
+textarea,
+select,
+[role="button"],
+[onclick] {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Re-enable text selection for input fields and text areas */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Re-enable text selection for readable content */
+p,
+span,
+div[class*="text"],
+article,
+section {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Smooth scrolling for main content area (iOS momentum scrolling) */
+main {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom scrollbar */
@@ -70,7 +191,62 @@ body {
   overflow: hidden;
 }
 
-/* Improve input text visibility and contrast */
+/* ============================================
+   UNIFIED BUTTON & INPUT STYLES (WebView Optimized)
+   ============================================ */
+
+/* Global Button Styles using CSS Variables */
+button,
+input[type="button"],
+input[type="submit"],
+[role="button"] {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--main-padding);
+  font-size: 16px; /* Prevent iOS zoom on focus */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* WebView tap highlight removed above */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Button Pressed Effect for WebView */
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active,
+[role="button"]:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* Button Hover States */
+button:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+[role="button"]:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Button Disabled State */
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+[role="button"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button Variant */
+button.secondary,
+[role="button"].secondary {
+  background: var(--secondary-color);
+}
+
+/* Input & Form Elements using CSS Variables */
 input[type="text"],
 input[type="number"],
 input[type="email"],
@@ -78,18 +254,34 @@ input[type="tel"],
 input[type="url"],
 input[type="password"],
 input[type="search"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
 textarea,
 select {
-  font-size: 1rem; /* 16px */
+  font-size: 16px; /* Critical: Prevents iOS WebView auto-zoom (must be >= 16px) */
   font-weight: 500;
-  color: #1f2937; /* gray-800 - darker for better contrast */
-  background-color: #ffffff;
-  border-color: #d1d5db; /* gray-300 */
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  border: 2px solid #d1d5db; /* gray-300 - can be customized with CSS variable if needed */
+  border-radius: var(--border-radius);
+  padding: var(--main-padding);
+  width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+/* Input Focus States */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-color);
 }
 
 input::placeholder,
 textarea::placeholder {
-  font-size: 1rem;
+  font-size: 16px; /* Match input font-size to prevent layout shift */
   font-weight: 400;
   color: #6b7280; /* gray-500 - darker for better contrast */
   opacity: 1;
@@ -98,24 +290,16 @@ textarea::placeholder {
 /* Ensure numbers in number inputs are visible */
 input[type="number"] {
   font-weight: 600;
-  color: #111827; /* gray-900 - even darker for numbers */
+  color: var(--text-color);
 }
 
-/* Improve label contrast */
+/* Label Styles */
 label {
-  color: #111827; /* gray-900 - dark for labels */
+  color: var(--text-color);
   font-weight: 600;
+  font-size: 16px; /* Consistent sizing */
 }
 
-/* Focus states with better contrast */
-input:focus,
-textarea:focus,
-select:focus {
-  color: #111827; /* gray-900 */
-  border-color: #3b82f6; /* blue-500 */
-  background-color: #ffffff;
-  outline: none;
-}
 
 /* Disabled states */
 input:disabled,
@@ -196,4 +380,153 @@ h4, h5, h6 {
 
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
+}
+
+/* ============================================
+   CSS VARIABLE UTILITY CLASSES
+   Use these classes instead of hardcoded Tailwind colors
+   ============================================ */
+
+/* Background Utilities */
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-secondary { background-color: var(--secondary-color) !important; }
+.bg-surface { background-color: var(--bg-color) !important; }
+.bg-base { background-color: var(--background) !important; }
+
+/* Text Utilities */
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--secondary-color) !important; }
+.text-content { color: var(--text-color) !important; }
+.text-foreground { color: var(--foreground) !important; }
+
+/* Border Utilities */
+.border-primary { border-color: var(--primary-color) !important; }
+.border-secondary { border-color: var(--secondary-color) !important; }
+
+/* Spacing Utilities */
+.p-main { padding: var(--main-padding) !important; }
+.p-section { padding: var(--section-padding) !important; }
+.gap-element { gap: var(--element-gap) !important; }
+
+/* Border Radius Utilities */
+.rounded-main { border-radius: var(--border-radius) !important; }
+.rounded-section { border-radius: var(--border-radius-lg) !important; }
+
+/* ============================================
+   TOGGLE SWITCH STYLES (Dark Mode Compatible)
+   ============================================ */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  background-color: var(--surface-active);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 2px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.toggle-switch.checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.toggle-switch.checked::after {
+  transform: translateX(20px);
+  background-color: white;
+  border-color: white;
+}
+
+/* Toggle switch with focus ring */
+.toggle-switch:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Hover state */
+.toggle-switch:hover:not(.checked) {
+  background-color: var(--border-color-hover);
+}
+
+/* ============================================
+   UNIFIED UI BRIDGE - Utility Classes
+   Use these instead of hardcoded Tailwind colors
+   ============================================ */
+
+/* Card/Surface Components */
+.app-card {
+  background: var(--background) !important;
+  border-color: var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  color: var(--text-color) !important;
+}
+
+/* Input Elements */
+.app-input {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  padding: var(--main-padding) !important;
+}
+
+.app-input:focus {
+  outline: none !important;
+  border-color: var(--primary-color) !important;
+  background-color: var(--bg-color) !important;
+}
+
+/* Text Utilities */
+.app-text-main {
+  color: var(--text-color) !important;
+}
+
+.app-text-muted {
+  color: var(--text-muted) !important;
+}
+
+.app-text-subtle {
+  color: var(--text-subtle) !important;
+}
+
+/* Background Utilities */
+.app-bg-surface {
+  background: var(--surface-color) !important;
+}
+
+.app-bg-base {
+  background: var(--bg-color) !important;
+}
+
+/* Border Utilities */
+.app-border {
+  border-color: var(--border-color) !important;
+}
+
+.app-border-hover {
+  border-color: var(--border-color-hover) !important;
+}
+
+/* Hover Background */
+.app-hover-bg {
+  background: transparent !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.app-hover-bg:hover {
+  background: var(--surface-hover) !important;
 }

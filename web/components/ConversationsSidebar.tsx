@@ -1126,35 +1126,42 @@ export default function ConversationsSidebar() {
       {/* Desktop Toggle Button - Always visible */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="hidden lg:flex fixed top-20 right-4 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all z-50 items-center justify-center relative"
+        className="hidden lg:flex fixed top-20 right-4 w-14 h-14 text-white rounded-full shadow-lg transition-all z-50 items-center justify-center relative"
+        style={{ background: 'var(--primary-color)' }}
+        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
       >
         <MessageCircle size={24} />
         {totalUnread > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--status-error)' }}>
             {totalUnread > 9 ? '9+' : totalUnread}
           </span>
         )}
       </button>
 
       {/* Desktop Sidebar - Fixed on right side with slide animation */}
-      <div className={`hidden lg:flex fixed top-16 h-[calc(100vh-4rem)] w-96 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-l border-gray-200/50 dark:border-slate-700/50 z-40 flex-col transition-transform duration-300 ease-in-out ${
+      <div className={`hidden lg:flex fixed top-16 h-[calc(100vh-4rem)] w-96 backdrop-blur-md border-l z-40 flex-col transition-transform duration-300 ease-in-out ${
         isOpen ? 'right-0' : 'right-[-384px]'
-      }`}>
+      }`}
+      style={{ 
+        background: 'rgba(var(--background-rgb, 255, 255, 255), 0.9)',
+        borderColor: 'var(--border-color)'
+      }}>
         {/* Header */}
-        <div className="bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border-b dark:border-slate-700/50 flex-shrink-0">
+        <div className="backdrop-blur-sm p-4 border-b flex-shrink-0 app-bg-surface" style={{ borderColor: 'var(--border-color)' }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-base text-gray-900 dark:text-slate-100 flex items-center gap-2">
+            <h3 className="font-semibold text-base app-text-main flex items-center gap-2">
               <MessageCircle size={20} />
               المحادثات
               {totalUnread > 0 && (
-                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="text-white text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--primary-color)' }}>
                   {totalUnread}
                 </span>
               )}
             </h3>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-700 dark:hover:text-slate-200 rounded-lg transition-colors"
+              className="p-2 rounded-lg transition-colors app-hover-bg app-text-muted"
               title="إخفاء المحادثات"
             >
               <X size={24} />
@@ -1165,15 +1172,19 @@ export default function ConversationsSidebar() {
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto">
           {conversations.length > 0 ? (
-            <div className="divide-y divide-gray-200 dark:divide-slate-700">
+            <div style={{ borderColor: 'var(--border-color)' }} className="divide-y">
               {conversations.map((conversation) => (
                 <button
                   key={`${conversation.placeId}_${conversation.senderId}`}
                   onClick={() => selectConversation(conversation.senderId, conversation.placeId)}
-                  className={`w-full p-3 text-right hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${
+                  className={`w-full p-3 text-right transition-colors app-hover-bg ${
                     selectedConversation === conversation.senderId && selectedPlaceId === conversation.placeId
-                      ? 'bg-blue-50 dark:bg-blue-900/30 border-r-4 border-blue-500' : ''
+                      ? 'border-r-4' : ''
                   }`}
+                  style={selectedConversation === conversation.senderId && selectedPlaceId === conversation.placeId ? {
+                    background: 'rgba(var(--primary-color-rgb), 0.1)',
+                    borderRightColor: 'var(--primary-color)'
+                  } : {}}
                 >
                   <div className="flex items-center gap-3">
                     {/* Avatar */}
@@ -1182,53 +1193,54 @@ export default function ConversationsSidebar() {
                         <img
                           src={conversation.sender.avatar_url}
                           alt={conversation.sender.full_name || conversation.sender.email || ''}
-                          className="w-12 h-12 rounded-full border-2 border-gray-200 dark:border-slate-600 object-cover shadow-sm"
+                          className="w-12 h-12 rounded-full border-2 object-cover shadow-sm app-border"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.style.display = 'none'
                             const parent = target.parentElement
                             if (parent) {
                               const fallback = document.createElement('div')
-                              fallback.className = 'w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-base font-bold shadow-sm border-2 border-gray-200 dark:border-slate-600'
+                              fallback.className = 'w-12 h-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-base font-bold shadow-sm border-2 app-border'
+                              fallback.style.background = 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))'
                               fallback.textContent = (conversation.sender?.full_name?.[0] || conversation.sender?.email?.[0] || 'U').toUpperCase()
                               parent.appendChild(fallback)
                             }
                           }}
                         />
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full app-border" style={{ background: 'var(--status-online)', borderColor: 'var(--background)' }}></div>
                       </div>
                     ) : (
                       <div className="relative flex-shrink-0">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-base font-bold shadow-sm border-2 border-gray-200 dark:border-slate-600">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold shadow-sm border-2 app-border" style={{ background: 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))' }}>
                           {(conversation.sender?.full_name?.[0] || conversation.sender?.email?.[0] || 'U').toUpperCase()}
                         </div>
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full app-border" style={{ background: 'var(--status-online)', borderColor: 'var(--background)' }}></div>
                       </div>
                     )}
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold text-gray-900 dark:text-slate-100 truncate text-sm">
+                        <p className="font-semibold app-text-main truncate text-sm">
                           {conversation.sender?.full_name || conversation.sender?.email || 'مستخدم'}
                         </p>
                         {conversation.unreadCount > 0 && (
-                          <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                          <span className="text-white text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--primary-color)' }}>
                             {conversation.unreadCount}
                           </span>
                         )}
                       </div>
                       {conversation.placeName && (
-                        <p className="text-xs text-blue-600 dark:text-blue-400 truncate mb-1">
+                        <p className="text-xs truncate mb-1" style={{ color: 'var(--primary-color)' }}>
                           {conversation.placeName}
                         </p>
                       )}
                       {conversation.lastMessage && (
-                        <p className="text-xs text-gray-700 dark:text-slate-300 truncate">
+                        <p className="text-xs app-text-main truncate">
                           {conversation.lastMessage.content || 'صورة'}
                         </p>
                       )}
                       {conversation.lastMessage && (
-                        <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">
+                        <p className="text-xs app-text-muted mt-1">
                           {new Date(conversation.lastMessage.created_at).toLocaleDateString('ar-EG', {
                             month: 'short',
                             day: 'numeric',
@@ -1243,8 +1255,8 @@ export default function ConversationsSidebar() {
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center text-gray-700 dark:text-slate-400">
-              <MessageCircle size={48} className="mx-auto mb-4 text-gray-600 dark:text-slate-500" />
+            <div className="p-8 text-center app-text-muted">
+              <MessageCircle size={48} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
               <p>لا توجد محادثات بعد</p>
             </div>
           )}
@@ -1252,9 +1264,9 @@ export default function ConversationsSidebar() {
 
         {/* Conversation View - Bottom of sidebar */}
         {selectedConversation && selectedPlaceId && (
-          <div className="border-t dark:border-slate-700/50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex flex-col" style={{ height: '550px', minHeight: '550px' }}>
+          <div className="border-t backdrop-blur-sm flex flex-col app-border" style={{ height: '550px', minHeight: '550px', background: 'rgba(var(--background-rgb, 255, 255, 255), 0.9)', borderColor: 'var(--border-color)' }}>
             {/* Conversation Header */}
-            <div className="bg-gray-50/80 dark:bg-slate-900/80 backdrop-blur-sm p-3 border-b dark:border-slate-700/50 flex-shrink-0">
+            <div className="backdrop-blur-sm p-3 border-b flex-shrink-0 app-bg-surface app-border">
               {(() => {
                 const conversation = conversations.find(
                   (c) => c.senderId === selectedConversation && c.placeId === selectedPlaceId
@@ -1270,24 +1282,24 @@ export default function ConversationsSidebar() {
                         <img
                           src={senderInfo.avatar_url}
                           alt={senderInfo.full_name || senderInfo.email || ''}
-                          className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-slate-600 object-cover shadow-sm"
+                          className="w-8 h-8 rounded-full border-2 object-cover shadow-sm app-border"
                         />
-                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full app-border" style={{ background: 'var(--status-online)', borderColor: 'var(--background)' }}></div>
                       </div>
                     ) : (
                       <div className="relative flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-sm border-2 border-gray-200 dark:border-slate-600">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm border-2 app-border" style={{ background: 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))' }}>
                           {(senderInfo?.full_name?.[0] || senderInfo?.email?.[0] || 'U').toUpperCase()}
                         </div>
-                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full app-border" style={{ background: 'var(--status-online)', borderColor: 'var(--background)' }}></div>
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm text-gray-900 dark:text-slate-100 truncate">
+                      <p className="font-semibold text-sm app-text-main truncate">
                         {senderInfo?.full_name || senderInfo?.email || 'مستخدم'}
                       </p>
                       {placeName && (
-                        <p className="text-[10px] text-gray-700 dark:text-slate-400">
+                        <p className="text-[10px] app-text-muted">
                           {placeName}
                         </p>
                       )}
@@ -1299,7 +1311,7 @@ export default function ConversationsSidebar() {
                         setSelectedPlaceInfo(null)
                         setSelectedSenderInfo(null)
                       }}
-                      className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      className="app-text-muted app-hover-bg"
                     >
                       <X size={18} />
                     </button>
@@ -1309,7 +1321,7 @@ export default function ConversationsSidebar() {
             </div>
 
             {/* Messages */}
-            <div className="overflow-y-auto p-2 bg-gray-50/60 dark:bg-slate-900/60 backdrop-blur-sm" style={{ height: '400px', flexShrink: 1 }}>
+            <div className="overflow-y-auto p-2 backdrop-blur-sm app-bg-surface" style={{ height: '400px', flexShrink: 1 }}>
               {(() => {
                 const msgs = getConversationMessages()
                 return msgs.length > 0 ? (
@@ -1327,12 +1339,12 @@ export default function ConversationsSidebar() {
                           <img
                             src={message.sender.avatar_url}
                             alt={message.sender.full_name || message.sender.email || ''}
-                            className="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-slate-600 object-cover shadow-sm"
+                            className="w-6 h-6 rounded-full border-2 object-cover shadow-sm app-border"
                           />
                         </div>
                       ) : (
                         <div className="relative flex-shrink-0">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-sm border-2 border-gray-200 dark:border-slate-600">
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm border-2 app-border" style={{ background: 'linear-gradient(to bottom right, var(--primary-color), var(--primary-dark))' }}>
                             {message.sender?.full_name?.[0]?.toUpperCase() || message.sender?.email?.[0]?.toUpperCase() || 'U'}
                           </div>
                         </div>
@@ -1341,36 +1353,33 @@ export default function ConversationsSidebar() {
                       {/* Message Content */}
                       <div className="flex-1">
                         {message.reply_to && message.replied_message && (
-                          <div className={`mb-1 p-1.5 rounded text-xs border-r-2 ${
-                            message.sender_id === user.id 
-                              ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400' 
-                              : 'bg-gray-100 dark:bg-slate-700 border-gray-400'
-                          }`}>
-                            <p className={`font-semibold mb-0.5 ${
-                              message.sender_id === user.id 
-                                ? 'text-blue-900 dark:text-blue-200' 
-                                : 'text-gray-900 dark:text-slate-100'
-                            }`}>
+                          <div className="mb-1 p-1.5 rounded text-xs border-r-2" style={message.sender_id === user.id ? {
+                            background: 'rgba(var(--primary-color-rgb), 0.1)',
+                            borderRightColor: 'var(--primary-color)'
+                          } : {
+                            background: 'var(--surface-color)',
+                            borderRightColor: 'var(--border-color)'
+                          }}>
+                            <p className="font-semibold mb-0.5 app-text-main">
                               رد على: {message.replied_message.sender?.full_name || message.replied_message.sender?.email || 'مستخدم'}
                             </p>
-                            <p className={`line-clamp-1 ${
-                              message.sender_id === user.id 
-                                ? 'text-blue-800 dark:text-blue-300' 
-                                : 'text-gray-800 dark:text-slate-300'
-                            }`}>
+                            <p className="line-clamp-1 app-text-main">
                               {message.replied_message.content || 'صورة'}
                             </p>
                           </div>
                         )}
                         <div
-                          className={`p-1.5 rounded-lg text-sm ${
-                            message.sender_id === user.id
-                              ? 'bg-blue-500 text-white max-w-[200px]'
-                              : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border dark:border-slate-700/50 max-w-[200px]'
-                          }`}
+                          className="p-1.5 rounded-lg text-sm max-w-[200px]"
+                          style={message.sender_id === user.id ? {
+                            background: 'var(--primary-color)',
+                            color: 'white'
+                          } : {
+                            background: 'rgba(var(--background-rgb, 255, 255, 255), 0.8)',
+                            border: '1px solid var(--border-color)'
+                          }}
                         >
                           {message.content && (
-                            <p className={message.sender_id === user.id ? 'text-white' : 'text-gray-900 dark:text-slate-100'}>
+                            <p style={message.sender_id === user.id ? { color: 'white' } : {}} className={message.sender_id === user.id ? '' : 'app-text-main'}>
                               {message.content}
                             </p>
                           )}
@@ -1393,11 +1402,7 @@ export default function ConversationsSidebar() {
                             </audio>
                           )}
                           {message.product && (
-                            <div className={`mt-1 border-2 rounded p-2 ${
-                              message.sender_id === user.id
-                                ? 'border-purple-300 bg-purple-50'
-                                : 'border-purple-300 bg-purple-50'
-                            }`}>
+                            <div className="mt-1 border-2 rounded p-2" style={{ borderColor: 'var(--accent)', background: 'rgba(245, 158, 11, 0.1)' }}>
                               {message.product.images && message.product.images.length > 0 && (
                                 <img
                                   src={message.product.images[0].image_url}
@@ -1405,13 +1410,13 @@ export default function ConversationsSidebar() {
                                   className="h-12 w-12 object-cover rounded"
                                 />
                               )}
-                              <p className="text-xs font-semibold mt-1 text-gray-900">
+                              <p className="text-xs font-semibold mt-1 app-text-main">
                                 {message.product.name_ar}
                               </p>
                             </div>
                           )}
                           <div className="flex items-center justify-between mt-1">
-                            <p className={`text-[10px] ${message.sender_id === user.id ? 'opacity-70' : 'text-gray-500 dark:text-slate-400'}`}>
+                            <p className={`text-[10px] ${message.sender_id === user.id ? 'opacity-70' : 'app-text-muted'}`}>
                               {new Date(message.created_at).toLocaleTimeString('ar-EG', {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -1419,7 +1424,7 @@ export default function ConversationsSidebar() {
                             </p>
                             {/* Show place name if message is from employee (not owner) */}
                             {message.employee_id && message.place && message.sender_id === user.id && (
-                              <p className="text-[9px] opacity-70 text-gray-400 dark:text-slate-500">
+                              <p className="text-[9px] opacity-70 app-text-subtle">
                                 {message.place.name_ar}
                               </p>
                             )}
@@ -1430,7 +1435,7 @@ export default function ConversationsSidebar() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-700 dark:text-slate-400 text-sm">
+                <p className="text-center app-text-muted text-sm">
                   لا توجد رسائل (المجموع الكلي: {messages.length}, المحادثة: {selectedConversation}, المكان: {selectedPlaceId})
                 </p>
               )
@@ -1438,21 +1443,21 @@ export default function ConversationsSidebar() {
             </div>
 
             {/* Message Input */}
-            <div className="flex flex-col gap-2 p-3 border-t dark:border-slate-700/50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex-shrink-0">
+            <div className="flex flex-col gap-2 p-3 border-t backdrop-blur-sm flex-shrink-0 app-border" style={{ background: 'rgba(var(--background-rgb, 255, 255, 255), 0.9)', borderColor: 'var(--border-color)' }}>
               {replyingTo && (
-                <div className="bg-blue-50 dark:bg-blue-900/30 border-r-4 border-blue-500 p-2 rounded-lg">
+                <div className="border-r-4 p-2 rounded-lg" style={{ background: 'rgba(var(--primary-color-rgb), 0.1)', borderRightColor: 'var(--primary-color)' }}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-0.5">
+                      <p className="text-xs font-semibold app-text-main mb-0.5">
                         رد على: {replyingTo.sender?.full_name || replyingTo.sender?.email || 'مستخدم'}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-1">
+                      <p className="text-xs app-text-muted line-clamp-1">
                         {replyingTo.content || 'صورة'}
                       </p>
                     </div>
                     <button
                       onClick={() => setReplyingTo(null)}
-                      className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 ml-2"
+                      className="app-text-muted app-hover-bg ml-2"
                     >
                       <X size={16} />
                     </button>
@@ -1460,23 +1465,29 @@ export default function ConversationsSidebar() {
                 </div>
               )}
               {isRecording ? (
-                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                <div className="flex items-center gap-2 p-3 border-2 rounded-lg" style={{ background: 'var(--status-red-bg)', borderColor: 'var(--status-error)' }}>
                   <div className="flex items-center gap-2 flex-1">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-red-700 dark:text-red-400 font-semibold text-sm">
+                    <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: 'var(--status-error)' }}></div>
+                    <span className="font-semibold text-sm" style={{ color: 'var(--status-error)' }}>
                       جاري التسجيل... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                     </span>
                   </div>
                   <button
                     onClick={stopRecording}
-                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1.5 text-sm"
+                    className="px-3 py-1.5 text-white rounded-lg transition-colors flex items-center gap-1.5 text-sm"
+                    style={{ background: 'var(--status-error)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     <Square size={14} />
                     <span>إيقاف وإرسال</span>
                   </button>
                   <button
                     onClick={cancelRecording}
-                    className="px-3 py-1.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                    className="px-3 py-1.5 text-white rounded-lg transition-colors text-sm"
+                    style={{ background: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     إلغاء
                   </button>
@@ -1488,10 +1499,13 @@ export default function ConversationsSidebar() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder={replyingTo ? "اكتب ردك..." : "اكتب رسالتك..."}
-                  className="flex-1 min-w-[120px] px-2 py-1.5 text-sm border-2 border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
+                  className="flex-1 min-w-[120px] px-2 py-1.5 text-sm border-2 rounded-lg app-input focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 />
-                <label className="cursor-pointer px-2 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center justify-center transition-colors flex-shrink-0">
+                <label className="cursor-pointer px-2 py-1.5 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 app-hover-bg" style={{ background: 'var(--surface-color)' }}>
                   <ImageIcon size={16} />
                   <input
                     type="file"
@@ -1503,7 +1517,10 @@ export default function ConversationsSidebar() {
                 {products.length > 0 && (
                   <button
                     onClick={() => setShowProductPicker(!showProductPicker)}
-                    className="px-2 py-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center flex-shrink-0"
+                    className="px-2 py-1.5 text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'var(--accent)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     title="مشاركة منتج"
                   >
                     <Package size={16} />
@@ -1512,14 +1529,20 @@ export default function ConversationsSidebar() {
                 {newMessage.trim() || selectedImage || selectedProduct ? (
                   <button
                     onClick={sendMessage}
-                    className="px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center flex-shrink-0 text-sm"
+                    className="px-3 py-1.5 text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0 text-sm"
+                    style={{ background: 'var(--primary-color)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     <Send size={16} />
                   </button>
                 ) : (
                   <button
                     onClick={startRecording}
-                    className="px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center flex-shrink-0 text-sm"
+                    className="px-3 py-1.5 text-white rounded-lg transition-colors flex items-center justify-center flex-shrink-0 text-sm"
+                    style={{ background: 'var(--secondary-color)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     title="تسجيل صوتي"
                   >
                     <Mic size={16} />
@@ -1531,7 +1554,7 @@ export default function ConversationsSidebar() {
                 const product = selectedProduct!
                 const firstImage = product.images?.[0]
                 return (
-                <div className="border-2 border-purple-300 rounded-lg p-2 bg-purple-50">
+                <div className="border-2 rounded-lg p-2" style={{ borderColor: 'var(--accent)', background: 'rgba(245, 158, 11, 0.1)' }}>
                   <div className="flex items-center gap-2">
                     {firstImage && (
                       <img
@@ -1541,14 +1564,14 @@ export default function ConversationsSidebar() {
                       />
                     )}
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-900">{product.name_ar}</p>
+                      <p className="text-xs font-semibold app-text-main">{product.name_ar}</p>
                       {product.price && (
-                        <p className="text-xs text-blue-600">{product.price} {product.currency}</p>
+                        <p className="text-xs" style={{ color: 'var(--primary-color)' }}>{product.price} {product.currency}</p>
                       )}
                     </div>
                     <button
                       onClick={() => setSelectedProduct(null)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="app-text-muted app-hover-bg"
                     >
                       <X size={16} />
                     </button>
@@ -1561,18 +1584,21 @@ export default function ConversationsSidebar() {
                   <img
                     src={URL.createObjectURL(selectedImage!)}
                     alt="Selected"
-                    className="h-16 w-16 object-cover rounded border-2 border-gray-200"
+                    className="h-16 w-16 object-cover rounded border-2 app-border"
                   />
                   <button
                     onClick={() => setSelectedImage(null)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    className="absolute -top-1 -right-1 text-white rounded-full p-1"
+                    style={{ background: 'var(--status-error)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
                     <span className="text-xs">×</span>
                   </button>
                 </div>
               )}
               {showProductPicker && products.length > 0 && (
-                <div className="border-2 border-purple-300 rounded-lg p-2 bg-white dark:bg-slate-700 max-h-32 overflow-y-auto">
+                <div className="border-2 rounded-lg p-2 max-h-32 overflow-y-auto app-card app-border" style={{ borderColor: 'var(--accent)' }}>
                   {products.map((product) => (
                     <button
                       key={product.id}
@@ -1580,7 +1606,7 @@ export default function ConversationsSidebar() {
                         setSelectedProduct(product)
                         setShowProductPicker(false)
                       }}
-                      className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-slate-600 rounded text-right"
+                      className="w-full flex items-center gap-2 p-2 rounded text-right app-hover-bg"
                     >
                       {product.images && product.images.length > 0 && (
                         <img
@@ -1590,11 +1616,11 @@ export default function ConversationsSidebar() {
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-900 dark:text-slate-100 truncate">
+                        <p className="text-xs font-semibold app-text-main truncate">
                           {product.name_ar}
                         </p>
                         {product.price && (
-                          <p className="text-xs text-blue-600">{product.price} {product.currency}</p>
+                          <p className="text-xs" style={{ color: 'var(--primary-color)' }}>{product.price} {product.currency}</p>
                         )}
                       </div>
                     </button>
@@ -1610,11 +1636,14 @@ export default function ConversationsSidebar() {
       <div className="lg:hidden fixed bottom-4 left-4 z-40">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center relative"
+          className="w-14 h-14 text-white rounded-full shadow-lg transition-colors flex items-center justify-center relative"
+          style={{ background: 'var(--primary-color)' }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
           <MessageCircle size={24} />
           {totalUnread > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--status-error)' }}>
               {totalUnread > 9 ? '9+' : totalUnread}
             </span>
           )}

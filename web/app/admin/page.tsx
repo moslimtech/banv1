@@ -97,126 +97,126 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">لوحة الإدارة</h1>
-          <p className="text-gray-600">إدارة النظام والمستخدمين</p>
+          <h1 className="text-3xl font-bold mb-2 app-text-main">لوحة الإدارة</h1>
+          <p className="app-text-muted">إدارة النظام والمستخدمين</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link
             href="/admin/packages"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <Package className="text-blue-500" size={32} />
+              <Package size={32} style={{ color: 'var(--primary-color)' }} />
               <div>
-                <p className="text-gray-600">الباقات</p>
-                <p className="text-lg font-bold">إدارة الباقات</p>
+                <p className="app-text-muted">الباقات</p>
+                <p className="text-lg font-bold app-text-main">إدارة الباقات</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/users"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <Users className="text-green-500" size={32} />
+              <Users size={32} style={{ color: 'var(--secondary-color)' }} />
               <div>
-                <p className="text-gray-600">المستخدمين</p>
-                <p className="text-lg font-bold">إدارة المستخدمين</p>
+                <p className="app-text-muted">المستخدمين</p>
+                <p className="text-lg font-bold app-text-main">إدارة المستخدمين</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/affiliates"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <TrendingUp className="text-yellow-500" size={32} />
+              <TrendingUp size={32} style={{ color: 'var(--status-warning)' }} />
               <div>
-                <p className="text-gray-600">المسوقين</p>
-                <p className="text-lg font-bold">إدارة المسوقين</p>
+                <p className="app-text-muted">المسوقين</p>
+                <p className="text-lg font-bold app-text-main">إدارة المسوقين</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/youtube"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <Video className="text-red-500" size={32} />
+              <Video size={32} style={{ color: 'var(--status-error)' }} />
               <div>
-                <p className="text-gray-600">YouTube</p>
-                <p className="text-lg font-bold">إعدادات YouTube</p>
+                <p className="app-text-muted">YouTube</p>
+                <p className="text-lg font-bold app-text-main">إعدادات YouTube</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/discount-codes"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <Ticket className="text-orange-500" size={32} />
+              <Ticket size={32} style={{ color: 'var(--accent)' }} />
               <div>
-                <p className="text-gray-600">أكواد الخصم</p>
-                <p className="text-lg font-bold">إدارة أكواد الخصم</p>
+                <p className="app-text-muted">أكواد الخصم</p>
+                <p className="text-lg font-bold app-text-main">إدارة أكواد الخصم</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/subscriptions"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <FileCheck className="text-indigo-500" size={32} />
+              <FileCheck size={32} style={{ color: 'var(--primary-color)' }} />
               <div>
-                <p className="text-gray-600">الاشتراكات</p>
-                <p className="text-lg font-bold">مراجعة الاشتراكات</p>
+                <p className="app-text-muted">الاشتراكات</p>
+                <p className="text-lg font-bold app-text-main">مراجعة الاشتراكات</p>
               </div>
             </div>
           </Link>
 
           <Link
             href="/admin/settings"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            className="app-card shadow p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <Settings className="text-purple-500" size={32} />
+              <Settings size={32} style={{ color: 'var(--accent)' }} />
               <div>
-                <p className="text-gray-600">الإعدادات</p>
-                <p className="text-lg font-bold">إعدادات النظام</p>
+                <p className="app-text-muted">الإعدادات</p>
+                <p className="text-lg font-bold app-text-main">إعدادات النظام</p>
               </div>
             </div>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">إحصائيات سريعة</h2>
+        <div className="app-card shadow p-6">
+          <h2 className="text-xl font-bold mb-4 app-text-main">إحصائيات سريعة</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">إجمالي المستخدمين</p>
-              <p className="text-3xl font-bold text-blue-600">{stats.totalUsers.toLocaleString('ar-EG')}</p>
+            <div className="p-4 rounded-lg" style={{ background: 'var(--status-blue-bg)' }}>
+              <p className="text-sm app-text-muted mb-2">إجمالي المستخدمين</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--primary-color)' }}>{stats.totalUsers.toLocaleString('ar-EG')}</p>
             </div>
-            <div className="p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">إجمالي الأماكن</p>
-              <p className="text-3xl font-bold text-green-600">{stats.totalPlaces.toLocaleString('ar-EG')}</p>
+            <div className="p-4 rounded-lg" style={{ background: 'var(--status-green-bg)' }}>
+              <p className="text-sm app-text-muted mb-2">إجمالي الأماكن</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--secondary-color)' }}>{stats.totalPlaces.toLocaleString('ar-EG')}</p>
             </div>
-            <div className="p-4 bg-yellow-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">إجمالي المسوقين</p>
-              <p className="text-3xl font-bold text-yellow-600">{stats.totalAffiliates.toLocaleString('ar-EG')}</p>
+            <div className="p-4 rounded-lg" style={{ background: 'var(--status-yellow-bg)' }}>
+              <p className="text-sm app-text-muted mb-2">إجمالي المسوقين</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--status-warning)' }}>{stats.totalAffiliates.toLocaleString('ar-EG')}</p>
             </div>
           </div>
         </div>
