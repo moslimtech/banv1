@@ -234,11 +234,13 @@ export default function AdminAffiliatesPage() {
                           const selectedId = e.target.value || null
                           handleSelectDiscountCode(affiliate, selectedId)
                         }}
-                        onBlur={() => setEditingAffiliate(null)}
                         className="px-3 py-1 app-input rounded-lg text-sm focus:outline-none"
                         style={{ borderColor: 'var(--border-color)' }}
                         onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
-                        onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-color)'
+                          setEditingAffiliate(null)
+                        }}
                         autoFocus
                       >
                         <option value="">بدون كود خصم</option>
