@@ -30,8 +30,8 @@ async function optimizeImage(file: File): Promise<Blob> {
     .webp({ quality, effort: 4 }) // effort: 0-6 (higher = better compression but slower)
     .toBuffer()
 
-  // Create Blob from optimized buffer
-  return new Blob([optimizedBuffer], { type: 'image/webp' })
+  // Create Blob from optimized buffer (convert Buffer to Uint8Array for Blob compatibility)
+  return new Blob([new Uint8Array(optimizedBuffer)], { type: 'image/webp' })
 }
 
 // Server-side ImgBB upload function (can use NEXT_PUBLIC_IMGBB_API_* or IMGBB_API_*)
