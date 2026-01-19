@@ -174,9 +174,6 @@ export default function AdminSubscriptionsPage() {
     }
   }
 
-  const pendingSubscriptions = subscriptions.filter(s => s.status === 'pending')
-  const allSubscriptions = subscriptions
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -193,118 +190,9 @@ export default function AdminSubscriptionsPage() {
           <p className="app-text-muted">مراجعة وتأكيد طلبات الاشتراك في الباقات</p>
         </div>
 
-        {/* Pending Subscriptions */}
-        {pendingSubscriptions.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 app-text-main">الطلبات المعلقة ({pendingSubscriptions.length})</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {pendingSubscriptions.map((subscription) => (
-                <div key={subscription.id} className="app-card shadow-lg p-6 border-2" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <User size={18} style={{ color: 'var(--text-muted)' }} />
-                        <span className="font-semibold app-text-main">
-                          {subscription.user?.full_name || subscription.user?.email || 'مستخدم'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <PackageIcon size={18} className="text-blue-500" />
-                        <span className="app-text-main">{subscription.package?.name_ar || 'باقة غير معروفة'}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign size={18} className="text-green-500" />
-                        <span className="app-text-main">{subscription.amount_paid} EGP</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
-                        <span className="app-text-muted text-sm">
-                          {new Date(subscription.created_at).toLocaleDateString('ar-EG', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                    {getStatusBadge(subscription.status)}
-                  </div>
-
-                  <div className="mb-4">
-                    {subscription.receipt_image_url ? (
-                      <>
-                        <div className="mb-2">
-                          <p className="text-sm font-medium app-text-main mb-2">صورة الإيصال:</p>
-                          <div className="relative border rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity app-border"
-                            onClick={() => {
-                              setSelectedSubscription(subscription)
-                              setShowImageModal(true)
-                            }}
-                          >
-                            <img
-                              src={subscription.receipt_image_url}
-                              alt="Receipt"
-                              className="w-full h-32 object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
-                              <Eye size={24} className="text-white opacity-0 hover:opacity-100 transition-opacity" />
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedSubscription(subscription)
-                            setShowImageModal(true)
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors w-full justify-center"
-                          style={{ background: 'var(--primary-color)' }}
-                          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                        >
-                          <Eye size={18} />
-                          <span>عرض صورة الإيصال بالحجم الكامل</span>
-                        </button>
-                      </>
-                    ) : (
-                      <div className="p-3 rounded-lg" style={{ background: 'var(--status-yellow-bg)', borderColor: 'var(--status-warning)', border: '1px solid' }}>
-                        <p className="text-sm" style={{ color: 'var(--status-warning)' }}>⚠️ لم يتم رفع صورة إيصال الدفع</p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleApprove(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
-                      style={{ background: 'var(--secondary-color)' }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <Check size={18} />
-                      <span>موافق</span>
-                    </button>
-                    <button
-                      onClick={() => handleReject(subscription)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
-                      style={{ background: 'var(--status-error)' }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      <X size={18} />
-                      <span>رفض</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* All Subscriptions */}
         <div>
-          <h2 className="text-xl font-bold mb-4 app-text-main">جميع الاشتراكات ({allSubscriptions.length})</h2>
+          <h2 className="text-xl font-bold mb-4 app-text-main">جميع الاشتراكات ({subscriptions.length})</h2>
           <div className="app-card shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full" style={{ borderColor: 'var(--border-color)' }}>
@@ -320,7 +208,7 @@ export default function AdminSubscriptionsPage() {
                   </tr>
                 </thead>
                 <tbody style={{ borderColor: 'var(--border-color)' }}>
-                  {allSubscriptions.map((subscription) => (
+                  {subscriptions.map((subscription) => (
                     <tr key={subscription.id} className="app-hover-bg" style={{ borderColor: 'var(--border-color)' }}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm app-text-main">
                         {subscription.user?.full_name || subscription.user?.email || 'مستخدم'}
@@ -372,7 +260,7 @@ export default function AdminSubscriptionsPage() {
                 </tbody>
               </table>
             </div>
-            {allSubscriptions.length === 0 && (
+            {subscriptions.length === 0 && (
               <div className="text-center py-12 app-text-muted">
                 لا توجد اشتراكات
               </div>
