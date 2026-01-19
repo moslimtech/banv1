@@ -40,6 +40,10 @@
   --status-yellow-bg: #fefce8;
   --status-red-bg: #fef2f2;
   
+  /* Overlay Colors */
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --overlay-bg-light: rgba(0, 0, 0, 0.3);
+  
   /* Shadow */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   
@@ -92,6 +96,10 @@
     --status-green-bg: rgba(16, 185, 129, 0.1);
     --status-yellow-bg: rgba(245, 158, 11, 0.1);
     --status-red-bg: rgba(239, 68, 68, 0.1);
+    
+    /* Dark Mode Overlay */
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+    --overlay-bg-light: rgba(0, 0, 0, 0.5);
   }
 }
 

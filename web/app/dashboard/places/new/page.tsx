@@ -7,7 +7,6 @@ import { showError, showSuccess, showLoading, closeLoading } from '@/components/
 import { MapPin, Phone, Upload, Video, Image as ImageIcon, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import YouTubeUpload from '@/components/YouTubeUpload'
-import { uploadImageToImgBB, convertToWebP } from '@/lib/imgbb'
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false })
 
@@ -82,18 +81,25 @@ export default function NewPlacePage() {
   const handleLogoUpload = async (file: File) => {
     setUploadingLogo(true)
     try {
-      // Convert to WebP
-      const webpBlob = await convertToWebP(file)
-      const webpFile = new File([webpBlob], file.name.replace(/\.[^/.]+$/, '.webp'), {
-        type: 'image/webp',
+      // Upload via API route (automatically optimizes to WebP)
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
       })
-      
-      // Upload to ImgBB
-      const url = await uploadImageToImgBB(webpFile)
-      setLogoUrl(url)
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'فشل رفع الصورة')
+      }
+
+      setLogoUrl(data.url)
       showSuccess('تم رفع الشعار بنجاح')
-    } catch (error) {
-      showError('حدث خطأ في رفع الشعار')
+    } catch (error: any) {
+      showError(error.message || 'حدث خطأ في رفع الشعار')
     } finally {
       setUploadingLogo(false)
     }
@@ -149,57 +155,69 @@ export default function NewPlacePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8 app-bg-base">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6 text-gray-900">إضافة مكان جديد</h1>
+        <h1 className="text-3xl font-bold mb-6 app-text-main">إضافة مكان جديد</h1>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="app-card shadow-lg p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900">الاسم بالعربية *</label>
+              <label className="block text-sm font-semibold mb-2 app-text-main">الاسم بالعربية *</label>
               <input
                 type="text"
                 required
                 value={formData.name_ar}
                 onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+                style={{ borderColor: 'var(--border-color)' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900">الاسم بالإنجليزية *</label>
+              <label className="block text-sm font-semibold mb-2 app-text-main">الاسم بالإنجليزية *</label>
               <input
                 type="text"
                 required
                 value={formData.name_en}
                 onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+                style={{ borderColor: 'var(--border-color)' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">الوصف بالعربية</label>
+            <label className="block text-sm font-semibold mb-2 app-text-main">الوصف بالعربية</label>
             <textarea
               value={formData.description_ar}
               onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+              style={{ borderColor: 'var(--border-color)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">النوع *</label>
+            <label className="block text-sm font-semibold mb-2 app-text-main">النوع *</label>
             <select
               required
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+              style={{ borderColor: 'var(--border-color)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
             >
               <option value="shop">محل</option>
               <option value="pharmacy">صيدلية</option>
@@ -210,35 +228,38 @@ export default function NewPlacePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">شعار المكان</label>
+            <label className="block text-sm font-semibold mb-2 app-text-main">شعار المكان</label>
             {logoPreview ? (
               <div className="relative inline-block">
                 <img
                   src={logoPreview}
                   alt="شعار المكان"
-                  className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                  className="w-32 h-32 object-cover rounded-lg border-2 app-border"
                 />
                 <button
                   type="button"
                   onClick={removeLogo}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                  className="absolute -top-2 -right-2 rounded-full p-1 transition-colors"
+                  style={{ background: 'var(--status-error)', color: 'var(--background)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                   <X size={16} />
                 </button>
                 {uploadingLogo && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                  <div className="absolute inset-0 rounded-lg flex items-center justify-center" style={{ background: 'var(--overlay-bg)' }}>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--background)' }}></div>
                   </div>
                 )}
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors app-border app-hover-bg">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <ImageIcon className="w-10 h-10 mb-2 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-500">
+                  <ImageIcon className="w-10 h-10 mb-2" style={{ color: 'var(--text-muted)' }} />
+                  <p className="mb-2 text-sm app-text-muted">
                     <span className="font-semibold">اضغط لرفع</span> شعار المكان
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG, WEBP (حد أقصى 5MB)</p>
+                  <p className="text-xs app-text-muted">PNG, JPG, WEBP (حد أقصى 5MB)</p>
                 </div>
                 <input
                   type="file"
@@ -249,44 +270,53 @@ export default function NewPlacePage() {
                 />
               </label>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs app-text-muted mt-1">
               الشعار سيتم تحويله تلقائياً إلى WebP لتحسين الأداء
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">رقم الهاتف الأول *</label>
+              <label className="block text-sm font-medium mb-2 app-text-main">رقم الهاتف الأول *</label>
               <input
                 type="tel"
                 required
                 value={formData.phone_1}
                 onChange={(e) => setFormData({ ...formData, phone_1: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                style={{ borderColor: 'var(--border-color)' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">رقم الهاتف الثاني</label>
+              <label className="block text-sm font-medium mb-2 app-text-main">رقم الهاتف الثاني</label>
               <input
                 type="tel"
                 value={formData.phone_2}
                 onChange={(e) => setFormData({ ...formData, phone_2: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                style={{ borderColor: 'var(--border-color)' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">فيديو YouTube</label>
+            <label className="block text-sm font-semibold mb-2 app-text-main">فيديو YouTube</label>
             <div className="mb-3 flex gap-2">
               <button
                 type="button"
                 onClick={() => setUploadMethod('url')}
                 className={`px-4 py-2 rounded-lg transition-colors ${
-                  uploadMethod === 'url'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  uploadMethod !== 'url'
+                    ? 'app-bg-surface app-text-main app-hover-bg'
+                    : ''
                 }`}
+                style={uploadMethod === 'url' ? { background: 'var(--primary-color)', color: 'var(--background)' } : {}}
+                onMouseEnter={(e) => uploadMethod !== 'url' && (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => uploadMethod !== 'url' && (e.currentTarget.style.opacity = '1')}
               >
                 إدخال رابط
               </button>
@@ -294,10 +324,13 @@ export default function NewPlacePage() {
                 type="button"
                 onClick={() => setUploadMethod('upload')}
                 className={`px-4 py-2 rounded-lg transition-colors ${
-                  uploadMethod === 'upload'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  uploadMethod !== 'upload'
+                    ? 'app-bg-surface app-text-main app-hover-bg'
+                    : ''
                 }`}
+                style={uploadMethod === 'upload' ? { background: 'var(--primary-color)', color: 'var(--background)' } : {}}
+                onMouseEnter={(e) => uploadMethod !== 'upload' && (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => uploadMethod !== 'upload' && (e.currentTarget.style.opacity = '1')}
               >
                 رفع فيديو
               </button>
@@ -310,14 +343,17 @@ export default function NewPlacePage() {
                   value={formData.video_url}
                   onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="app-input w-full px-4 py-2 rounded-lg focus:outline-none"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs app-text-muted mt-1">
                   الحد الأقصى: {(subscription.package as any).max_place_videos} فيديو
                 </p>
               </div>
             ) : (
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border rounded-lg p-4 app-bg-surface app-border">
                 <YouTubeUpload
                   onVideoUploaded={(videoUrl) => {
                     setFormData({ ...formData, video_url: videoUrl })
@@ -331,8 +367,8 @@ export default function NewPlacePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">اختر الموقع على الخريطة *</label>
-            <div className="h-96 rounded-lg overflow-hidden border mb-4">
+            <label className="block text-sm font-semibold mb-2 app-text-main">اختر الموقع على الخريطة *</label>
+            <div className="h-96 rounded-lg overflow-hidden border mb-4 app-border">
               <MapPicker
                 latitude={formData.latitude}
                 longitude={formData.longitude}
@@ -346,21 +382,24 @@ export default function NewPlacePage() {
                 }}
               />
             </div>
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="text-xs app-text-muted mb-2">
               اضغط على زر تحديد الموقع في الخريطة لسحب موقعك تلقائياً. يمكنك أيضاً سحب العلامة أو النقر على الخريطة لتغيير الموقع.
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-900">العنوان</label>
+            <label className="block text-sm font-semibold mb-2 app-text-main">العنوان</label>
             <input
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="سيتم ملؤه تلقائياً من الخريطة"
-              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="app-input w-full px-4 py-2.5 rounded-lg focus:outline-none"
+              style={{ borderColor: 'var(--border-color)' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary-color)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs app-text-muted mt-1">
               العنوان سيتم تحديثه تلقائياً عند اختيار موقع على الخريطة
             </p>
           </div>
@@ -368,14 +407,17 @@ export default function NewPlacePage() {
           <div className="flex gap-4">
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="flex-1 px-6 py-3 rounded-lg transition-colors"
+              style={{ background: 'var(--primary-color)', color: 'var(--background)' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               إضافة المكان
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              className="px-6 py-3 rounded-lg transition-colors app-bg-surface app-text-main app-hover-bg"
             >
               إلغاء
             </button>
