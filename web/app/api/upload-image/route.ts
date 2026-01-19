@@ -1,4 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
+import sharp from 'sharp'
+
+// Optimize and compress image before upload
+async function optimizeImage(file: File): Promise<Blob> {
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  // Get image metadata
+  const metadata = await sharp(buffer).metadata()
+  const maxWidth = 1920 // Max width for web images
+  const maxHeight = 1920 // Max height for web images
+  const quality = 85 // WebP quality (0-100)
+
+  // Resize if needed and convert to WebP
+  let image = sharp(buffer)
+
+  // Resize if image is larger than max dimensions
+  if (metadata.width && metadata.height) {
+    if (metadata.width > maxWidth || metadata.height > maxHeight) {
+      image = image.resize(maxWidth, maxHeight, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+    }
+  }
+
+  // Convert to WebP with compression
+  const optimizedBuffer = await image
+    .webp({ quality, effort: 4 }) // effort: 0-6 (higher = better compression but slower)
+    .toBuffer()
+
+  // Create Blob from optimized buffer
+  return new Blob([optimizedBuffer], { type: 'image/webp' })
+}
 
 // Server-side ImgBB upload function (can use NEXT_PUBLIC_IMGBB_API_* or IMGBB_API_*)
 async function uploadImageToImgBB(file: File | Blob): Promise<string> {
@@ -79,8 +113,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'حجم الصورة كبير جداً. الحد الأقصى هو 32MB' }, { status: 400 })
     }
 
+    // Optimize image: compress and convert to WebP
+    let optimizedFile: File | Blob = file
+    try {
+      const optimizedBlob = await optimizeImage(file)
+      optimizedFile = new File([optimizedBlob], file.name.replace(/\.[^/.]+$/, '.webp'), {
+        type: 'image/webp',
+        lastModified: Date.now(),
+      })
+      
+      console.log(`📸 Image optimized: ${(file.size / 1024).toFixed(2)}KB → ${(optimizedFile.size / 1024).toFixed(2)}KB (${((1 - optimizedFile.size / file.size) * 100).toFixed(1)}% reduction)`)
+    } catch (optimizeError: any) {
+      console.error('⚠️ Image optimization failed, uploading original:', optimizeError)
+      // If optimization fails, use original file
+      optimizedFile = file
+    }
+
     // Upload to ImgBB (server-side, can use IMGBB_API_* or NEXT_PUBLIC_IMGBB_API_*)
-    const imageUrl = await uploadImageToImgBB(file)
+    const imageUrl = await uploadImageToImgBB(optimizedFile)
 
     return NextResponse.json({ success: true, url: imageUrl })
   } catch (error: any) {
