@@ -381,45 +381,5 @@ export interface CreateProductCategory {
 // EXPORTS
 // ============================================
 
-export type {
-  // New tables
-  AffiliateTransaction,
-  Notification,
-  PackageFeature,
-  PlaceView,
-  ProductCategory,
-  
-  // Extended types
-  PlaceExtended,
-  SubscriptionExtended,
-  PackageExtended,
-  ProductExtended,
-  UserProfileExtended,
-  
-  // Helper types
-  AffiliateBalance,
-  NotificationPreferences,
-  PlaceAnalytics,
-  AffiliateEarnings,
-  
-  // Create types
-  CreateAffiliateTransaction,
-  CreateNotification,
-  CreatePackageFeature,
-  CreatePlaceView,
-  CreateProductCategory,
-  
-  // Filter types
-  AffiliateTransactionFilter,
-  NotificationFilter,
-  PlaceViewFilter
-}
-
-export {
-  // Enums
-  TransactionType,
-  TransactionStatus,
-  NotificationType,
-  NotificationPriority,
-  VerificationStatus
-}
+// Note: All interfaces are already exported with 'export interface' above
+// This section is kept for documentation purposes only
