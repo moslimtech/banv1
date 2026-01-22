@@ -51,7 +51,7 @@ export default function PlacesPage() {
           <div 
             className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
             style={{
-              backgroundColor: colors.surfaceVariant,
+              backgroundColor: colors.outline,
               borderColor: colors.outline
             }}
           >
@@ -77,7 +77,7 @@ export default function PlacesPage() {
                 style={{
                   backgroundColor: selectedCategory === category 
                     ? colors.primaryContainer 
-                    : colors.surfaceVariant,
+                    : colors.outline,
                   color: selectedCategory === category 
                     ? colors.onPrimaryContainer 
                     : colors.onSurface

@@ -79,7 +79,7 @@ export default function AffiliateDashboardPage() {
           <div 
             className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-4"
             style={{
-              borderColor: colors.surfaceVariant,
+              borderColor: colors.outline,
               borderTopColor: colors.primary
             }}
           />
@@ -163,7 +163,7 @@ export default function AffiliateDashboardPage() {
             onClick={() => setActiveTab('earnings')}
             className="px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap"
             style={{
-              backgroundColor: activeTab === 'earnings' ? colors.primaryContainer : colors.surfaceVariant,
+              backgroundColor: activeTab === 'earnings' ? colors.primaryContainer : colors.outline,
               color: activeTab === 'earnings' ? colors.onPrimaryContainer : colors.onSurface
             }}
           >
@@ -173,7 +173,7 @@ export default function AffiliateDashboardPage() {
             onClick={() => setActiveTab('places')}
             className="px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap"
             style={{
-              backgroundColor: activeTab === 'places' ? colors.primaryContainer : colors.surfaceVariant,
+              backgroundColor: activeTab === 'places' ? colors.primaryContainer : colors.outline,
               color: activeTab === 'places' ? colors.onPrimaryContainer : colors.onSurface
             }}
           >
@@ -398,7 +398,7 @@ export default function AffiliateDashboardPage() {
                   </div>
                 ) : (
                   <table className="w-full">
-                    <thead style={{ backgroundColor: colors.surfaceVariant }}>
+                    <thead style={{ backgroundColor: colors.outline }}>
                       <tr>
                         <th 
                           className="px-6 py-4 text-right text-xs font-medium uppercase"
@@ -439,7 +439,7 @@ export default function AffiliateDashboardPage() {
                               backgroundColor: 'transparent'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = colors.surfaceVariant
+                              e.currentTarget.style.backgroundColor = colors.outline
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent'
@@ -577,7 +577,7 @@ export default function AffiliateDashboardPage() {
                 placeholder="المبلغ المطلوب"
                 className="w-full px-4 py-3 rounded-2xl mb-4 border outline-none"
                 style={{
-                  backgroundColor: colors.surfaceVariant,
+                  backgroundColor: colors.outline,
                   borderColor: colors.outline,
                   color: colors.onSurface
                 }}
@@ -599,7 +599,7 @@ export default function AffiliateDashboardPage() {
                   onClick={() => setShowWithdrawalModal(false)}
                   className="flex-1 py-3 rounded-full font-medium transition-colors"
                   style={{
-                    backgroundColor: colors.surfaceVariant,
+                    backgroundColor: colors.outline,
                     color: colors.onSurface
                   }}
                 >

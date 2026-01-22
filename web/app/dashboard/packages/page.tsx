@@ -340,8 +340,7 @@ export default function PackagesPage() {
         <div className="mb-6">
           <Link
             href="/dashboard"
-            className="mb-4 inline-block"
-            className="icon-primary"
+            className="mb-4 inline-block icon-primary"
           >
             ← العودة للوحة التحكم
           </Link>

@@ -221,7 +221,7 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             <h2 className="text-lg sm:text-xl font-bold app-text-main">أماكني</h2>
             <Button
-              variant="primary"
+              variant="filled"
               size="md"
               onClick={() => router.push('/dashboard/places/new')}
               className="w-full sm:w-auto"
@@ -343,7 +343,7 @@ export default function DashboardPage() {
               <h2 className="text-xl font-bold app-text-main">لوحة الإدارة</h2>
               <div className="relative">
                 <Button
-                  variant="danger"
+                  variant="filled"
                   onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                   className="flex items-center gap-2"
                 >

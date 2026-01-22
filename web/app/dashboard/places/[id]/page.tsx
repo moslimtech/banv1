@@ -298,8 +298,7 @@ export default function PlaceDetailsPage() {
         <div className="mb-6 flex justify-between items-center">
           <Link
             href="/dashboard"
-            className="hover:underline flex items-center gap-2"
-            className="icon-primary"
+            className="hover:underline flex items-center gap-2 icon-primary"
           >
             ← العودة للوحة التحكم
           </Link>
@@ -338,8 +337,7 @@ export default function PlaceDetailsPage() {
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"
-                  className="badge-error"
+                  className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors badge-error"
                   onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
                   onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
@@ -676,8 +674,7 @@ export default function PlaceDetailsPage() {
               <p>لا توجد منتجات بعد</p>
               <Link
                 href={`/dashboard/places/${placeId}/products/new`}
-                className="inline-block mt-4 hover:underline"
-                className="icon-primary"
+                className="inline-block mt-4 hover:underline icon-primary"
               >
                 إضافة منتج جديد
               </Link>
