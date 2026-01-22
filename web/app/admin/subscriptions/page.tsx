@@ -321,8 +321,7 @@ export default function AdminSubscriptionsPage() {
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium"
-                    className="badge-error"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium badge-error"
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                   >
