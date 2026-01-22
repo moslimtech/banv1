@@ -158,10 +158,10 @@ export default function MessagesPage() {
               className="px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all flex items-center gap-2"
               style={{
                 backgroundColor: filterType === tab.id 
-                  ? colors.primaryContainer 
+                  ? colors.surfaceContainer 
                   : colors.surfaceVariant,
                 color: filterType === tab.id 
-                  ? colors.onPrimaryContainer 
+                  ? colors.primary 
                   : colors.onSurface
               }}
             >
@@ -231,7 +231,7 @@ export default function MessagesPage() {
                   onClick={() => handleConversationClick(conv)}
                   className="rounded-3xl p-4 cursor-pointer transition-all hover:scale-[1.01] border"
                   style={{
-                    backgroundColor: hasUnread ? colors.primaryContainer : colors.surface,
+                    backgroundColor: hasUnread ? colors.surfaceContainer : colors.surface,
                     borderColor: hasUnread ? colors.primary : colors.outline,
                     borderWidth: hasUnread ? '2px' : '1px'
                   }}
@@ -253,7 +253,7 @@ export default function MessagesPage() {
                         <h3 
                           className="font-bold text-lg truncate"
                           style={{ 
-                            color: hasUnread ? colors.onPrimaryContainer : colors.onSurface 
+                            color: hasUnread ? colors.primary : colors.onSurface 
                           }}
                         >
                           {conv.placeName}
@@ -262,7 +262,7 @@ export default function MessagesPage() {
                           <span 
                             className="text-xs whitespace-nowrap flex-shrink-0"
                             style={{ 
-                              color: hasUnread ? colors.onPrimaryContainer : colors.onSurface 
+                              color: hasUnread ? colors.primary : colors.onSurface 
                             }}
                           >
                             {formatDistanceToNow(new Date(conv.lastMessageAt), { 
@@ -276,7 +276,7 @@ export default function MessagesPage() {
                       <p 
                         className="text-sm mb-1"
                         style={{ 
-                          color: hasUnread ? colors.onPrimaryContainer : colors.onSurface 
+                          color: hasUnread ? colors.primary : colors.onSurface 
                         }}
                       >
                         {getConversationSubtitle(conv)}
@@ -287,7 +287,7 @@ export default function MessagesPage() {
                           <p 
                             className="text-sm truncate"
                             style={{ 
-                              color: hasUnread ? colors.onPrimaryContainer : colors.onSurface,
+                              color: hasUnread ? colors.primary : colors.onSurface,
                               fontWeight: hasUnread ? 600 : 400
                             }}
                           >

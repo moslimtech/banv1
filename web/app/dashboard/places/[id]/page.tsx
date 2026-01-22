@@ -327,8 +327,7 @@ export default function PlaceDetailsPage() {
                 </Link>
                 <button
                   onClick={handleStartEdit}
-                  className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"
-                  className="badge-primary"
+                  className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors badge-primary"
                   onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
                   onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >

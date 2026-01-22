@@ -163,8 +163,8 @@ export default function AffiliateDashboardPage() {
             onClick={() => setActiveTab('earnings')}
             className="px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap"
             style={{
-              backgroundColor: activeTab === 'earnings' ? colors.primaryContainer : colors.outline,
-              color: activeTab === 'earnings' ? colors.onPrimaryContainer : colors.onSurface
+              backgroundColor: activeTab === 'earnings' ? colors.surfaceContainer : colors.outline,
+              color: activeTab === 'earnings' ? colors.primary : colors.onSurface
             }}
           >
             💰 أرباحي
@@ -173,8 +173,8 @@ export default function AffiliateDashboardPage() {
             onClick={() => setActiveTab('places')}
             className="px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap"
             style={{
-              backgroundColor: activeTab === 'places' ? colors.primaryContainer : colors.outline,
-              color: activeTab === 'places' ? colors.onPrimaryContainer : colors.onSurface
+              backgroundColor: activeTab === 'places' ? colors.surfaceContainer : colors.outline,
+              color: activeTab === 'places' ? colors.primary : colors.onSurface
             }}
           >
             🏪 أماكني
@@ -337,8 +337,8 @@ export default function AffiliateDashboardPage() {
                 <div 
                   className="flex-1 px-4 py-4 rounded-2xl font-mono text-lg font-bold text-center"
                   style={{
-                    backgroundColor: colors.primaryContainer,
-                    color: colors.onPrimaryContainer
+                    backgroundColor: colors.surfaceContainer,
+                    color: colors.primary
                   }}
                 >
                   {affiliate.code}

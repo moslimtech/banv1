@@ -76,10 +76,10 @@ export default function PlacesPage() {
                 className="px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all"
                 style={{
                   backgroundColor: selectedCategory === category 
-                    ? colors.primaryContainer 
+                    ? colors.surfaceContainer 
                     : colors.outline,
                   color: selectedCategory === category 
-                    ? colors.onPrimaryContainer 
+                    ? colors.primary 
                     : colors.onSurface
                 }}
               >
