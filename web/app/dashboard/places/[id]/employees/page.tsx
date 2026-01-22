@@ -7,10 +7,12 @@ import { EmployeeRequest, PlaceEmployee } from '@/lib/types'
 import { showError, showSuccess } from '@/components/SweetAlert'
 import { UserPlus, CheckCircle, X, Shield, MessageSquare, Package } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function PlaceEmployeesPage() {
   const params = useParams()
   const router = useRouter()
+  const { colors } = useTheme()
   const placeId = params.id as string
 
   const [user, setUser] = useState<any>(null)
@@ -246,11 +248,11 @@ export default function PlaceEmployeesPage() {
   const getPermissionIcon = (permission: string) => {
     switch (permission) {
       case 'basic':
-        return <CheckCircle size={18} className="text-blue-500" />
+        return <CheckCircle size={18} style={{ color: colors.primary }} />
       case 'messages_posts':
-        return <MessageSquare size={18} className="text-green-500" />
+        return <MessageSquare size={18} style={{ color: colors.success }} />
       case 'full':
-        return <Shield size={18} className="text-purple-500" />
+        return <Shield size={18} style={{ color: colors.secondary }} />
       default:
         return null
     }
@@ -258,37 +260,59 @@ export default function PlaceEmployeesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.background }}
+      >
+        <div 
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: colors.primary }}
+        ></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href={`/dashboard/places/${placeId}`}
-            className="text-blue-500 hover:text-blue-600 mb-4 inline-block"
+            className="mb-4 inline-block hover:underline"
+            style={{ color: colors.primary }}
           >
             ← العودة إلى صفحة المكان
           </Link>
-          <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-slate-100">
+          <h1 
+            className="text-3xl font-bold mb-2"
+            style={{ color: colors.onSurface }}
+          >
             إدارة الموظفين - {place?.name_ar}
           </h1>
-          <p className="text-gray-600 dark:text-slate-400">إدارة طلبات التوظيف والموظفين</p>
+          <p style={{ color: colors.onSurfaceVariant }}>إدارة طلبات التوظيف والموظفين</p>
         </div>
 
         {/* Pending Requests */}
-        <div className="app-card rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-slate-100 flex items-center gap-2">
+        <div 
+          className="rounded-3xl shadow-lg p-6 mb-6"
+          style={{ backgroundColor: colors.surface }}
+        >
+          <h2 
+            className="text-xl font-bold mb-4 flex items-center gap-2"
+            style={{ color: colors.onSurface }}
+          >
             <UserPlus size={24} />
             طلبات التوظيف ({requests.length})
           </h2>
 
           {requests.length === 0 ? (
-            <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+            <p 
+              className="text-center py-8"
+              style={{ color: colors.onSurfaceVariant }}
+            >
               لا توجد طلبات توظيف قيد الانتظار
             </p>
           ) : (
@@ -296,17 +320,27 @@ export default function PlaceEmployeesPage() {
               {requests.map((request) => (
                 <div
                   key={request.id}
-                  className="border border-gray-200 dark:border-slate-700 rounded-lg p-4"
+                  className="border rounded-xl p-4"
+                  style={{ borderColor: colors.outline }}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-slate-100">
+                      <h3 
+                        className="font-semibold"
+                        style={{ color: colors.onSurface }}
+                      >
                         {request.user?.full_name || request.user?.email || 'مستخدم'}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-slate-400">
+                      <p 
+                        className="text-sm"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
                         رقم الهاتف: {request.phone}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+                      <p 
+                        className="text-xs mt-1 opacity-70"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
                         {new Date(request.created_at).toLocaleDateString('ar-EG', {
                           year: 'numeric',
                           month: 'long',
@@ -321,28 +355,44 @@ export default function PlaceEmployeesPage() {
                   <div className="flex flex-wrap gap-2 mb-4">
                     <button
                       onClick={() => handleAcceptRequest(request.id, 'basic')}
-                      className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: colors.onPrimary,
+                      }}
                     >
                       <CheckCircle size={16} />
                       قبول
                     </button>
                     <button
                       onClick={() => handleAcceptRequest(request.id, 'messages_posts')}
-                      className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: colors.success,
+                        color: colors.onPrimary,
+                      }}
                     >
                       <MessageSquare size={16} />
                       قبول ورد على العملاء ومنشورات
                     </button>
                     <button
                       onClick={() => handleAcceptRequest(request.id, 'full')}
-                      className="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: colors.secondary,
+                        color: colors.onPrimary,
+                      }}
                     >
                       <Shield size={16} />
                       قبول ورد على العملاء وإضافة/حذف منتجات ومنشورات
                     </button>
                     <button
                       onClick={() => handleRejectRequest(request.id)}
-                      className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: colors.error,
+                        color: colors.onPrimary,
+                      }}
                     >
                       <X size={16} />
                       رفض
@@ -355,14 +405,23 @@ export default function PlaceEmployeesPage() {
         </div>
 
         {/* Current Employees */}
-        <div className="app-card rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-slate-100 flex items-center gap-2">
+        <div 
+          className="rounded-3xl shadow-lg p-6"
+          style={{ backgroundColor: colors.surface }}
+        >
+          <h2 
+            className="text-xl font-bold mb-4 flex items-center gap-2"
+            style={{ color: colors.onSurface }}
+          >
             <Package size={24} />
             الموظفين الحاليين ({employees.length})
           </h2>
 
           {employees.length === 0 ? (
-            <p className="text-gray-500 dark:text-slate-400 text-center py-8">
+            <p 
+              className="text-center py-8"
+              style={{ color: colors.onSurfaceVariant }}
+            >
               لا يوجد موظفين حالياً
             </p>
           ) : (
@@ -370,25 +429,38 @@ export default function PlaceEmployeesPage() {
               {employees.map((employee) => (
                 <div
                   key={employee.id}
-                  className="border border-gray-200 dark:border-slate-700 rounded-lg p-4"
+                  className="border rounded-xl p-4"
+                  style={{ borderColor: colors.outline }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         {getPermissionIcon(employee.permissions)}
-                        <h3 className="font-semibold text-gray-900 dark:text-slate-100">
+                        <h3 
+                          className="font-semibold"
+                          style={{ color: colors.onSurface }}
+                        >
                           {employee.user?.full_name || employee.user?.email || 'مستخدم'}
                         </h3>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">
+                      <p 
+                        className="text-sm mb-1"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
                         الصلاحيات: {getPermissionLabel(employee.permissions)}
                       </p>
                       {employee.phone && (
-                        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">
+                        <p 
+                          className="text-sm mb-1"
+                          style={{ color: colors.onSurfaceVariant }}
+                        >
                           رقم الهاتف: {employee.phone}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 dark:text-slate-500">
+                      <p 
+                        className="text-xs opacity-70"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
                         انضم في: {new Date(employee.created_at).toLocaleDateString('ar-EG', {
                           year: 'numeric',
                           month: 'long',
@@ -398,7 +470,11 @@ export default function PlaceEmployeesPage() {
                     </div>
                     <button
                       onClick={() => handleRemoveEmployee(employee.id)}
-                      className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{
+                        backgroundColor: colors.error,
+                        color: colors.onPrimary,
+                      }}
                     >
                       <X size={16} />
                       إزالة

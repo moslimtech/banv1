@@ -8,10 +8,12 @@ import { showError, showSuccess, showLoading, closeLoading } from '@/components/
 import { Plus, Edit, Trash2, X, Save, Image as ImageIcon, Video, FileText, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { extractYouTubeId } from '@/lib/youtube'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function PlacePostsPage() {
   const params = useParams()
   const router = useRouter()
+  const { colors } = useTheme()
   const placeId = params.id as string
 
   const [user, setUser] = useState<any>(null)
@@ -256,34 +258,64 @@ export default function PlacePostsPage() {
     setPostData({ content: '', post_type: 'text', image_url: '', video_url: '' })
   }
 
+  const getPostTypeColor = (type: string) => {
+    switch (type) {
+      case 'text':
+        return colors.primary
+      case 'image':
+        return colors.success
+      case 'video':
+        return colors.error
+      default:
+        return colors.onSurfaceVariant
+    }
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.background }}
+      >
+        <div 
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: colors.primary }}
+        ></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href={`/dashboard/places/${placeId}`}
-            className="text-blue-500 hover:text-blue-600 mb-4 inline-block"
+            className="mb-4 inline-block hover:underline"
+            style={{ color: colors.primary }}
           >
             ← العودة إلى صفحة المكان
           </Link>
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-slate-100">
+              <h1 
+                className="text-3xl font-bold mb-2"
+                style={{ color: colors.onSurface }}
+              >
                 إدارة المنشورات - {place?.name_ar}
               </h1>
-              <p className="text-gray-600 dark:text-slate-400">إضافة وتعديل منشورات المكان</p>
+              <p style={{ color: colors.onSurfaceVariant }}>إضافة وتعديل منشورات المكان</p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.onPrimary,
+              }}
             >
               <Plus size={20} />
               إضافة منشور
@@ -292,9 +324,15 @@ export default function PlacePostsPage() {
         </div>
 
         {/* Posts List */}
-        <div className="app-card rounded-lg shadow-lg p-6">
+        <div 
+          className="rounded-3xl shadow-lg p-6"
+          style={{ backgroundColor: colors.surface }}
+        >
           {posts.length === 0 ? (
-            <p className="text-center text-gray-500 dark:text-slate-400 py-8">
+            <p 
+              className="text-center py-8"
+              style={{ color: colors.onSurfaceVariant }}
+            >
               لا توجد منشورات حالياً
             </p>
           ) : (
@@ -302,20 +340,27 @@ export default function PlacePostsPage() {
               {posts.map((post) => (
                 <div
                   key={post.id}
-                  className="border border-gray-200 dark:border-slate-700 rounded-lg p-3 sm:p-4"
+                  className="border rounded-xl p-3 sm:p-4"
+                  style={{ borderColor: colors.outline }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      {post.post_type === 'text' && <FileText size={16} className="text-blue-500" />}
-                      {post.post_type === 'image' && <ImageIcon size={16} className="text-green-500" />}
-                      {post.post_type === 'video' && <Video size={16} className="text-red-500" />}
+                      {post.post_type === 'text' && <FileText size={16} style={{ color: colors.primary }} />}
+                      {post.post_type === 'image' && <ImageIcon size={16} style={{ color: colors.success }} />}
+                      {post.post_type === 'video' && <Video size={16} style={{ color: colors.error }} />}
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+                        <p 
+                          className="text-sm font-semibold"
+                          style={{ color: colors.onSurface }}
+                        >
                           {post.post_type === 'text' && 'منشور نصي'}
                           {post.post_type === 'image' && 'منشور بصورة'}
                           {post.post_type === 'video' && 'منشور بفيديو'}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">
+                        <p 
+                          className="text-xs"
+                          style={{ color: colors.onSurfaceVariant }}
+                        >
                           {new Date(post.created_at).toLocaleDateString('ar-EG', {
                             year: 'numeric',
                             month: 'long',
@@ -329,20 +374,31 @@ export default function PlacePostsPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(post)}
-                        className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-1.5 rounded-lg transition-all hover:scale-110"
+                        style={{
+                          color: colors.primary,
+                          backgroundColor: `${colors.primary}15`,
+                        }}
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(post.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-1.5 rounded-lg transition-all hover:scale-110"
+                        style={{
+                          color: colors.error,
+                          backgroundColor: `${colors.error}15`,
+                        }}
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
 
-                  <p className="text-sm text-gray-900 dark:text-slate-100 mb-3 whitespace-pre-wrap">
+                  <p 
+                    className="text-sm mb-3 whitespace-pre-wrap"
+                    style={{ color: colors.onSurface }}
+                  >
                     {post.content}
                   </p>
 
@@ -358,7 +414,10 @@ export default function PlacePostsPage() {
 
                   {post.post_type === 'video' && post.video_url && (
                     <div className="mb-3">
-                      <p className="text-xs text-gray-600 dark:text-slate-400">
+                      <p 
+                        className="text-xs"
+                        style={{ color: colors.onSurfaceVariant }}
+                      >
                         رابط الفيديو: {post.video_url}
                       </p>
                     </div>
@@ -371,15 +430,25 @@ export default function PlacePostsPage() {
 
         {/* Add/Edit Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="app-card rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div 
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          >
+            <div 
+              className="rounded-3xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
+              style={{ backgroundColor: colors.surface }}
+            >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                <h2 
+                  className="text-xl font-bold"
+                  style={{ color: colors.onSurface }}
+                >
                   {editingPost ? 'تعديل المنشور' : 'إضافة منشور جديد'}
                 </h2>
                 <button
                   onClick={handleCancel}
-                  className="text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  className="transition-colors"
+                  style={{ color: colors.onSurfaceVariant }}
                 >
                   <X size={24} />
                 </button>
@@ -387,39 +456,54 @@ export default function PlacePostsPage() {
 
               {/* Post Type Selection */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: colors.onSurface }}
+                >
                   نوع المنشور
                 </label>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPostData({ ...postData, post_type: 'text', image_url: '', video_url: '' })}
-                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      postData.post_type === 'text'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
-                    }`}
+                    className="px-4 py-2 rounded-lg transition-all flex items-center gap-2 hover:scale-105"
+                    style={{
+                      backgroundColor: postData.post_type === 'text' 
+                        ? colors.primary 
+                        : colors.surfaceVariant,
+                      color: postData.post_type === 'text' 
+                        ? colors.onPrimary 
+                        : colors.onSurface,
+                    }}
                   >
                     <FileText size={18} />
                     نص فقط
                   </button>
                   <button
                     onClick={() => setPostData({ ...postData, post_type: 'image', video_url: '' })}
-                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      postData.post_type === 'image'
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
-                    }`}
+                    className="px-4 py-2 rounded-lg transition-all flex items-center gap-2 hover:scale-105"
+                    style={{
+                      backgroundColor: postData.post_type === 'image' 
+                        ? colors.success 
+                        : colors.surfaceVariant,
+                      color: postData.post_type === 'image' 
+                        ? colors.onPrimary 
+                        : colors.onSurface,
+                    }}
                   >
                     <ImageIcon size={18} />
                     صورة وكتابة
                   </button>
                   <button
                     onClick={() => setPostData({ ...postData, post_type: 'video', image_url: '' })}
-                    className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      postData.post_type === 'video'
-                        ? 'bg-red-500 text-white'
-                        : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
-                    }`}
+                    className="px-4 py-2 rounded-lg transition-all flex items-center gap-2 hover:scale-105"
+                    style={{
+                      backgroundColor: postData.post_type === 'video' 
+                        ? colors.error 
+                        : colors.surfaceVariant,
+                      color: postData.post_type === 'video' 
+                        ? colors.onPrimary 
+                        : colors.onSurface,
+                    }}
                   >
                     <Video size={18} />
                     فيديو وكتابة
@@ -429,7 +513,10 @@ export default function PlacePostsPage() {
 
               {/* Content */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: colors.onSurface }}
+                >
                   المحتوى
                 </label>
                 <textarea
@@ -437,14 +524,22 @@ export default function PlacePostsPage() {
                   onChange={(e) => setPostData({ ...postData, content: e.target.value })}
                   placeholder="اكتب محتوى المنشور..."
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors"
+                  style={{
+                    backgroundColor: colors.surface,
+                    borderColor: colors.outline,
+                    color: colors.onSurface,
+                  }}
                 />
               </div>
 
               {/* Image Upload */}
               {postData.post_type === 'image' && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                  <label 
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: colors.onSurface }}
+                  >
                     الصورة
                   </label>
                   {postData.image_url ? (
@@ -456,13 +551,20 @@ export default function PlacePostsPage() {
                       />
                       <button
                         onClick={() => setPostData({ ...postData, image_url: '' })}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"
+                        className="absolute top-2 right-2 p-1 rounded-full"
+                        style={{
+                          backgroundColor: colors.error,
+                          color: colors.onPrimary,
+                        }}
                       >
                         <X size={16} />
                       </button>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-6 text-center">
+                    <div 
+                      className="border-2 border-dashed rounded-lg p-6 text-center"
+                      style={{ borderColor: colors.outline }}
+                    >
                       <input
                         type="file"
                         accept="image/*"
@@ -475,8 +577,11 @@ export default function PlacePostsPage() {
                         htmlFor="image-upload"
                         className="cursor-pointer flex flex-col items-center gap-2"
                       >
-                        <Upload size={32} className="text-gray-400" />
-                        <span className="text-sm text-gray-600 dark:text-slate-400">
+                        <Upload size={32} style={{ color: colors.onSurfaceVariant }} />
+                        <span 
+                          className="text-sm"
+                          style={{ color: colors.onSurfaceVariant }}
+                        >
                           {uploadingImage ? 'جاري الرفع...' : 'اضغط لرفع صورة'}
                         </span>
                       </label>
@@ -488,7 +593,10 @@ export default function PlacePostsPage() {
               {/* Video URL */}
               {postData.post_type === 'video' && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                  <label 
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: colors.onSurface }}
+                  >
                     رابط الفيديو (YouTube أو رابط مباشر)
                   </label>
                   <input
@@ -496,10 +604,18 @@ export default function PlacePostsPage() {
                     value={postData.video_url}
                     onChange={(e) => setPostData({ ...postData, video_url: e.target.value })}
                     placeholder="https://www.youtube.com/watch?v=... أو رابط مباشر"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors"
+                    style={{
+                      backgroundColor: colors.surface,
+                      borderColor: colors.outline,
+                      color: colors.onSurface,
+                    }}
                   />
                   {extractYouTubeId(postData.video_url) && (
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                    <p 
+                      className="text-xs mt-1"
+                      style={{ color: colors.success }}
+                    >
                       ✓ تم التعرف على رابط YouTube بنجاح
                     </p>
                   )}
@@ -510,14 +626,22 @@ export default function PlacePostsPage() {
               <div className="flex gap-3">
                 <button
                   onClick={handleSave}
-                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.onPrimary,
+                  }}
                 >
                   <Save size={18} />
                   {editingPost ? 'تحديث' : 'إضافة'}
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition-colors"
+                  className="px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+                  style={{
+                    backgroundColor: colors.surfaceContainer,
+                    color: colors.onSurface,
+                  }}
                 >
                   إلغاء
                 </button>
