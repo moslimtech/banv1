@@ -157,7 +157,7 @@ export default function AdminYouTubePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" className="border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -181,14 +181,14 @@ export default function AdminYouTubePage() {
 
           {isAuthenticated ? (
             <>
-              <div className="p-4 border rounded-lg app-border" className="bg-green-50 dark:bg-green-900/20">
+              <div className="p-4 border rounded-lg app-border bg-green-50 dark:bg-green-900/20">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="text-green-600 mt-1" size={24} />
                   <div className="flex-1">
                     <p className="font-semibold mb-2 icon-secondary">
                       حساب YouTube مربوط بنجاح
                     </p>
-                    <p className="text-sm mb-3" className="icon-secondary opacity-80">
+                    <p className="text-sm mb-3 icon-secondary opacity-80">
                       يمكن للمستخدمين الآن رفع الفيديوهات على حسابك في YouTube.
                     </p>
                     <button
@@ -277,7 +277,7 @@ export default function AdminYouTubePage() {
                       </div>
                     )}
 
-                    <div className="mt-4 p-3 rounded border app-border" className="bg-blue-50 dark:bg-blue-900/20">
+                    <div className="mt-4 p-3 rounded border app-border bg-blue-50 dark:bg-blue-900/20">
                       <p className="text-sm icon-primary">
                         <strong>ملاحظة:</strong> انسخ هذه القيم وأضفها في ملف <code className="px-2 py-1 rounded app-card">.env.local</code> في مجلد <code className="px-2 py-1 rounded app-card">web</code>
                       </p>
@@ -287,14 +287,14 @@ export default function AdminYouTubePage() {
               </div>
             </>
           ) : (
-            <div className="p-4 border rounded-lg app-border" className="bg-yellow-50 dark:bg-yellow-900/20">
+            <div className="p-4 border rounded-lg app-border bg-yellow-50 dark:bg-yellow-900/20">
               <div className="flex items-start gap-3">
-                <AlertCircle className="mt-1" size={24} className="icon-warning" />
+                <AlertCircle className="mt-1 icon-warning" size={24} />
                 <div className="flex-1">
                   <p className="font-semibold mb-2 icon-warning">
                     يجب ربط حساب YouTube أولاً
                   </p>
-                  <p className="text-sm mb-3" className="icon-warning opacity-80">
+                  <p className="text-sm mb-3 icon-warning opacity-80">
                     لرفع الفيديوهات إلى YouTube، يجب السماح للتطبيق بالوصول إلى قناة YouTube الخاصة بك.
                   </p>
                   <button

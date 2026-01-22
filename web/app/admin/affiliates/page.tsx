@@ -98,8 +98,7 @@ export default function AdminAffiliatesPage() {
         <div className="mb-6">
           <Link
             href="/admin"
-            className="mb-4 inline-block hover:underline"
-            className="icon-primary"
+            className="mb-4 inline-block hover:underline icon-primary"
           >
             ← العودة للوحة الإدارة
           </Link>
