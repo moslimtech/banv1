@@ -97,8 +97,7 @@ export default function AdminSettingsPage() {
         <div className="mb-6">
           <Link
             href="/admin"
-            className="hover:underline mb-4 inline-block"
-            className="icon-primary"
+            className="hover:underline mb-4 inline-block icon-primary"
           >
             ← العودة للوحة الإدارة
           </Link>
