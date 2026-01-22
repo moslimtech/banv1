@@ -178,7 +178,7 @@ export default function ConversationsSidebar() {
                             className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
                             style={{ background: 'var(--primary-color)' }}
                           >
-                            {conv.partnerName[0]?.toUpperCase()}
+                            {conv.partnerName?.[0]?.toUpperCase() || '?'}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
