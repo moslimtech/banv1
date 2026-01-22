@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
+import { usePlaces } from '@/hooks'
 import { useConversationsManager } from '@/hooks/useConversationsManager'
 import { MessageCircle, Search, Loader2, Users, Package, MapPin, User } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -16,11 +17,23 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'places' | 'products' | 'employees'>('all')
   
+  // Get user's places
+  const { places: userPlaces, loading: placesLoading } = usePlaces()
+  
   const {
-    conversations,
-    loading,
-    unreadCounts
-  } = useConversationsManager(user?.id)
+    getConversations,
+    messages
+  } = useConversationsManager({ userId: user?.id || null, userPlaces })
+  
+  // Get conversations from manager
+  const conversations = useMemo(() => getConversations(), [getConversations])
+  
+  // Calculate loading and unread counts
+  const loading = placesLoading
+  const unreadCounts = useMemo(() => {
+    const total = conversations.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0)
+    return { total }
+  }, [conversations])
 
   // Filter conversations
   const filteredConversations = (conversations || []).filter(conv => {
