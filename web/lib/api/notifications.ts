@@ -61,7 +61,7 @@ export async function sendWelcomeNotification(userId: string) {
     titleEn: 'Welcome to BAN! 🎉',
     messageAr: 'نحن سعداء بانضمامك إلينا. استكشف المحلات والصيدليات القريبة منك الآن!',
     messageEn: 'We are happy to have you join us. Explore nearby stores and pharmacies now!',
-    type: 'system',
+    type: NotificationType.SYSTEM,
     link: '/dashboard',
     icon: '🎉',
     priority: 'normal'
@@ -82,7 +82,7 @@ export async function sendMessageNotification(
     titleEn: `New message from ${placeName}`,
     messageAr: `لديك رسالة جديدة من ${placeName}. انقر للرد.`,
     messageEn: `You have a new message from ${placeName}. Click to reply.`,
-    type: 'message',
+    type: NotificationType.MESSAGE,
     link: `/dashboard/places/${placeId}`,
     icon: '💬',
     priority: 'high'
@@ -102,7 +102,7 @@ export async function sendSubscriptionExpiryNotification(
     titleEn: 'Alert: Your subscription is about to expire',
     messageAr: `اشتراكك سينتهي خلال ${daysLeft} ${daysLeft === 1 ? 'يوم' : 'أيام'}. جدد الآن لتستمر في الاستفادة من خدماتنا.`,
     messageEn: `Your subscription will expire in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}. Renew now to continue enjoying our services.`,
-    type: 'subscription',
+    type: NotificationType.SUBSCRIPTION,
     link: '/dashboard/packages',
     icon: '⚠️',
     priority: 'urgent'
@@ -124,7 +124,7 @@ export async function sendEmployeeRequestNotification(
     titleEn: 'New employee request',
     messageAr: `تقدم ${employeeName} بطلب للعمل في ${placeName}. راجع الطلب الآن.`,
     messageEn: `${employeeName} has applied to work at ${placeName}. Review the request now.`,
-    type: 'employee_request',
+    type: NotificationType.EMPLOYEE_REQUEST,
     link: `/dashboard/places/${placeId}/employees`,
     icon: '👥',
     priority: 'high'
@@ -145,7 +145,7 @@ export async function sendPaymentConfirmationNotification(
     titleEn: 'Payment received successfully',
     messageAr: `تم استلام دفعتك بمبلغ ${amount} جنيه لباقة ${packageName}. سيتم مراجعتها قريباً.`,
     messageEn: `Your payment of ${amount} EGP for ${packageName} package has been received. It will be reviewed soon.`,
-    type: 'payment',
+    type: NotificationType.PAYMENT,
     link: '/dashboard/packages',
     icon: '✅',
     priority: 'normal'
@@ -165,7 +165,7 @@ export async function sendPromotionNotification(
     userId,
     titleAr: title,
     messageAr: message,
-    type: 'promotion',
+    type: NotificationType.PROMOTION,
     link,
     icon: '🎁',
     priority: 'normal'
