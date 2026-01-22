@@ -123,7 +123,7 @@ export default function AdminDiscountCodesPage() {
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold app-text-main">إدارة أكواد الخصم</h1>
             <Button
-              variant="primary"
+              variant="filled"
               onClick={() => {
                 setShowForm(true)
                 setEditingCode(null)
@@ -194,7 +194,7 @@ export default function AdminDiscountCodesPage() {
                 </Button>
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="outlined"
                   onClick={() => setShowForm(false)}
                 >
                   إلغاء
@@ -259,7 +259,7 @@ export default function AdminDiscountCodesPage() {
                         <Edit size={18} />
                       </Button>
                       <Button
-                        variant="danger"
+                        variant="filled"
                         size="sm"
                         onClick={() => handleDelete(code)}
                         className="!p-2"

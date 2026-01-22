@@ -133,7 +133,7 @@ export default function AdminPackagesPage() {
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold app-text-main">إدارة الباقات</h1>
             <Button
-              variant="primary"
+              variant="filled"
               onClick={() => {
                 setShowForm(true)
                 setEditingPackage(null)
@@ -265,7 +265,7 @@ export default function AdminPackagesPage() {
                 </Button>
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="outlined"
                   onClick={() => setShowForm(false)}
                 >
                   إلغاء
@@ -316,7 +316,7 @@ export default function AdminPackagesPage() {
                         <Edit size={18} />
                       </Button>
                       <Button
-                        variant="danger"
+                        variant="filled"
                         size="sm"
                         onClick={() => handleDelete(pkg.id)}
                         className="!p-2"

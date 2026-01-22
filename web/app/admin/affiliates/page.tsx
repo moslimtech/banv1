@@ -174,7 +174,7 @@ export default function AdminAffiliatesPage() {
                   </td>
                   <td className="px-6 py-5">
                     <Button
-                      variant="danger"
+                      variant="filled"
                       size="sm"
                       onClick={() => handleDelete(affiliate)}
                       className="!p-2"
