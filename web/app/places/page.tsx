@@ -16,8 +16,10 @@ export default function PlacesPage() {
 
   // Filter places based on search and category
   const filteredPlaces = places.filter(place => {
-    const matchesSearch = (place.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (place.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = (place.name_ar || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (place.name_en || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (place.description_ar || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (place.description_en || '').toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || place.category === selectedCategory
     return matchesSearch && matchesCategory
   })
