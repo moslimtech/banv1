@@ -272,14 +272,14 @@ export default function MessagesPage() {
                         >
                           {conv.placeName}
                         </h3>
-                        {conv.lastMessageAt && (
+                        {conv.lastMessageTime && (
                           <span 
                             className="text-xs whitespace-nowrap flex-shrink-0"
                             style={{ 
                               color: hasUnread ? colors.primary : colors.onSurface 
                             }}
                           >
-                            {formatDistanceToNow(new Date(conv.lastMessageAt), { 
+                            {formatDistanceToNow(new Date(conv.lastMessageTime), { 
                               addSuffix: true, 
                               locale: ar 
                             })}
