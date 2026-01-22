@@ -136,6 +136,9 @@ export interface Conversation {
   placeName?: string
   partnerName?: string
   partnerAvatar?: string
+  productId?: string
+  productName?: string
+  employeeId?: string
 }
 
 // Chat Input Props
