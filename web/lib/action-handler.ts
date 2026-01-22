@@ -199,7 +199,7 @@ export function createActionHandler<T>(
       errorMessage: config.error,
       showLoading: true,
       loadingMessage: config.loading,
-      confirmMessage: operation === 'delete' ? config.confirm : undefined,
+      confirmMessage: operation === 'delete' ? (config as any).confirm : undefined,
       onSuccess,
     })
 
