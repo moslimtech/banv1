@@ -19,7 +19,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuthContext } from './AuthContext'
 import { getUserRole, type UserRole } from '@/config/navigation'
 
-interface ThemeColors {
+export interface ThemeColors {
   // Primary brand color
   primary: string
   primaryRgb: string
