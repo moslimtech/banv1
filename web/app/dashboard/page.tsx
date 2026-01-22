@@ -190,7 +190,7 @@ export default function DashboardPage() {
             className="app-card shadow p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer"
           >
             <div className="flex items-center gap-3 sm:gap-4">
-              <MessageSquare className="flex-shrink-0 sm:w-8 sm:h-8" size={28} className="icon-secondary" />
+              <MessageSquare className="flex-shrink-0 sm:w-8 sm:h-8 icon-secondary" size={28} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm sm:text-base app-text-muted">الرسائل</p>
                 <div className="flex items-center gap-2 flex-wrap">
