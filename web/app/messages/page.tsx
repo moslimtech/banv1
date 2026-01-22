@@ -241,7 +241,7 @@ export default function MessagesPage() {
 
               return (
                 <div
-                  key={conv.conversationId}
+                  key={`${conv.senderId}-${conv.placeId}`}
                   onClick={() => handleConversationClick(conv)}
                   className="rounded-3xl p-4 cursor-pointer transition-all hover:scale-[1.01] border"
                   style={{
