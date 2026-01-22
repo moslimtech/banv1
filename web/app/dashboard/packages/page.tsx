@@ -181,6 +181,13 @@ export default function PackagesPage() {
     if (!confirmed.isConfirmed) return
 
     try {
+      // Check if user is authenticated
+      if (!user) {
+        showError('يجب تسجيل الدخول أولاً')
+        router.push('/auth/login')
+        return
+      }
+
       // Check if user has active subscription
       if (currentSubscription) {
         showError('لديك اشتراك نشط بالفعل. يجب إلغاء الاشتراك الحالي أولاً')
