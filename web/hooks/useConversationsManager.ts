@@ -431,7 +431,7 @@ export function useConversationsManager({ userId, userPlaces }: UseConversations
   const startRecording = useCallback(async () => {
     try {
       const recorder = new AudioRecorder()
-      await recorder.start()
+      await recorder.startRecording()
       setAudioRecorder(recorder)
       setIsRecording(true)
       setRecordingTime(0)
@@ -454,7 +454,7 @@ export function useConversationsManager({ userId, userPlaces }: UseConversations
         setRecordingTimer(null)
       }
 
-      const audioBlob = await audioRecorder.stop()
+      const audioBlob = await audioRecorder.stopRecording()
       setIsRecording(false)
       setRecordingTime(0)
 
