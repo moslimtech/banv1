@@ -129,11 +129,13 @@ export interface ConversationMessage {
 export interface Conversation {
   senderId: string
   sender?: MessageUserProfile
-  lastMessage?: ConversationMessage
+  lastMessage: string
+  lastMessageTime: string
   unreadCount: number
-  messageCount: number
   placeId: string
   placeName?: string
+  partnerName?: string
+  partnerAvatar?: string
 }
 
 // Chat Input Props
