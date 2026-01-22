@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from '@/contexts/ThemeContext'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Package } from '@/lib/types'
