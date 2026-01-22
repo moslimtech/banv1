@@ -96,7 +96,14 @@ export default function ConversationsSidebar() {
       >
         <MessageCircle size={24} />
         {conversations.filter(c => c.unreadCount > 0).length > 0 && (
-          <span className="absolute -top-1 -left-1 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
+          <span 
+            className="absolute -top-1 -left-1 w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center border-2"
+            style={{
+              backgroundColor: colors.error,
+              color: colors.onPrimary,
+              borderColor: colors.surface,
+            }}
+          >
             {conversations.reduce((sum, c) => sum + c.unreadCount, 0)}
           </span>
         )}
@@ -111,7 +118,14 @@ export default function ConversationsSidebar() {
       >
         <MessageCircle size={24} />
         {conversations.filter(c => c.unreadCount > 0).length > 0 && (
-          <span className="absolute -top-1 -left-1 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
+          <span 
+            className="absolute -top-1 -left-1 w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center border-2"
+            style={{
+              backgroundColor: colors.error,
+              color: colors.onPrimary,
+              borderColor: colors.surface,
+            }}
+          >
             {conversations.reduce((sum, c) => sum + c.unreadCount, 0)}
           </span>
         )}
