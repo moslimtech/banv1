@@ -164,14 +164,23 @@ export default function AdminSubscriptionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.background }}
+      >
+        <div 
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: colors.primary }}
+        ></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen py-8 app-bg-base">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 app-text-main">مراجعة الاشتراكات</h1>
@@ -308,9 +317,11 @@ export default function AdminSubscriptionsPage() {
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium bg-secondary"
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95"
+                    style={{
+                      backgroundColor: colors.success,
+                      color: colors.onPrimary,
+                    }}
                   >
                     <Check size={18} />
                     <span>موافق</span>
@@ -321,9 +332,11 @@ export default function AdminSubscriptionsPage() {
                       setShowImageModal(false)
                       setSelectedSubscription(null)
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium badge-error"
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all font-medium hover:scale-105 active:scale-95"
+                    style={{
+                      backgroundColor: colors.error,
+                      color: colors.onPrimary,
+                    }}
                   >
                     <X size={18} />
                     <span>رفض</span>

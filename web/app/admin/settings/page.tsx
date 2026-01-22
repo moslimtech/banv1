@@ -85,19 +85,29 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.background }}
+      >
+        <div 
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: colors.primary }}
+        ></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen py-8 app-bg-base">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="hover:underline mb-4 inline-block icon-primary"
+            className="hover:underline mb-4 inline-block"
+            style={{ color: colors.primary }}
           >
             ← العودة للوحة الإدارة
           </Link>
@@ -232,8 +242,11 @@ export default function AdminSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-6 py-3 text-white rounded-full disabled:cursor-not-allowed disabled:opacity-50 transition-all flex items-center gap-2 font-semibold hover:opacity-90"
-              style={{ background: saving ? (isDark ? colors.surfaceContainer : '#9ca3af') : colors.primary }}
+              className="px-6 py-3 rounded-full disabled:cursor-not-allowed disabled:opacity-50 transition-all flex items-center gap-2 font-semibold hover:scale-105 active:scale-95"
+              style={{
+                backgroundColor: saving ? colors.surfaceVariant : colors.primary,
+                color: colors.onPrimary,
+              }}
             >
               <Save size={20} />
               {saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}

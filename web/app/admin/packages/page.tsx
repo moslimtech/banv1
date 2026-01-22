@@ -120,12 +120,16 @@ export default function AdminPackagesPage() {
   }
 
   return (
-    <div className="min-h-screen py-8 app-bg-base">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="mb-4 inline-block hover:underline icon-primary"
+            className="mb-4 inline-block hover:underline"
+            style={{ color: colors.primary }}
           >
             ← العودة للوحة الإدارة
           </Link>
