@@ -11,7 +11,7 @@ import Link from 'next/link'
 
 export default function AdminUsersPage() {
   const router = useRouter()
-  const { colors, isDark } = useTheme()
+  const { colors } = useTheme()
   const {
     isAdmin,
     loading: adminLoading,
@@ -49,7 +49,10 @@ export default function AdminUsersPage() {
 
   if (adminLoading || usersLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.background }}
+      >
         <LoadingSpinner size="lg" text="جاري التحميل..." />
       </div>
     )
@@ -60,46 +63,105 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen app-bg-base py-8">
+    <div 
+      className="min-h-screen py-8"
+      style={{ backgroundColor: colors.background }}
+    >
       <div className="container mx-auto px-4">
         <div className="mb-6">
           <Link
             href="/admin"
-            className="mb-4 inline-block hover:underline icon-primary"
+            className="mb-4 inline-block hover:underline"
+            style={{ color: colors.primary }}
           >
             ← العودة للوحة الإدارة
           </Link>
-          <h1 className="text-3xl font-bold app-text-main">إدارة المستخدمين</h1>
-          <p className="app-text-muted mt-2">عدد المستخدمين: {users.length}</p>
+          <h1 
+            className="text-3xl font-bold"
+            style={{ color: colors.onSurface }}
+          >
+            إدارة المستخدمين
+          </h1>
+          <p 
+            className="mt-2"
+            style={{ color: colors.onSurfaceVariant }}
+          >
+            عدد المستخدمين: {users.length}
+          </p>
         </div>
 
         <Card className="shadow-lg overflow-hidden" padding="none">
           <table className="w-full">
-            <thead className="app-bg-surface">
-              <tr >
-                <th className="px-6 py-4 text-right text-base font-bold app-text-main">المستخدم</th>
-                <th className="px-6 py-4 text-right text-base font-bold app-text-main">البريد الإلكتروني</th>
-                <th className="px-6 py-4 text-right text-base font-bold app-text-main">الهاتف</th>
-                <th className="px-6 py-4 text-right text-base font-bold app-text-main">تاريخ التسجيل</th>
-                <th className="px-6 py-4 text-center text-base font-bold app-text-main">الصلاحيات</th>
+            <thead style={{ backgroundColor: colors.surfaceVariant }}>
+              <tr>
+                <th 
+                  className="px-6 py-4 text-right text-base font-bold"
+                  style={{ color: colors.onSurface }}
+                >
+                  المستخدم
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-base font-bold"
+                  style={{ color: colors.onSurface }}
+                >
+                  البريد الإلكتروني
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-base font-bold"
+                  style={{ color: colors.onSurface }}
+                >
+                  الهاتف
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-base font-bold"
+                  style={{ color: colors.onSurface }}
+                >
+                  تاريخ التسجيل
+                </th>
+                <th 
+                  className="px-6 py-4 text-center text-base font-bold"
+                  style={{ color: colors.onSurface }}
+                >
+                  الصلاحيات
+                </th>
               </tr>
             </thead>
-            <tbody >
+            <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="app-hover-bg transition-colors" >
+                <tr 
+                  key={user.id} 
+                  className="transition-colors hover:opacity-90"
+                  style={{ borderBottom: `1px solid ${colors.outline}` }}
+                >
                   <td className="px-6 py-5">
-                    <div className="font-semibold text-base app-text-main">
+                    <div 
+                      className="font-semibold text-base"
+                      style={{ color: colors.onSurface }}
+                    >
                       {user.full_name || 'لا يوجد اسم'}
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <span className="text-base app-text-main">{user.email}</span>
+                    <span 
+                      className="text-base"
+                      style={{ color: colors.onSurface }}
+                    >
+                      {user.email}
+                    </span>
                   </td>
                   <td className="px-6 py-5">
-                    <span className="text-base app-text-muted">{user.phone || '-'}</span>
+                    <span 
+                      className="text-base"
+                      style={{ color: colors.onSurfaceVariant }}
+                    >
+                      {user.phone || '-'}
+                    </span>
                   </td>
                   <td className="px-6 py-5">
-                    <span className="text-sm app-text-muted">
+                    <span 
+                      className="text-sm"
+                      style={{ color: colors.onSurfaceVariant }}
+                    >
                       {new Date(user.created_at).toLocaleDateString('ar-EG')}
                     </span>
                   </td>
@@ -107,22 +169,26 @@ export default function AdminUsersPage() {
                     <div className="flex justify-center gap-2">
                       <button
                         onClick={() => handleToggleAdmin(user)}
-                        className={`p-2 rounded transition-colors ${
-                          user.is_admin
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            : 'app-bg-surface app-text-muted hover:bg-blue-50'
-                        }`}
+                        className="p-2 rounded-lg transition-all hover:scale-110 active:scale-95"
+                        style={{
+                          backgroundColor: user.is_admin 
+                            ? `${colors.primary}20`
+                            : colors.surfaceVariant,
+                          color: user.is_admin ? colors.primary : colors.onSurfaceVariant,
+                        }}
                         title={user.is_admin ? 'إلغاء صلاحيات المدير' : 'تعيين كمدير'}
                       >
                         <Crown size={20} />
                       </button>
                       <button
                         onClick={() => handleToggleAffiliate(user)}
-                        className={`p-2 rounded transition-colors ${
-                          user.is_affiliate
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'app-bg-surface app-text-muted hover:bg-green-50'
-                        }`}
+                        className="p-2 rounded-lg transition-all hover:scale-110 active:scale-95"
+                        style={{
+                          backgroundColor: user.is_affiliate 
+                            ? `${colors.success}20`
+                            : colors.surfaceVariant,
+                          color: user.is_affiliate ? colors.success : colors.onSurfaceVariant,
+                        }}
                         title={user.is_affiliate ? 'إلغاء صلاحيات المسوق' : 'تعيين كمسوق'}
                       >
                         <TrendingUp size={20} />
@@ -133,7 +199,11 @@ export default function AdminUsersPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center app-text-muted">
+                  <td 
+                    colSpan={5} 
+                    className="px-6 py-8 text-center"
+                    style={{ color: colors.onSurfaceVariant }}
+                  >
                     لا يوجد مستخدمين
                   </td>
                 </tr>
