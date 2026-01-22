@@ -207,7 +207,7 @@ export function validateData<T>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error(`❌ [VALIDATION ERROR]${context ? ` ${context}:` : ''}`, {
-        errors: error.errors,
+        errors: (error as any).errors,
         data,
       })
     } else {
@@ -245,7 +245,7 @@ export function validateArray<T>(
       `[VALIDATION WARNING]${context ? ` ${context}:` : ''} ${errors.length}/${data.length} items failed validation`,
       errors.map(e => ({
         index: e.index,
-        errors: e.error.errors,
+        errors: (e.error as any).errors,
         data: data[e.index],
       }))
     )
