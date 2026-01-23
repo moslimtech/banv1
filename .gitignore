@@ -53,3 +53,4 @@ supabase/
 vercel-env-import.txt
 web.backup/
 .gitignore.web
+VERCEL_ENV_SETUP.txt

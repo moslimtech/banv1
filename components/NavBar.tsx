@@ -234,10 +234,10 @@ export default function NavBar() {
                 </button>
               </>
             ) : (
-              <Link href="/auth/login" className="hidden sm:flex">
+              <Link href="/auth/login" className="flex">
                 <Button variant="filled" size="sm">
                   <User size={18} />
-                  <span>تسجيل الدخول</span>
+                  <span className="hidden sm:inline">تسجيل الدخول</span>
                 </Button>
               </Link>
             )}
