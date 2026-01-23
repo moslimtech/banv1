@@ -45,6 +45,7 @@ Thumbs.db
 
 # Supabase
 .supabase/
+supabase/
 
 # Temporary files
 *.tmp
