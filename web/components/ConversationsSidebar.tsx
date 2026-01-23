@@ -375,7 +375,10 @@ export default function ConversationsSidebar() {
 
             {/* Selected Product Preview */}
             {selectedProduct && (
-              <div className="p-2 border-t app-border bg-yellow-50 dark:bg-yellow-900/20">
+              <div 
+                className="p-2 border-t app-border"
+                style={{ backgroundColor: colors.warningContainer }}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1">
                     {selectedProduct.images && selectedProduct.images.length > 0 && (
