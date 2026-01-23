@@ -1,158 +1,36 @@
-# دليل المحلات والصيدليات
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-مشروع موقع ويب شامل لدليل المحلات والصيدليات والأماكن التجارية والخدمات.
+## Getting Started
 
-## المميزات
-
-### للمستخدمين:
-- تصفح الأماكن والخدمات
-- البحث في المنتجات والخدمات
-- عرض تفاصيل المكان مع الخريطة والفيديو
-- إرسال رسائل للأماكن (للمستخدمين المسجلين فقط)
-- عرض الأماكن المميزة في شريط تمرير تلقائي
-
-### لأصحاب الأماكن:
-- تسجيل الدخول بحساب Google
-- الاشتراك في باقات مختلفة
-- إضافة أماكن/خدمات حسب الباقة
-- إضافة منتجات مع صور وفيديوهات
-- إضافة متغيرات للمنتجات (ألوان، أحجام)
-- عرض إحصائيات المشاهدات
-- استقبال الرسائل من العملاء
-
-### للمسوقين:
-- نظام التسويق بالعمولة
-- كود خصم مخصص
-- لوحة تحكم لعرض الأرباح والمعاملات
-
-### للإدارة:
-- إدارة الباقات (عدد الأماكن، الصور، الفيديوهات)
-- عرض إحصائيات الموقع
-
-## التقنيات المستخدمة
-
-### الموقع (Web):
-- Next.js 16
-- TypeScript
-- Supabase (قاعدة البيانات والمصادقة)
-- Tailwind CSS
-- SweetAlert2
-- Google Maps API
-- YouTube API
-- ImgBB API (لرفع الصور مع تحويلها إلى WebP)
-
-## الإعداد
-
-### إعداد الموقع (Web)
-
-```bash
-cd web
-npm install
-```
-
-أنشئ ملف `.env.local` في مجلد `web`:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_client_id
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-IMGBB_API_1=your_imgbb_api_1
-IMGBB_API_2=your_imgbb_api_2
-IMGBB_API_3=your_imgbb_api_3
-IMGBB_API_4=your_imgbb_api_4
-IMGBB_API_5=your_imgbb_api_5
-```
-
-قم بتشغيل الموقع:
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## قاعدة البيانات
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-تم إنشاء جميع الجداول المطلوبة في Supabase:
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- `packages` - الباقات
-- `user_profiles` - ملفات المستخدمين
-- `user_subscriptions` - اشتراكات المستخدمين
-- `places` - الأماكن والخدمات
-- `products` - المنتجات
-- `product_images` - صور المنتجات
-- `product_videos` - فيديوهات المنتجات
-- `product_variants` - متغيرات المنتجات (ألوان، أحجام)
-- `messages` - الرسائل
-- `site_visits` - زيارات الموقع
-- `place_visits` - زيارات الأماكن
-- `affiliates` - المسوقين
-- `affiliate_transactions` - معاملات المسوقين
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## البنية
+## Learn More
 
-```
-BANV1/
-├── web/                 # موقع Next.js
-│   ├── app/            # صفحات Next.js
-│   ├── components/     # المكونات
-│   ├── lib/            # المكتبات والمساعدين
-│   └── ...
-└── banenv             # ملف البيئة
-```
+To learn more about Next.js, take a look at the following resources:
 
-## الميزات الرئيسية
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### 1. نظام الباقات
-- كل باقة تحدد عدد الأماكن المسموحة
-- عدد الصور والفيديوهات للمنتجات
-- عدد الفيديوهات للمكان
-- الأولوية في العرض
-- نمط الكارت (افتراضي، فضي، ذهبي، مميز)
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### 2. نظام الزيارات
-- عداد زيارات لكل مكان (يومي وإجمالي)
-- عداد زيارات للموقع كامل
-- إعادة تعيين العداد اليومي تلقائياً
+## Deploy on Vercel
 
-### 3. نظام الرسائل
-- المستخدمون المسجلون فقط يمكنهم إرسال رسائل
-- إمكانية إرسال صور في الرسائل
-- عرض الرسائل في صفحة المكان
-- إمكانية الرد على الرسائل
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### 4. نظام التسويق بالعمولة
-- كود خصم مخصص لكل مسوق
-- نسبة خصم قابلة للتحديد
-- حساب الأرباح المستحقة والمدفوعة
-- لوحة تحكم للمسوق
-
-### 5. البحث
-- بحث عام في المنتجات والخدمات
-- عرض النتائج مع الصورة الأولى والسعر
-- الانتقال لصفحة المنتج عند الضغط
-
-### 6. الأماكن المميزة
-- شريط تمرير أفقي تلقائي
-- عرض الأماكن المميزة في الأعلى
-- تمرير يدوي أو تلقائي
-
-## ملاحظات
-
-- جميع الصور يتم تحويلها إلى WebP قبل الرفع لتوفير المساحة
-- الفيديوهات يتم رفعها على YouTube وتخزين الروابط فقط
-- استخدام ImgBB APIs مع Load Balancing لتوزيع الأحمال
-- SweetAlert2 للإشعارات والتأكيدات
-- دعم اللغة العربية بالكامل مع RTL
-
-## التطوير المستقبلي
-
-- [ ] إضافة نظام الدفع
-- [ ] إضافة إشعارات Push
-- [ ] إضافة تقييمات وتعليقات
-- [ ] إضافة نظام الحجوزات
-- [ ] إضافة نظام الإشعارات الفورية
-
-## الدعم
-
-للمساعدة والدعم، يرجى التواصل مع فريق التطوير.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
